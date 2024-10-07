@@ -1,6 +1,7 @@
 using API;
 using Core.Repository;
 using Infrastructure.Data;
+using Infrastructure.Mapping;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
