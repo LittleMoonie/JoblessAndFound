@@ -22,17 +22,17 @@ namespace API.Controller.User
         #region GET
         [HttpGet("GetUserById")]
         [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
-        public async Task<UserDTO> GetUserById(int DiscordUserId)
+        public async Task<UserDTO> GetUserById(int userId)
         {
-            return await _UserService.GetUserById(DiscordUserId);
+            return await _UserService.GetUserById(userId);
         }
 
         [HttpGet("VerifyLogin")]
         [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<UserDTO> VerifyLogin(string Email, string Password)
+        public async Task<UserDTO> VerifyLogin(string email, string password)
         {
-            return await _UserService.VerifyLogin(Email, Password);
+            return await _UserService.VerifyLogin(email, password);
         }
 
         #endregion
@@ -40,14 +40,23 @@ namespace API.Controller.User
         #region POST
         [HttpPost("AddUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task AddStardustToUserById(
-            string FirstName,
-            string LastName,
-            string Email,
-            string Password
+        public async Task AddUser(
+            string firstName,
+            string lastName,
+            string email,
+            string password,
+            string phoneNumber,
+            string countryCode
         )
         {
-            await _UserService.AddUser(FirstName, LastName, Email, Password);
+            await _UserService.AddUser(
+                firstName,
+                lastName,
+                email,
+                password,
+                phoneNumber,
+                countryCode
+            );
         }
         #endregion
     }

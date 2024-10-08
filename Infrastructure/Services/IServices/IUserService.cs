@@ -12,6 +12,13 @@ namespace Infrastructure.Services.IServices
     {
         Task<UserDTO> GetUserById(int UserId);
         Task<UserDTO> VerifyLogin(string email, string password);
-        Task AddUser(string FirstName, string LastName, string Email, string Password);
+        Task AddUser(
+            string firstName,
+            string lastName,
+            string email,
+            string password,
+            string phoneNumber,
+            string countryCode
+        );
     }
 }

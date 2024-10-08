@@ -10,6 +10,7 @@ using Core.Exceptions;
 using Core.Repository;
 using Infrastructure.DTO.User;
 using Infrastructure.Services.IServices;
+using Infrastructure.Utility;
 using Org.BouncyCastle.Crypto.Generators;
 
 namespace Infrastructure.Services
@@ -24,32 +25,55 @@ namespace Infrastructure.Services
             return mapper.Map<UserDTO>(user);
         }
 
-        public async Task AddUser(string firstName, string lastName, string email, string password)
+        public async Task AddUser(
+            string firstName,
+            string lastName,
+            string email,
+            string password,
+            string phoneNumber,
+            string countryCode
+        )
         {
-            // Query the user repository for a user with the given email
-            var users = await userRepository.GetAllAsync();
-            var user = users.FirstOrDefault(u => u.Email == email);
+            // Create an instance of the phone number verifier
+            var phoneNumberVerifier = new PhoneNumberVerifier();
 
-            if (user == null)
+            // Check if a user with the given email already exists in the repository
+            var existingUser = await userRepository.FindAsync(u => u.Email == email);
+            if (existingUser != null)
             {
-                // Hash the password using BCrypt
-                string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-
-                var newUser = new User()
-                {
-                    FirstName = firstName,
-                    LastName = lastName,
-                    Email = email,
-                    Password = passwordHash,
-                };
-
-                await userRepository.AddAsync(newUser);
+                // If the user already exists, throw an exception
+                throw new InvalidOperationException("User with this email already exists.");
             }
-            else
+
+            // Validate the phone number
+            if (!phoneNumberVerifier.IsPhoneNumberValid(phoneNumber, countryCode))
             {
-                // User already exists, handle accordingly
-                throw new Exception("User with this email already exists.");
+                throw new ArgumentException(
+                    "The provided phone number is not valid for the given country code."
+                );
             }
+
+            // Hash the password using BCrypt
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+
+            // Format the phone number to the international format
+            string formattedPhoneNumber = phoneNumberVerifier.FormatPhoneNumber(
+                phoneNumber,
+                countryCode
+            );
+
+            // Create a new user object with the given details
+            var newUser = new User
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+                PasswordHash = passwordHash,
+                PhoneNumber = formattedPhoneNumber,
+            };
+
+            // Add the new user to the repository
+            await userRepository.AddAsync(newUser);
         }
 
         public async Task<UserDTO> VerifyLogin(string email, string password)
