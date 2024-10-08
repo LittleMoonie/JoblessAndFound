@@ -18,7 +18,8 @@ namespace Infrastructure.Services.IServices
             string email,
             string password,
             string phoneNumber,
-            string countryCode
+            string countryCode,
+            int userTypeId
         );
     }
 }

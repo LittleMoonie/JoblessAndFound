@@ -46,7 +46,8 @@ namespace API.Controller.User
             string email,
             string password,
             string phoneNumber,
-            string countryCode
+            string countryCode,
+            int userTypeId
         )
         {
             await _UserService.AddUser(
@@ -55,7 +56,8 @@ namespace API.Controller.User
                 email,
                 password,
                 phoneNumber,
-                countryCode
+                countryCode,
+                userTypeId
             );
         }
         #endregion

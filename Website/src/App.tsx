@@ -1,12 +1,20 @@
+// src/App.tsx
 import React from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { Container } from '@mui/material';
 import Dashboard from './Components/Dashboard/Dashboard';
+import SignIn from './Components/Authentication/SignIn';
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <Dashboard />
-    </div>
+    <Router>
+      <Container maxWidth="sm"> {/* Example MUI Container */}
+          <Route path="/signin" Component={SignIn} />
+          <Route path="/dashboard" Component={Dashboard} />
+          {/* Add other routes as necessary */}
+      </Container>
+    </Router>
   );
-}
+};
 
 export default App;
