@@ -5,8 +5,9 @@ import MuiDrawer, { drawerClasses } from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
+import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import Typography from '@mui/material/Typography';
-import SelectContent from './SelectContent';
+// import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
 // import CardAlert from './CardAlert';
 import OptionsMenu from './OptionsMenu';
@@ -42,7 +43,16 @@ export default function SideMenu() {
                     p: 1.5,
                 }}
             >
-                <SelectContent />
+                {/* <SelectContent /> */}
+                <SpaceDashboardIcon 
+                    sx={{
+                        marginTop: "5px",
+                        paddingRight: "5px"
+                    }}
+                />
+                <Typography variant="h4" component="h1" sx={{ color: 'text.primary' }}>
+                    Pas D'Emploi
+                </Typography>
             </Box>
             <Divider />
             <MenuContent />
@@ -59,16 +69,16 @@ export default function SideMenu() {
             >
                 <Avatar
                     sizes="small"
-                    alt="Riley Carter"
+                    alt="template"
                     src="/static/images/avatar/7.jpg"
                     sx={{ width: 36, height: 36 }}
                 />
                 <Box sx={{ mr: 'auto' }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-                        Riley Carter
+                        Template Name
                     </Typography>
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        riley@email.com
+                        template@email.com
                     </Typography>
                 </Box>
                 <OptionsMenu />
