@@ -1,43 +1,45 @@
 using API;
 using API.Extensions;
-using Infrastructure.Data;
+using AspNetCoreRateLimit;
+using Infrastructure.Services.Authentifaction;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register services using extension methods
+// Register IP rate limiting and other services
+builder.Services.AddOptions();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.Configure<IpRateLimitPolicies>(
+    builder.Configuration.GetSection("IpRateLimitingPolicies")
+);
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+// Register application services
 builder.Services.AddCustomServices(builder.Configuration);
-builder.Services.AddApplicationServices(); // Ensure application services are included
+builder.Services.AddApplicationServices();
 builder.Services.AddCustomCors("AllowFrontend", "http://localhost:3000");
 builder.Services.AddCustomSession();
-builder.Services.AddCustomAuthentication();
+builder.Services.AddCustomAuthentication(builder.Configuration);
 
-builder
-    .Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = System
-            .Text
-            .Json
-            .Serialization
-            .ReferenceHandler
-            .Preserve;
-        options.JsonSerializerOptions.MaxDepth = 64; // Adjust as necessary
-    });
+// Register the KeyRotationService
+builder.Services.AddHostedService<KeyRotationService>(); // This should be a singleton
 
+builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Apply pending migrations on startup
+// Apply pending migrations
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-    dbContext.Database.Migrate(); // Applies any pending migrations
+    var dbContext = scope.ServiceProvider.GetRequiredService<Infrastructure.Data.DataContext>();
+    dbContext.Database.Migrate();
 }
 
-// Use custom middleware extensions
+// Middleware configuration
 app.ConfigureMiddleware(app.Environment);
-app.UseCustomCors("AllowFrontend"); // Ensure CORS is applied before routing
+app.UseCustomCors("AllowFrontend");
+app.UseIpRateLimiting();
 
 app.Run();

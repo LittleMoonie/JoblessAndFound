@@ -10,14 +10,11 @@
             // Exception handling
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
-
-                // Enable Swagger in development
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pas d'emploi API v1");
-                    c.RoutePrefix = string.Empty; // Swagger UI at root
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+                    c.RoutePrefix = string.Empty;
                 });
             }
             else

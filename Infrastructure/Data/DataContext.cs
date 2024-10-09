@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Entities.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data
@@ -12,6 +13,8 @@ namespace Infrastructure.Data
     {
         public DataContext(DbContextOptions<DataContext> options)
             : base(options) { }
+
+        public DbSet<JwtKey> JwtKeys { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,8 +1,8 @@
-﻿using Core.Entities.User;
-using Infrastructure.DTO.Authentication;
+﻿using Infrastructure.DTO.Authentication;
 using Infrastructure.Services.IServices.Authentification;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API.Properties.Controller.Authentification
 {
@@ -20,25 +20,16 @@ namespace API.Properties.Controller.Authentification
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO request)
         {
-            // Fetch the user from the database using the email
-            var user = await _authenticationService.GetUserByEmail(request.Email); // Implement this method
-
-            // Check if user exists
-            if (user == null)
+            var token = await _authenticationService.AuthenticateUser(
+                request.Email,
+                request.Password
+            );
+            if (string.IsNullOrEmpty(token))
             {
-                return Unauthorized(new { Message = "Invalid email or password" });
+                return Unauthorized(new { Message = "Invalid login credentials" });
             }
 
-            // Compare the hashed password in the database with the incoming password
-            var isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
-
-            if (!isPasswordValid)
-            {
-                return Unauthorized(new { Message = "Invalid email or password" });
-            }
-
-            // If valid, return success response
-            return Ok(new { Message = "Login successful", User = user });
+            return Ok(new { Token = token });
         }
 
         [HttpPost("logout")]
