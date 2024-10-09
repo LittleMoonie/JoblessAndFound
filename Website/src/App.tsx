@@ -1,10 +1,12 @@
 import React from 'react';
-import Dashboard from './Components/Dashboard/Dashboard';
+import LandingPage from './Views/LandingPage';
+// import Dashboard from './Components/Dashboard/Dashboard';
 
 function App() {
   return (
     <div className="App">
-      <Dashboard />
+      {/* <Dashboard /> */}
+      <LandingPage />
     </div>
   );
 }
