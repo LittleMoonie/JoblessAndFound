@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using BCrypt.Net; // Make sure to install the BCrypt.Net-Next NuGet package
+using Core.Entities.Enum;
 using Core.Entities.User;
 using Core.Exceptions;
 using Core.Repository;
@@ -31,7 +32,8 @@ namespace Infrastructure.Services
             string email,
             string password,
             string phoneNumber,
-            string countryCode
+            string countryCode,
+            int userTypeId // New parameter for UserTypeId
         )
         {
             // Create an instance of the phone number verifier
@@ -53,6 +55,12 @@ namespace Infrastructure.Services
                 );
             }
 
+            // Validate the UserTypeId against valid enum values
+            if (!Enum.IsDefined(typeof(UserTypeEnum), userTypeId))
+            {
+                throw new ArgumentException("Invalid UserTypeId provided.");
+            }
+
             // Hash the password using BCrypt
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
 
@@ -70,6 +78,9 @@ namespace Infrastructure.Services
                 Email = email,
                 PasswordHash = passwordHash,
                 PhoneNumber = formattedPhoneNumber,
+                UserTypeId =
+                    userTypeId // Include the UserTypeId
+                ,
             };
 
             // Add the new user to the repository

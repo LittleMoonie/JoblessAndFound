@@ -9,6 +9,16 @@
  * ---------------------------------------------------------------
  */
 
+export interface LoginRequestDTO {
+  /** @format email */
+  email?: string | null;
+  /**
+   * @minLength 6
+   * @maxLength 100
+   */
+  password: string;
+}
+
 export interface ProblemDetails {
   type?: string | null;
   title?: string | null;
@@ -26,6 +36,15 @@ export interface UserDTO {
   lastName?: string | null;
   email?: string | null;
   password?: string | null;
+  userType?: UserTypeEnum;
+}
+
+/** @format int32 */
+export enum UserTypeEnum {
+  Value1 = 1,
+  Value2 = 2,
+  Value3 = 3,
+  Value4 = 4,
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -60,6 +79,7 @@ export interface ApiConfig<SecurityDataType = unknown> {
 }
 
 export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
+  token: HttpResponse<void, any> | null;
   data: D;
   error: E;
 }
@@ -239,11 +259,55 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title API
- * @version 1.0
+ * @title Your API
+ * @version v1
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
+    /**
+     * No description
+     *
+     * @tags Authentication
+     * @name AuthenticationLoginCreate
+     * @request POST:/api/Authentication/login
+     */
+    authenticationLoginCreate: (data: LoginRequestDTO, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/Authentication/login`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Authentication
+     * @name AuthenticationLogoutCreate
+     * @request POST:/api/Authentication/logout
+     */
+    authenticationLogoutCreate: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/Authentication/logout`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Authentication
+     * @name AuthenticationStatusList
+     * @request GET:/api/Authentication/status
+     */
+    authenticationStatusList: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/Authentication/status`,
+        method: "GET",
+        ...params,
+      }),
+
     /**
      * No description
      *
@@ -254,7 +318,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     userGetUserByIdList: (
       query?: {
         /** @format int32 */
-        DiscordUserId?: number;
+        userId?: number;
       },
       params: RequestParams = {},
     ) =>
@@ -275,8 +339,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     userVerifyLoginList: (
       query?: {
-        Email?: string;
-        Password?: string;
+        email?: string;
+        password?: string;
       },
       params: RequestParams = {},
     ) =>
@@ -297,10 +361,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     userAddUserCreate: (
       query?: {
-        FirstName?: string;
-        LastName?: string;
-        Email?: string;
-        Password?: string;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        password?: string;
+        phoneNumber?: string;
+        countryCode?: string;
+        /** @format int32 */
+        userTypeId?: number;
       },
       params: RequestParams = {},
     ) =>

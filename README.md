@@ -2,7 +2,7 @@
 A project website for Epitech's Web course on a job offer website
 
 
-Pas D'Emploi
+Jobless & Found
 
 Back-end
 C# With Entity
