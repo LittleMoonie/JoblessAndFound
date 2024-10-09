@@ -1,6 +1,4 @@
-﻿// Extensions/ServiceExtensions.cs
-
-using System.Text;
+﻿using System.Text;
 using AspNetCoreRateLimit;
 using Core.Repository;
 using DotNetEnv;
@@ -8,10 +6,12 @@ using Infrastructure.Data;
 using Infrastructure.Mapping;
 using Infrastructure.Repository;
 using Infrastructure.Services.Authentifaction;
+using Infrastructure.Services.IServices.Authentification;
 using Infrastructure.Utility;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Extensions
@@ -26,13 +26,11 @@ namespace API.Extensions
             // Register application services
             services.AddApplicationServices();
 
-            // Load environment variables from .env file
+            // Configure DbContext with environment variables
             Env.Load();
-
             var dbUser = Environment.GetEnvironmentVariable("DB_USER");
             var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-            // Check if the environment variables are null
             if (string.IsNullOrEmpty(dbUser) || string.IsNullOrEmpty(dbPassword))
             {
                 throw new InvalidOperationException(
@@ -40,7 +38,6 @@ namespace API.Extensions
                 );
             }
 
-            // Configure DbContext
             services.AddDbContext<DataContext>(options =>
                 options
                     .UseLazyLoadingProxies()
@@ -53,24 +50,11 @@ namespace API.Extensions
                     )
             );
 
-            // Register the GenerateSecureKey service
-            services.AddScoped<GenerateSecureKey>();
-
-            // Register generic repository
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-            // Register IHttpContextAccessor for Authentication
             services.AddHttpContextAccessor();
-
-            // Register KeyRotationService as a singleton
-            services.AddSingleton<KeyRotationService>();
-
-            // Register MemoryCacheIpPolicyStore
             services.AddMemoryCache();
             services.AddInMemoryRateLimiting();
             services.AddMvc();
-
-            // Register AutoMapper
             services.AddAutoMapper(typeof(MappingProfile));
         }
 
@@ -83,14 +67,14 @@ namespace API.Extensions
             services.AddCors(options =>
             {
                 options.AddPolicy(
-                    policyName,
+                    "AllowFrontend",
                     builder =>
                     {
                         builder
-                            .WithOrigins(frontendUrl) // Specify allowed origin
-                            .WithMethods("GET", "POST") // Only allow necessary methods
-                            .WithHeaders("Content-Type", "Authorization") // Limit to necessary headers
-                            .AllowCredentials(); // Allow credentials
+                            .WithOrigins("http://localhost:3000")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials(); // Allow credentials like cookies
                     }
                 );
             });
@@ -98,14 +82,13 @@ namespace API.Extensions
 
         public static void AddCustomSession(this IServiceCollection services)
         {
-            // Add session support
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
-                options.Cookie.SameSite = SameSiteMode.None; // Allow cross-origin cookies
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Set to Always to meet SameSite=None requirements
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
             });
         }
@@ -115,19 +98,34 @@ namespace API.Extensions
             IConfiguration configuration
         )
         {
-            // Load environment variables from .env file
+            // Load environment variables (if any)
             Env.Load();
 
-            // Get environment variables
-            var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
-            var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-            var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+            // Get JWT settings from environment variables or configuration
+            var jwtKey =
+                Environment.GetEnvironmentVariable("JWT_KEY") ?? configuration["JwtSettings:Key"];
+            var jwtIssuer =
+                Environment.GetEnvironmentVariable("JWT_ISSUER")
+                ?? configuration["JwtSettings:Issuer"];
+            var jwtAudience =
+                Environment.GetEnvironmentVariable("JWT_AUDIENCE")
+                ?? configuration["JwtSettings:Audience"];
+
+            // Check if all JWT settings are available
+            if (
+                string.IsNullOrEmpty(jwtKey)
+                || string.IsNullOrEmpty(jwtIssuer)
+                || string.IsNullOrEmpty(jwtAudience)
+            )
+            {
+                throw new InvalidOperationException(
+                    "JWT settings are not configured correctly in appsettings or environment variables."
+                );
+            }
+
+            // Configure JWT Bearer Authentication
             services
-                .AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -136,9 +134,11 @@ namespace API.Extensions
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtIssuer,
-                        ValidAudience = jwtAudience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                        ValidIssuer = configuration["JwtSettings:Issuer"],
+                        ValidAudience = configuration["JwtSettings:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"])
+                        ),
                     };
                 });
         }

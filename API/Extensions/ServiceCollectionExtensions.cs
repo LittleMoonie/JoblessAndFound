@@ -10,11 +10,8 @@ namespace API
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            // Register services automatically
+            // Register services automatically, excluding IHostedService implementations
             RegisterAllServices(services);
-
-            // Add any other services manually, e.g., Swagger
-            services.AddSwaggerGen();
 
             return services;
         }
@@ -36,7 +33,9 @@ namespace API
                     t.IsClass
                     && !t.IsAbstract
                     && t.GetInterfaces().Any()
+                    && t.Namespace != null
                     && t.Namespace.StartsWith("Infrastructure.Services")
+                    && !typeof(IHostedService).IsAssignableFrom(t) // Exclude IHostedService implementations
                 )
                 .ToList();
 
@@ -46,6 +45,7 @@ namespace API
                 foreach (var interfaceType in implementationType.GetInterfaces())
                 {
                     Console.WriteLine($"    Interface: {interfaceType.Name}");
+                    // Register as scoped by default
                     services.AddScoped(interfaceType, implementationType);
                 }
             }

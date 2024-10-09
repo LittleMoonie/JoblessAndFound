@@ -12,61 +12,85 @@ import MenuButton from './MenuButton';
 import MenuContent from './MenuContent';
 // import CardAlert from './CardAlert';
 
+import { useAuth } from '../../Context/authContext';
+import { useNavigate } from 'react-router-dom';
+
 interface SideMenuMobileProps {
-    open: boolean | undefined;
-    toggleDrawer: (newOpen: boolean) => () => void;
+	open: boolean | undefined;
+	toggleDrawer: (newOpen: boolean) => () => void;
 }
 
-export default function SideMenuMobile({ open, toggleDrawer }: SideMenuMobileProps) {
-    return (
-        <Drawer
-            anchor="right"
-            open={open}
-            onClose={toggleDrawer(false)}
-            sx={{
-                [`& .${drawerClasses.paper}`]: {
-                    backgroundImage: 'none',
-                    backgroundColor: 'background.paper',
-                },
-            }}
-        >
-            <Stack
-                sx={{
-                    maxWidth: '70dvw',
-                    height: '100%',
-                }}
-            >
-                <Stack direction="row" sx={{ p: 2, pb: 0, gap: 1 }}>
-                    <Stack
-                        direction="row"
-                        sx={{ gap: 1, alignItems: 'center', flexGrow: 1, p: 1 }}
-                    >
-                        <Avatar
-                            sizes="small"
-                            alt="temp"
-                            src="/static/images/avatar/7.jpg"
-                            sx={{ width: 24, height: 24 }}
-                        />
-                        <Typography component="p" variant="h6">
-                            Template Name
-                        </Typography>
-                    </Stack>
-                    <MenuButton showBadge>
-                        <NotificationsRoundedIcon />
-                    </MenuButton>
-                </Stack>
-                <Divider />
-                <Stack sx={{ flexGrow: 1 }}>
-                    <MenuContent />
-                    <Divider />
-                </Stack>
-                {/* <CardAlert /> */}
-                <Stack sx={{ p: 2 }}>
-                    <Button variant="outlined" fullWidth startIcon={<LogoutRoundedIcon />}>
-                        Logout
-                    </Button>
-                </Stack>
-            </Stack>
-        </Drawer>
-    );
+export default function SideMenuMobile({
+	open,
+	toggleDrawer,
+}: SideMenuMobileProps) {
+	const { logout } = useAuth(); // Get the logout function from context
+	const navigate = useNavigate(); // Get navigate to handle redirection
+
+	// Function to handle logout
+	const handleLogout = async () => {
+		try {
+			await logout(); // Call the logout function from context
+			navigate('/login'); // Redirect to the login page
+		} catch (error) {
+			console.error('Logout failed', error);
+		}
+	};
+
+	return (
+		<Drawer
+			anchor='right'
+			open={open}
+			onClose={toggleDrawer(false)}
+			sx={{
+				[`& .${drawerClasses.paper}`]: {
+					backgroundImage: 'none',
+					backgroundColor: 'background.paper',
+				},
+			}}
+		>
+			<Stack
+				sx={{
+					maxWidth: '70dvw',
+					height: '100%',
+				}}
+			>
+				<Stack direction='row' sx={{ p: 2, pb: 0, gap: 1 }}>
+					<Stack
+						direction='row'
+						sx={{ gap: 1, alignItems: 'center', flexGrow: 1, p: 1 }}
+					>
+						<Avatar
+							sizes='small'
+							alt='temp'
+							src='/static/images/avatar/7.jpg'
+							sx={{ width: 24, height: 24 }}
+						/>
+						<Typography component='p' variant='h6'>
+							Template Name
+						</Typography>
+					</Stack>
+					<MenuButton showBadge>
+						<NotificationsRoundedIcon />
+					</MenuButton>
+				</Stack>
+				<Divider />
+				<Stack sx={{ flexGrow: 1 }}>
+					<MenuContent />
+					<Divider />
+				</Stack>
+				{/* <CardAlert /> */}
+				<Stack sx={{ p: 2 }}>
+					<Button
+						variant='outlined'
+						fullWidth
+						startIcon={<LogoutRoundedIcon />}
+						onClick={handleLogout}
+					>
+						Logout
+					</Button>
+				</Stack>
+			</Stack>
+		</Drawer>
+	);
 }

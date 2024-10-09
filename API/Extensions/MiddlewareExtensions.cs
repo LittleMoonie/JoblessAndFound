@@ -1,4 +1,8 @@
-﻿namespace API.Extensions
+﻿using API.Middleware;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+
+namespace API.Extensions
 {
     public static class MiddlewareExtensions
     {
@@ -30,6 +34,9 @@
             // Apply CORS before routing
             app.UseCustomCors("AllowFrontend");
 
+            // Use custom middleware
+            app.UseCustomMiddleware();
+
             // Routing
             app.UseRouting();
 
@@ -50,6 +57,11 @@
         public static void UseCustomCors(this IApplicationBuilder app, string policyName)
         {
             app.UseCors(policyName); // Apply CORS policy
+        }
+
+        public static void UseCustomMiddleware(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<CustomMiddleware>();
         }
     }
 }

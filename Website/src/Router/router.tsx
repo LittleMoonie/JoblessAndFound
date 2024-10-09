@@ -1,31 +1,25 @@
-// src/router.tsx
-
+// src/Router/router.tsx
 import React from 'react';
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouteObject } from 'react-router-dom';
+import SignInPage from '../Components/Authentication/SignIn';
+import ProtectedRouter from './protectedroute';
 import Dashboard from '../Components/Dashboard/Dashboard';
-import SignIn from '../Components/Authentication/SignIn';
-import { useAuth } from '../Context/authContext';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { isAuthenticated } = useAuth();
+const routes: RouteObject[] = [
+  {
+    path: '/login',
+    element: <SignInPage />,
+  },
+  {
+    path: '/dashboard',
+    element: (
+      <ProtectedRouter>
+        <Dashboard />
+      </ProtectedRouter>
+    ),
+  },
+];
 
-    if (!isAuthenticated) {
-        return <Navigate to="/signin" replace />;
-    }
-
-    return <>{children}</>;
-};
-
-const router = createBrowserRouter([
-    {
-        path: "/signin",
-        element: <SignIn />,
-    },
-    {
-        path: "/dashboard",
-        element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
-    },
-    // Add other routes as necessary
-]);
+const router = createBrowserRouter(routes);
 
 export default router;

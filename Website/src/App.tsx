@@ -1,23 +1,28 @@
 // src/App.tsx
 
 import React from 'react';
-import { RouterProvider } from 'react-router-dom';
-import { Container, createTheme, ThemeProvider } from '@mui/material';
-import router from './Router/router';
+import { createTheme, ThemeProvider } from '@mui/material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ApiProvider } from './Context/apiContext';
 import { AuthProvider } from './Context/authContext';
+import router from './Router/router';
+import { RouterProvider } from 'react-router-dom';
 
 const theme = createTheme();
+const queryClient = new QueryClient();
 
 const App: React.FC = () => {
-	return (
-		<AuthProvider>
-			<ThemeProvider theme={theme}>
-				<Container maxWidth='sm'>
-					<RouterProvider router={router} />
-				</Container>
-			</ThemeProvider>
-		</AuthProvider>
-	);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ApiProvider>
+        <AuthProvider>
+          <ThemeProvider theme={theme}>
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </AuthProvider>
+      </ApiProvider>
+    </QueryClientProvider>
+  );
 };
 
 export default App;

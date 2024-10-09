@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using Core.Entities.User;
 using Infrastructure.DTO.User;
 
@@ -10,6 +10,6 @@ namespace Infrastructure.Services.IServices.Authentification
         Task<bool> Logout();
         Task<UserDTO> GetUserStatus(string email);
         Task<User> GetUserByEmail(string email);
-        Task<string> GenerateAndStoreNewJwtKey();
+        Task<bool> IsAuthenticatedAsync(ClaimsPrincipal user);
     }
 }
