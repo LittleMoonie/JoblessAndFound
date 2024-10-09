@@ -27,7 +27,7 @@ namespace Infrastructure.Services.Authentifaction
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<UserDTO> AuthenticateUserAsync(string email, string password)
+        public async Task<UserDTO> AuthenticateUser(string email, string password)
         {
             // Find user based on email and password
             var user = await _userRepository.FindAsync(u =>
@@ -74,7 +74,7 @@ namespace Infrastructure.Services.Authentifaction
             return userDto;
         }
 
-        public async Task<bool> LogoutAsync()
+        public async Task<bool> Logout()
         {
             // Sign out the user by removing the authentication cookie
             await _httpContextAccessor.HttpContext.SignOutAsync(
@@ -83,7 +83,7 @@ namespace Infrastructure.Services.Authentifaction
             return true;
         }
 
-        public async Task<UserDTO> GetUserStatusAsync(string email)
+        public async Task<UserDTO> GetUserStatus(string email)
         {
             // Find user based on email
             var user = await _userRepository.FindAsync(u => u.Email == email);
@@ -102,6 +102,11 @@ namespace Infrastructure.Services.Authentifaction
                     user.UserTypeId // Map UserTypeId to UserTypeEnum
                 ,
             };
+        }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            return await _userRepository.FindAsync(u => u.Email == email); // Adjust this as necessary
         }
     }
 }

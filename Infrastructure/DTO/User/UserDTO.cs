@@ -29,8 +29,7 @@ namespace Infrastructure.DTO.User
                     dest => dest.UserType,
                     opt => opt.MapFrom(src => (UserTypeEnum)src.UserTypeId)
                 ) // Map UserTypeId to UserTypeEnum
-                .ReverseMap()
-                .ForMember(dest => dest.UserTypeId, opt => opt.MapFrom(src => (int)src.UserType)); // Map UserTypeEnum to UserTypeId
+                .ReverseMap();
         }
     }
 }

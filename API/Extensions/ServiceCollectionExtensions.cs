@@ -13,7 +13,7 @@ namespace API
             // Register services automatically
             RegisterAllServices(services);
 
-            // Add any other services manually
+            // Add any other services manually, e.g., Swagger
             services.AddSwaggerGen();
 
             return services;
@@ -21,8 +21,7 @@ namespace API
 
         private static void RegisterAllServices(IServiceCollection services)
         {
-            // Get the assembly where your service implementations are located
-            var assembly = Assembly.GetAssembly(typeof(UserService)); // Use a known service type or explicitly reference the Infrastructure assembly
+            var assembly = Assembly.GetAssembly(typeof(UserService));
 
             if (assembly == null)
             {
@@ -31,7 +30,6 @@ namespace API
                 );
             }
 
-            // Find all classes that implement at least one interface
             var typesWithInterfaces = assembly
                 .GetTypes()
                 .Where(t =>
@@ -39,7 +37,7 @@ namespace API
                     && !t.IsAbstract
                     && t.GetInterfaces().Any()
                     && t.Namespace.StartsWith("Infrastructure.Services")
-                ) // Filter to your service namespace
+                )
                 .ToList();
 
             foreach (var implementationType in typesWithInterfaces)

@@ -32,6 +32,9 @@ namespace API.Extensions
             // Register generic repository
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+            // Register IHttpContextAccessor
+            services.AddHttpContextAccessor(); // Register IHttpContextAccessor for Auth
+
             // Register AutoMapper
             services.AddAutoMapper(typeof(MappingProfile));
         }
