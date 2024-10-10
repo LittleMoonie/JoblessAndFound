@@ -1,4 +1,5 @@
-﻿using System;
+﻿// API/ServiceCollectionExtensions.cs
+using System;
 using System.Linq;
 using System.Reflection;
 using Infrastructure.Services;

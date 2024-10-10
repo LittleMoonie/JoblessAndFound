@@ -35,9 +35,9 @@
   </ItemGroup>
 	<Target Name="PostBuildGenerateApiClient" AfterTargets="PostBuild">
 		<PropertyGroup>
-			<!-- Directory for your website -->
+			<!-- Directory for website -->
 			<WebsiteDir>$(SolutionDir)Website</WebsiteDir>
-			<!-- URL for the Swagger JSON endpoint -->
+			<!-- URL for Swagger JSON endpoint -->
 			<SwaggerUrl>http://localhost:5000/swagger/v1/swagger.json</SwaggerUrl>
 			<!-- Time to wait between checks (in seconds) -->
 			<TimeoutInterval>5</TimeoutInterval>
