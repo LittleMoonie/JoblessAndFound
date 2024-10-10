@@ -21,7 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   // Fetch user status with useQuery and directly handle authentication state
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['authentication_status'],
     queryFn: () => apiClient.authentication_status(),
     enabled: !!token, // Only execute the query if the token exists
