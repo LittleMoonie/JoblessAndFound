@@ -394,6 +394,5 @@ export const shape = {
   borderRadius: 8,
 };
 
-// @ts-ignore
-const defaultShadows: Shadows = ['var(--mui-palette-baseShadow)', ...defaultTheme.shadows.slice(1)];
+const defaultShadows: Shadows = Array(25).fill('none').map((_, index) => defaultTheme.shadows[index] || 'none').slice(0, 25) as Shadows;
 export const shadows = defaultShadows;
