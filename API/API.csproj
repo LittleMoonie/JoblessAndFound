@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="nul" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		<PackageReference Include="DotNetEnv" Version="3.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
+	</ItemGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+	<Target Name="PostBuildGenerateApiClient" AfterTargets="PostBuild">
+		<PropertyGroup>
+			<!-- Directory for your website -->
+			<WebsiteDir>$(SolutionDir)Website</WebsiteDir>
+			<!-- URL for the Swagger JSON endpoint -->
+			<SwaggerUrl>http://localhost:5000/swagger/v1/swagger.json</SwaggerUrl>
+			<!-- Time to wait between checks (in seconds) -->
+			<TimeoutInterval>5</TimeoutInterval>
+			<!-- Number of attempts -->
+			<MaxAttempts>24</MaxAttempts>
+		</PropertyGroup>
+
+		<!-- Wait for Swagger to become available by polling the Swagger URL -->
+		<Exec Command="cmd /c &quot;
+        set SWAGGER_AVAILABLE=0 &amp;&amp;
+        for /L %%i in (1, 1, $(MaxAttempts)) do (
+            curl -s -o NUL -w &quot;%%{http_code}&quot; $(SwaggerUrl) | findstr /b 200 >nul
+            &amp;&amp; set SWAGGER_AVAILABLE=1
+            &amp;&amp; goto :continue
+            &amp;&amp; timeout /t $(TimeoutInterval)
+        )
+        &amp;&amp; :continue
+        &amp;&amp; if %SWAGGER_AVAILABLE%==0 (
+            echo Swagger did not become available within the timeout period
+            &amp;&amp; exit /b 1
+        )
+    &quot;" />
+
+		<!-- Generate API client if Swagger is available -->
+		<Exec Condition="'$(Configuration)' == 'Debug' AND '$(SWAGGER_AVAILABLE)' == '1'" Command="cd /d $(WebsiteDir) &amp;&amp; npm run generate-api" />
+	</Target>
+
+</Project>
