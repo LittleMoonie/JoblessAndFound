@@ -35,8 +35,6 @@ x86/
 **/obj/Debug/net*/
 **/bin/Release/net*/
 **/obj/Release/net*/
-*.csproj
-
 
 # Ignore .config directory
 .config/
