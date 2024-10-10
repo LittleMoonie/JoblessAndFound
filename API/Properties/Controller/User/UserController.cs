@@ -2,6 +2,7 @@
 using Infrastructure.DTO.User;
 using Infrastructure.Services;
 using Infrastructure.Services.IServices;
+using Infrastructure.Utility;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controller.User
@@ -25,6 +26,13 @@ namespace API.Controller.User
         public async Task<UserDTO> GetUserById(int userId)
         {
             return await _UserService.GetUserById(userId);
+        }
+
+        [HttpGet("GetCurrentUser")]
+        [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
+        public async Task<UserDTO> GetCurrentUser()
+        {
+            return await _UserService.GetCurrentUser(GetUserInfo.UserId);
         }
 
         [HttpGet("VerifyLogin")]

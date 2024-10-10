@@ -36,7 +36,7 @@ namespace API.Controllers.Authentification
             try
             {
                 var loginResponse = await _authenticationService.Login(model.Email, model.Password);
-                // Set the JWT token in a secure cookie
+                // Set the JWT token in a secure HTTP-only cookie
                 Response.Cookies.Append(
                     "Authorization",
                     loginResponse.Token,
@@ -49,16 +49,17 @@ namespace API.Controllers.Authentification
                     }
                 );
 
-                return Ok(new { Message = loginResponse.Message, Token = loginResponse.Token });
+                // Return only the success message
+                return Ok(new { message = loginResponse.Message });
             }
             catch (AuthenticationException ex)
             {
-                return Unauthorized(new { Message = ex.Message });
+                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during login.");
-                return StatusCode(500, new { Message = "An internal server error occurred." });
+                return StatusCode(500, new { message = "An internal server error occurred." });
             }
         }
 
@@ -68,7 +69,7 @@ namespace API.Controllers.Authentification
         {
             // Remove the JWT token from the cookie
             Response.Cookies.Delete("Authorization");
-            return Ok(new { Message = "Logout successful" });
+            return Ok(new { message = "Logout successful" });
         }
 
         [Authorize]
@@ -79,12 +80,12 @@ namespace API.Controllers.Authentification
             if (string.IsNullOrEmpty(email))
             {
                 return Unauthorized(
-                    new { Message = "Email claim is missing or invalid in the token" }
+                    new { message = "Email claim is missing or invalid in the token" }
                 );
             }
 
             var user = await _authenticationService.Status(email);
-            return user != null ? Ok(user) : NotFound(new { Message = "User not found" });
+            return user != null ? Ok(user) : NotFound(new { message = "User not found" });
         }
     }
 }

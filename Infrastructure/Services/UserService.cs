@@ -26,6 +26,14 @@ namespace Infrastructure.Services
             return mapper.Map<UserDTO>(user);
         }
 
+        public async Task<UserDTO> GetCurrentUser(int UserId)
+        {
+            var user = await userRepository.FindByIdAsync(UserId);
+            if (user == null)
+                throw new NotFoundException($"User with ID {UserId} not found.");
+            return mapper.Map<UserDTO>(user);
+        }
+
         public async Task AddUser(
             string firstName,
             string lastName,

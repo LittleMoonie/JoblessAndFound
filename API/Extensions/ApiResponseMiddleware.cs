@@ -1,46 +1,45 @@
-﻿using System.IO;
+﻿// Middleware/ApiResponseMiddleware.cs
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-public class ApiResponseMiddleware
+namespace API.Middleware
 {
-    private readonly RequestDelegate _next;
-
-    public ApiResponseMiddleware(RequestDelegate next)
+    public class ApiResponseMiddleware
     {
-        _next = next;
-    }
+        private readonly RequestDelegate _next;
 
-    public async Task InvokeAsync(HttpContext context)
-    {
-        var originalBodyStream = context.Response.Body;
-
-        using (var responseBody = new MemoryStream())
+        public ApiResponseMiddleware(RequestDelegate next)
         {
-            context.Response.Body = responseBody;
+            _next = next;
+        }
 
-            await _next(context);
+        public async Task InvokeAsync(HttpContext context)
+        {
+            var originalBodyStream = context.Response.Body;
 
-            context.Response.Body = originalBodyStream;
-
-            responseBody.Seek(0, SeekOrigin.Begin);
-            var body = await new StreamReader(responseBody).ReadToEndAsync();
-
-            // Check if the body is not empty, and the response is not an error response
-            if (
-                !string.IsNullOrEmpty(body)
-                && context.Response.StatusCode == StatusCodes.Status200OK
-            )
+            using (var responseBody = new MemoryStream())
             {
-                var wrappedBody = JsonConvert.SerializeObject(
-                    new { result = JsonConvert.DeserializeObject(body) }
-                );
-                await context.Response.WriteAsync(wrappedBody);
-            }
-            else
-            {
-                await context.Response.WriteAsync(body);
+                context.Response.Body = responseBody;
+
+                await _next(context);
+
+                context.Response.Body.Seek(0, SeekOrigin.Begin);
+                var text = await new StreamReader(context.Response.Body).ReadToEndAsync();
+                context.Response.Body.Seek(0, SeekOrigin.Begin);
+
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    // Optionally, wrap responses in a standard format
+                    var responseObj = JsonConvert.DeserializeObject<object>(text);
+                    var wrappedResponse = new { result = responseObj };
+                    var wrappedResponseText = JsonConvert.SerializeObject(wrappedResponse);
+                    await context.Response.WriteAsync(wrappedResponseText);
+                }
+                else
+                {
+                    await context.Response.Body.CopyToAsync(originalBodyStream);
+                }
             }
         }
     }

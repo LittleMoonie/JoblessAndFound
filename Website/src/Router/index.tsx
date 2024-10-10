@@ -1,37 +1,38 @@
 // src/Router/index.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import publicRoutes from './PublicRoutes';
-import protectedRoutes from './ProtectedRoutes';
-import ProtectedRoute from './ProtectedRoute'; // Ensure you are importing ProtectedRoute correctly
+import PublicRoutes from './PublicRoutes';
+import ProtectedRoutes from './ProtectedRoutes';
+import ProtectedRoute from './ProtectedRoute'; // Your protected route wrapper, if applicable
 import Layout from '../Layout/Layout';
-import NotFoundPage from '../Views/NotFoundPage';
+import LandingPage from '../Views/LandingPage';
+import NotFoundPage from '../Views/NotFoundPage'; // Import your components
 
 const AppRouter: React.FC = () => {
 	return (
 		<Router>
 			<Routes>
 				{/* Public Routes */}
-				{publicRoutes.map((route, index) => (
-					<Route key={index} path={route.path} element={route.element} />
-				))}
+				<Route path='/' element={<LandingPage />} />
 
-				{/* Protected Routes Wrapped in Layout */}
+				{/* All protected routes will be children of Layout */}
 				<Route
-					path='/home' // Base path for all protected routes
+					path='/'
 					element={
 						<ProtectedRoute>
+							{' '}
+							{/* Ensure ProtectedRoute is properly configured */}
 							<Layout />
 						</ProtectedRoute>
 					}
 				>
-					{/* Define all child routes inside the Layout */}
-					{protectedRoutes.map((route, index) => (
-						<Route key={index} path={route.path} element={route.element} />
+					{/* Map over all protected routes and add them as children */}
+					{ProtectedRoutes.map((route) => (
+						<Route key={route.path} path={route.path} element={route.element} />
 					))}
 				</Route>
 
-				{/* Catch-all Route for 404 */}
+				{/* Catch-all Route for Not Found */}
 				<Route path='*' element={<NotFoundPage />} />
 			</Routes>
 		</Router>
