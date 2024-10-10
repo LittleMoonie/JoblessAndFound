@@ -66,6 +66,15 @@ jobs:
         working-directory: Website
         run: npm ci
 
+      # New step: Verify Cypress configuration
+      - name: Verify Cypress Configuration
+        working-directory: Website
+        run: |
+          if [ ! -f cypress.config.js ] && [ ! -f cypress.config.ts ]; then
+            echo "Cypress configuration file not found! Please ensure cypress.config.js or cypress.config.ts is present in the root directory."
+            exit 1
+          fi
+
       - name: Lint Code
         working-directory: Website
         run: npm run lint
@@ -86,11 +95,11 @@ jobs:
         working-directory: Website
         run: |
           npm start &  # Start the server in the background
-          SERVER_PID=$!  # Capture the server process ID
+          SERVER_PID=$!
           echo "Waiting for the frontend to be up..."
           npx wait-on http://localhost:3000  # Wait until server is up
           echo "Running end-to-end tests..."
-          npm run cypress:run
+          npm run cypress:run -- --config-file cypress.config.js  # Explicitly specify config file if necessary
           kill $SERVER_PID  # Kill the server after tests are complete
         env:
           CI: true
