@@ -1,14 +1,26 @@
 import React from 'react';
-import LandingPage from './Views/LandingPage';
-// import Dashboard from './Components/Dashboard/Dashboard';
+import { createTheme, ThemeProvider } from '@mui/material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ApiProvider } from './Context/apiContext';
+import { AuthProvider } from './Context/authContext';
+import router from './Router/router';
+import { RouterProvider } from 'react-router-dom';
 
-function App() {
+const theme = createTheme();
+const queryClient = new QueryClient();
+
+const App: React.FC = () => {
   return (
-    <div className="App">
-      {/* <Dashboard /> */}
-      <LandingPage />
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <ApiProvider>
+        <AuthProvider>
+          <ThemeProvider theme={theme}>
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </AuthProvider>
+      </ApiProvider>
+    </QueryClientProvider>
   );
-}
+};
 
 export default App;

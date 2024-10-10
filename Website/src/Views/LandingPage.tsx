@@ -67,6 +67,7 @@ function LandingPage() {
                                 color: "#352D26"
                             },
                         }}
+                        href='/register'
                     >Join us</Button>
                 </Box>
             </Box>
@@ -125,6 +126,7 @@ function LandingPage() {
                                     color: "#352D26"
                                 },
                             }}
+                            href='/login'
                         >Sign In</Button>
 
                         <Typography
@@ -149,6 +151,7 @@ function LandingPage() {
                                     color: "#352D26"
                                 },
                             }}
+                            href='/register'
                         >Register</Button>
                     </Box>
                 </Box>
@@ -409,7 +412,7 @@ function LandingPage() {
                         </Typography>
                         <Typography>Problème avec mon compte</Typography>
                         <Typography>Je sais pas</Typography>
-                        <Typography>J'ai pas d'idées</Typography>
+                        <Typography>Aucune idée</Typography>
                     </Grid>
 
                     {/* Autre */}

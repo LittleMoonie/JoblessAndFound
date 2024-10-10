@@ -35,8 +35,6 @@ x86/
 **/obj/Debug/net*/
 **/bin/Release/net*/
 **/obj/Release/net*/
-*.csproj
-
 
 # Ignore .config directory
 .config/
@@ -98,7 +96,6 @@ StyleCopReport.xml
 *.tlh
 *.tmp
 *.tmp_proj
-*_wpftmp.csproj
 *.log
 *.vspscc
 *.vssscc
@@ -278,7 +275,6 @@ logs/*
 # Ignore IDE-related files (Visual Studio, Rider, etc.)
 .vscode/
 .idea/
-*.csproj.user
 *.sln.docstates
 
 # Ignore Rider settings files
@@ -298,7 +294,6 @@ node_modules/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
-package-lock.json
 yarn.lock
 
 # Ignore testing-related files
