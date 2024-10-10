@@ -19,7 +19,7 @@ declare module '@mui/material/styles/createPalette' {
     900: string;
   }
 
-  type PaletteColor = ColorRange
+  type CustomPaletteColor = ColorRange
 
   interface Palette {
     baseShadow: string;
