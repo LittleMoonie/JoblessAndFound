@@ -82,7 +82,7 @@ const SignInPage: React.FC = () => {
               label="Email Address"
               name="email"
               autoComplete="email"
-              autoFocus
+              // Removed autoFocus or implemented programmatic focus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -138,5 +138,7 @@ const SignInPage: React.FC = () => {
     </BackgroundBox>
   );
 };
+
+SignInPage.displayName = 'SignInPage';
 
 export default SignInPage;
