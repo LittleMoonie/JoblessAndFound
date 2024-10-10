@@ -62,7 +62,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('Website/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-            ${{ runner.os }}-node-
 
       - name: Install npm dependencies
         working-directory: Website
