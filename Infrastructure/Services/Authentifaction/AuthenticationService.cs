@@ -1,23 +1,22 @@
-﻿using System;
+﻿// Infrastructure/Services/Authentifaction/AuthenticationService.cs
+using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Core.Entities.Enum;
 using Core.Entities.User;
 using Core.Repository;
-using Infrastructure.Data;
+using Infrastructure.DTO.Authentication;
 using Infrastructure.DTO.User;
 using Infrastructure.Services.IServices.Authentification;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using IAuthenticationService = Infrastructure.Services.IServices.Authentification.IAuthenticationService;
 
 namespace Infrastructure.Services.Authentifaction
 {
@@ -25,59 +24,68 @@ namespace Infrastructure.Services.Authentifaction
     {
         private readonly IJwtService _jwtService;
         private readonly IRepository<User> _userRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor; // Inject IHttpContextAccessor directly
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<AuthenticationService> _logger;
+        private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
         public AuthenticationService(
             IJwtService jwtService,
             IRepository<User> userRepository,
-            IHttpContextAccessor httpContextAccessor, // Inject IHttpContextAccessor
-            ILogger<AuthenticationService> logger
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<AuthenticationService> logger,
+            IConfiguration configuration,
+            IMapper mapper
         )
         {
             _jwtService = jwtService;
             _userRepository = userRepository;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
+            _configuration = configuration;
+            _mapper = mapper;
         }
 
-        public async Task<string> AuthenticateUser(string email, string password)
+        public async Task<LoginResponseDTO> Login(string email, string password)
         {
-            var user = await _userRepository.FindAsync(u => u.Email == email);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            try
             {
-                _logger.LogWarning($"Authentication failed for email: {email}");
-                return null; // Return null if credentials are invalid
+                var user = await _userRepository.FindAsync(u => u.Email == email);
+                if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+                {
+                    _logger.LogWarning($"Authentication failed for email: {email}");
+                    throw new AuthenticationException("Invalid email or password.");
+                }
+
+                var token = _jwtService.GenerateToken(user); // Implement IJwtService accordingly
+
+                _logger.LogInformation($"User logged in: {user.Email}");
+
+                // Return the token
+                return new LoginResponseDTO { Token = token, Message = "Logged in successfully." };
             }
-
-            var activeKey = await _jwtService.GetActiveKeyAsync();
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenDescriptor = new SecurityTokenDescriptor
+            catch (Exception ex)
             {
-                Subject = new ClaimsIdentity(
-                    new[]
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new Claim(ClaimTypes.Email, user.Email),
-                        new Claim("UserTypeId", user.UserTypeId.ToString()),
-                    }
-                ),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(activeKey)),
-                    SecurityAlgorithms.HmacSha256Signature
-                ),
-            };
+                var user = await _userRepository.FindAsync(u => u.Email == email);
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            _logger.LogInformation($"JWT token generated for user: {user.Email}");
-            return tokenHandler.WriteToken(token);
+                if (user != null)
+                {
+                    _logger.LogInformation(
+                        $"User found: {user.Email}, ID: {user.Id}, UserType: {user.UserTypeId}"
+                    );
+                }
+
+                _logger.LogError(
+                    $"An error occurred during login for user {email}. Exception: {ex.Message}. Stack Trace: {ex.StackTrace}"
+                );
+                throw;
+            }
         }
 
         public async Task<bool> Logout()
         {
-            await _httpContextAccessor.HttpContext.SignOutAsync(); // Use injected IHttpContextAccessor
+            // Since JWT is stateless, logout can be handled on the client side by deleting the cookie
+            // Alternatively, implement token blacklisting if needed
             return true;
         }
 
@@ -106,11 +114,11 @@ namespace Infrastructure.Services.Authentifaction
             return true;
         }
 
-        public async Task<UserDTO> GetUserStatus(string email)
+        public async Task<UserDTO> Status(string email)
         {
             if (string.IsNullOrEmpty(email))
             {
-                _logger.LogWarning("GetUserStatus called with null or empty email");
+                _logger.LogWarning("GetUserStatus called with null or empty email.");
                 return null;
             }
 

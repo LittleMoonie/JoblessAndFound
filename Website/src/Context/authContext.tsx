@@ -1,10 +1,12 @@
+// src/Context/authContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useAPIClient } from './apiContext';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  token: string | null;
+  isLoading: boolean;
+  user: any; // Replace `any` with your user type if defined
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -12,51 +14,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { apiClient } = useAPIClient();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    // Initially set to true if we have a saved token
-    return localStorage.getItem('token') !== null;
-  });
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('token');
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Track loading state
+  const [user, setUser] = useState<any>(null);
 
-  // Fetch user status with useQuery and directly handle authentication state
-  const { data, isLoading } = useQuery({
-    queryKey: ['authentication_status'],
-    queryFn: () => apiClient.authentication_status(),
-    enabled: !!token, // Only execute the query if the token exists
-  });
-
+  // Check authentication status when the component mounts
   useEffect(() => {
-    if (data) {
-      setIsAuthenticated(true);
-    }
-  }, [data]);
-
-  // Show a loading indicator while we're checking the user's authentication status
-  useEffect(() => {
-    if (isLoading) {
-      // Optionally you could add a spinner here or some loading indicator state
-      console.log("Checking authentication status...");
-    }
-  }, [isLoading]);
-
-  // Simple logout function
-  const logout = async () => {
-    if (token) {
+    const checkAuthStatus = async () => {
+      setIsLoading(true); // Set loading to true while checking auth status
       try {
-        await apiClient.authentication_logout();
-        localStorage.removeItem('token');
-        setToken(null);
-        setIsAuthenticated(false);
+        const response = await apiClient.authentication_status();
+        if (response) {
+          setIsAuthenticated(true);
+          setUser(response);
+        } else {
+          setIsAuthenticated(false);
+          setUser(null);
+        }
       } catch (error) {
-        console.error('Logout failed:', error);
+        setIsAuthenticated(false);
+        setUser(null);
       }
+      setIsLoading(false); // Set loading to false after checking auth status
+    };
+
+    checkAuthStatus();
+  }, [apiClient]);
+
+  const login = async (email: string, password: string) => {
+    try {
+      await apiClient.authentication_login(email, password);
+      const response = await apiClient.authentication_status();
+      if (response) {
+        setIsAuthenticated(true);
+        setUser(response);
+      }
+    } catch (error) {
+      setIsAuthenticated(false);
     }
   };
 
+  const logout = async () => {
+    await apiClient.authentication_logout();
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

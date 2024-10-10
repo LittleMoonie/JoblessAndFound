@@ -10,8 +10,11 @@
  */
 
 export interface LoginRequestDTO {
-  /** @format email */
-  email?: string | null;
+  /**
+   * @format email
+   * @minLength 1
+   */
+  email: string;
   /**
    * @minLength 6
    * @maxLength 100
@@ -79,7 +82,6 @@ export interface ApiConfig<SecurityDataType = unknown> {
 }
 
 export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
-  token: HttpResponse<void, any> | null;
   data: D;
   error: E;
 }
@@ -259,7 +261,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title Your API
+ * @title My API
  * @version v1
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
@@ -270,12 +272,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags Authentication
      * @name AuthenticationLoginCreate
      * @request POST:/api/Authentication/login
+     * @secure
      */
     authenticationLoginCreate: (data: LoginRequestDTO, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/api/Authentication/login`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -286,11 +290,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags Authentication
      * @name AuthenticationLogoutCreate
      * @request POST:/api/Authentication/logout
+     * @secure
      */
     authenticationLogoutCreate: (params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/api/Authentication/logout`,
         method: "POST",
+        secure: true,
         ...params,
       }),
 
@@ -300,11 +306,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags Authentication
      * @name AuthenticationStatusList
      * @request GET:/api/Authentication/status
+     * @secure
      */
     authenticationStatusList: (params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/api/Authentication/status`,
         method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -314,6 +322,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags User
      * @name UserGetUserByIdList
      * @request GET:/api/User/GetUserById
+     * @secure
      */
     userGetUserByIdList: (
       query?: {
@@ -326,6 +335,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/api/User/GetUserById`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -336,6 +346,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags User
      * @name UserVerifyLoginList
      * @request GET:/api/User/VerifyLogin
+     * @secure
      */
     userVerifyLoginList: (
       query?: {
@@ -348,6 +359,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/api/User/VerifyLogin`,
         method: "GET",
         query: query,
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -358,6 +370,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @tags User
      * @name UserAddUserCreate
      * @request POST:/api/User/AddUser
+     * @secure
      */
     userAddUserCreate: (
       query?: {
@@ -376,6 +389,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/api/User/AddUser`,
         method: "POST",
         query: query,
+        secure: true,
         ...params,
       }),
   };

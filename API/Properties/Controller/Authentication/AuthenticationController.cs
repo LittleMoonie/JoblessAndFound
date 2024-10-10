@@ -1,4 +1,5 @@
 ﻿// API/Controllers/Authentification/AuthenticationController.cs
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using Infrastructure.DTO.Authentication;
 using Infrastructure.Services.IServices.Authentification;
@@ -12,33 +13,60 @@ namespace API.Controllers.Authentification
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        public AuthenticationController(
+            IAuthenticationService authenticationService,
+            ILogger<AuthenticationController> logger
+        )
         {
             _authenticationService = authenticationService;
+            _logger = logger;
         }
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDTO request)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
-            var token = await _authenticationService.AuthenticateUser(
-                request.Email,
-                request.Password
-            );
-            if (string.IsNullOrEmpty(token))
+            if (!ModelState.IsValid)
             {
-                return Unauthorized(new { Message = "Invalid login credentials" });
+                return BadRequest(ModelState);
             }
 
-            return Ok(new { Token = token });
+            try
+            {
+                var loginResponse = await _authenticationService.Login(model.Email, model.Password);
+                // Set the JWT token in a secure cookie
+                Response.Cookies.Append(
+                    "Authorization",
+                    loginResponse.Token,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTimeOffset.UtcNow.AddHours(1),
+                    }
+                );
+
+                return Ok(new { Message = loginResponse.Message, Token = loginResponse.Token });
+            }
+            catch (AuthenticationException ex)
+            {
+                return Unauthorized(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during login.");
+                return StatusCode(500, new { Message = "An internal server error occurred." });
+            }
         }
 
         [Authorize]
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            // Invalidate the JWT token by removing it from the client
+            // Remove the JWT token from the cookie
             Response.Cookies.Delete("Authorization");
             return Ok(new { Message = "Logout successful" });
         }
@@ -50,12 +78,12 @@ namespace API.Controllers.Authentification
             var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
             if (string.IsNullOrEmpty(email))
             {
-                return BadRequest(
+                return Unauthorized(
                     new { Message = "Email claim is missing or invalid in the token" }
                 );
             }
 
-            var user = await _authenticationService.GetUserStatus(email);
+            var user = await _authenticationService.Status(email);
             return user != null ? Ok(user) : NotFound(new { Message = "User not found" });
         }
     }

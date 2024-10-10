@@ -1,23 +1,23 @@
-// src/Router/ProtectedRouter.tsx
-
+// src/Router/ProtectedRoute.tsx
 import React from 'react';
+import { Navigate, RouteProps } from 'react-router-dom';
 import { useAuth } from '../Context/authContext';
-import { Navigate, useLocation } from 'react-router-dom';
 
-interface ProtectedRouterProps {
-	children: React.ReactNode; // Define children type to allow nested components
-}
+const ProtectedRoute: React.FC<RouteProps> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
 
-const ProtectedRouter: React.FC<ProtectedRouterProps> = ({ children }) => {
-	const { isAuthenticated } = useAuth(); // Assume useAuth gives authentication state
-	const location = useLocation();
+  if (isLoading) {
+    // Render a loading indicator or null while checking auth status
+    return <div>Loading...</div>;
+  }
 
-	if (!isAuthenticated) {
-		// Redirect to login page if user is not authenticated
-		return <Navigate to='/login' state={{ from: location }} replace />;
-	}
+  if (!isAuthenticated) {
+    // If not authenticated, redirect to login
+    return <Navigate to="/login" />;
+  }
 
-	return <>{children}</>;
+  // If authenticated, render the children elements
+  return <>{children}</>;
 };
 
-export default ProtectedRouter;
+export default ProtectedRoute;

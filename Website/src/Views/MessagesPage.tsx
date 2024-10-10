@@ -1,6 +1,6 @@
 import React from 'react';
 
-function OffersPage() {
+function MessagesPage() {
 	return (
 		<div>
 			<h1>Messages Page</h1>
@@ -8,4 +8,4 @@ function OffersPage() {
 	);
 }
 
-export default OffersPage;
+export default MessagesPage;
