@@ -1,11 +1,11 @@
-﻿using Core.Entities.User;
+﻿// Infrastructure/Services/IServices/Authentification/IJwtService.cs
+using Core.Entities.User;
 
 namespace Infrastructure.Services.IServices.Authentification
 {
     public interface IJwtService
     {
-        string GenerateJwtToken(User user);
+        string GenerateToken(User user);
         Task<string> GetActiveKeyAsync();
-        Task GenerateAndStoreNewJwtKeyAsync();
     }
 }

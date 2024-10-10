@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿// API/Extensions/ServiceExtensions.cs
+using System;
 using AspNetCoreRateLimit;
 using Core.Repository;
 using DotNetEnv;
@@ -8,11 +9,8 @@ using Infrastructure.Repository;
 using Infrastructure.Services.Authentifaction;
 using Infrastructure.Services.IServices.Authentification;
 using Infrastructure.Utility;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 
 namespace API.Extensions
 {
@@ -56,25 +54,28 @@ namespace API.Extensions
             services.AddInMemoryRateLimiting();
             services.AddMvc();
             services.AddAutoMapper(typeof(MappingProfile));
+
+            // Register JWT Service
+            services.AddScoped<IJwtService, JwtService>(); // Ensure JwtService is implemented
         }
 
         public static void AddCustomCors(
             this IServiceCollection services,
             string policyName,
-            string frontendUrl
+            params string[] allowedOrigins
         )
         {
             services.AddCors(options =>
             {
                 options.AddPolicy(
-                    "AllowFrontend",
+                    policyName,
                     builder =>
                     {
                         builder
-                            .WithOrigins("http://localhost:3000")
+                            .WithOrigins(allowedOrigins)
                             .AllowAnyHeader()
                             .AllowAnyMethod()
-                            .AllowCredentials(); // Allow credentials like cookies
+                            .AllowCredentials();
                     }
                 );
             });
@@ -91,56 +92,6 @@ namespace API.Extensions
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
             });
-        }
-
-        public static void AddCustomAuthentication(
-            this IServiceCollection services,
-            IConfiguration configuration
-        )
-        {
-            // Load environment variables (if any)
-            Env.Load();
-
-            // Get JWT settings from environment variables or configuration
-            var jwtKey =
-                Environment.GetEnvironmentVariable("JWT_KEY") ?? configuration["JwtSettings:Key"];
-            var jwtIssuer =
-                Environment.GetEnvironmentVariable("JWT_ISSUER")
-                ?? configuration["JwtSettings:Issuer"];
-            var jwtAudience =
-                Environment.GetEnvironmentVariable("JWT_AUDIENCE")
-                ?? configuration["JwtSettings:Audience"];
-
-            // Check if all JWT settings are available
-            if (
-                string.IsNullOrEmpty(jwtKey)
-                || string.IsNullOrEmpty(jwtIssuer)
-                || string.IsNullOrEmpty(jwtAudience)
-            )
-            {
-                throw new InvalidOperationException(
-                    "JWT settings are not configured correctly in appsettings or environment variables."
-                );
-            }
-
-            // Configure JWT Bearer Authentication
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = configuration["JwtSettings:Issuer"],
-                        ValidAudience = configuration["JwtSettings:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"])
-                        ),
-                    };
-                });
         }
     }
 }
