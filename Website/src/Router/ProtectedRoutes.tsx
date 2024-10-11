@@ -5,29 +5,30 @@ import { RouteObject } from 'react-router-dom';
 import HomePage from '../Views/HomePage';
 import OffersPage from '../Views/Offers';
 import ProfilePage from '../Views/Profile';
-// Import other protected pages as needed
+import ModeratorPage from '../Views/ModeratorPage';
+import AdminPage from '../Views/AdminPage';
 
-const protectedRoutes: RouteObject[] = [
+const ProtectedRoutes: RouteObject[] = [
 	{
-		path: '/home',
+		path: 'home',
 		element: <HomePage />,
-		children: [
-			{
-				index: true,
-				element: <HomePage />,
-			},
-			{
-				path: '/analytics',
-				element: <OffersPage />,
-			},
-			{
-				path: '/settings',
-				element: <ProfilePage />,
-			},
-			// Add more nested protected routes here
-		],
 	},
-	// Add more protected parent routes here if needed (e.g., /admin)
+	{
+		path: 'offers',
+		element: <OffersPage />,
+	},
+	{
+		path: 'settings', 
+		element: <ProfilePage />,
+	},
+	{
+		path: 'moderator',
+		element: <ModeratorPage />,
+	},
+	{
+		path: 'admin',
+		element: <AdminPage />,
+	},
 ];
 
-export default protectedRoutes;
+export default ProtectedRoutes;

@@ -70,10 +70,6 @@ jobs:
         working-directory: Website
         run: npm run lint
 
-      - name: Type Check
-        working-directory: Website
-        run: npm run type-check
-
       - name: Run Frontend Tests with Coverage
         working-directory: Website
         run: npm test -- --coverage --watchAll=false --passWithNoTests

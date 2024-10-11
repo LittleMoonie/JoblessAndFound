@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text;
 using API;
 using API.Extensions; // Namespace for service extensions like AddCustomServices
+using API.Middleware;
 using AspNetCoreRateLimit;
 using Infrastructure.Services.Authentifaction;
 using Infrastructure.Services.IServices.Authentification;

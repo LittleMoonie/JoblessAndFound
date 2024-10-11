@@ -13,9 +13,8 @@ import {
 	Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { styled, useMediaQuery } from '@mui/system';
+import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
-import { useAPIClient } from '../../Context/apiContext';
 import { useAuth } from '../../Context/authContext';
 
 const StyledPaper = styled(Paper)`
@@ -60,7 +59,6 @@ const StyledButton = styled(Button)`
 
 const Login: React.FC = () => {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -72,11 +70,12 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-
+  
     try {
       await login(email, password);
       setSuccess('Logged in successfully! Redirecting...');
-        navigate('/home');
+      console.log('Login successful. Redirecting to home...'); // Debug log
+      navigate('/home'); // Should navigate to the home page if login is successful
     } catch (err) {
       setError('Login failed. Please check your credentials.');
       console.error('Login failed:', err);

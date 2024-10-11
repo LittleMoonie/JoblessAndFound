@@ -1,6 +1,6 @@
 // apiContext.tsx
 import React, { createContext, useContext } from 'react';
-import apiClientWrapper from '../apiClientWrapper';
+import apiClientWrapper from './apiClient';
 
 interface ApiContextType {
 	apiClient: typeof apiClientWrapper;
@@ -27,7 +27,6 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({
 		try {
 			const headers: HeadersInit = {
 				'Content-Type': 'application/json',
-				// Removed Authorization header as JWT is handled via cookies
 			};
 
 			console.log('Calling API with headers:', headers);
