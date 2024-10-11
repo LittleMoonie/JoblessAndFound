@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import publicRoutes from './PublicRoutes';
 import protectedRoutes from './ProtectedRoutes';
-import ProtectedRoute from './ProtectedRoute'; // Ensure you are importing ProtectedRoute correctly
+import ProtectedRoute from './protectedroute'; // Ensure you are importing ProtectedRoute correctly
 import Layout from '../Layout/Layout';
 import NotFoundPage from '../Views/NotFoundPage';
 

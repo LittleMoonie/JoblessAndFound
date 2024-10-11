@@ -1,11 +1,11 @@
 import { Box } from '@mui/material';
 import React from 'react';
-import SignInPage from '../Components/Authentication/Login';
+import Login from '../Components/Authentication/Login';
 
 function LoginPage() {
 	return (
 		<Box>
-			<SignInPage />
+			<Login />
 		</Box>
 	);
 }

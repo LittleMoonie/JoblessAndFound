@@ -17,11 +17,11 @@ const protectedRoutes: RouteObject[] = [
 				element: <HomePage />,
 			},
 			{
-				path: '/analytics',
+				path: 'offers',
 				element: <OffersPage />,
 			},
 			{
-				path: '/settings',
+				path: 'settings',
 				element: <ProfilePage />,
 			},
 			// Add more nested protected routes here
