@@ -1,35 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
-using Core.Entities.Enum;
-using Core.Entities.User;
+﻿using AutoMapper;
 using Core.Mapping;
 
-namespace Infrastructure.DTO.User
+namespace Infrastructure.DTO.Company
 {
     public class CompanyDTO : IMap
     {
         public int CompanyId { get; set; }
-        public string CompanyName { get; set; } = null!;
-        public string Location { get; set; } = null!;
-        public string Domain { get; set; } = null!;
-        public string EmployeeCOunt { get; set; } = null!;
-        public string EmployeesId { get; set; } = null!;
+        public string? CompanyName { get; set; }
+        public string? Location { get; set; } 
+        public string? Domain { get; set; }
+        public int EmployeesId { get; set; }
 
 
         public void Mapping(Profile profile)
         {
             profile
-                .CreateMap<Core.Entities.User.User, UserDTO>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.PasswordHash))
-                .ForMember(
-                    dest => dest.UserType,
-                    opt => opt.MapFrom(src => (UserTypeEnum)src.UserTypeId)
-                ) // Map UserTypeId to UserTypeEnum
+                .CreateMap<Core.Entities.Company, CompanyDTO>()
+                .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Id))
                 .ReverseMap();
         }
     }
