@@ -4,7 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ApiProvider } from './Context/apiContext';
 import { AuthProvider } from './Context/authContext';
-import AppRouter from './Router/index'; // Use AppRouter instead of custom router
+import AppRouter from './Router/Router'; // Use AppRouter instead of custom router
 
 const theme = createTheme({});
 const queryClient = new QueryClient();

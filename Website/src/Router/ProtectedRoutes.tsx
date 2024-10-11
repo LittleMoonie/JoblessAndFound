@@ -8,27 +8,27 @@ import ProfilePage from '../Views/Profile';
 import ModeratorPage from '../Views/ModeratorPage';
 import AdminPage from '../Views/AdminPage';
 
-const protectedRoutes: RouteObject[] = [
+const ProtectedRoutes: RouteObject[] = [
 	{
-		path: 'home', // Relative path for /home
+		path: 'home',
 		element: <HomePage />,
 	},
 	{
-		path: 'analytics', // Relative path for /analytics
+		path: 'offers',
 		element: <OffersPage />,
 	},
 	{
-		path: 'settings', // Relative path for /settings
+		path: 'settings', 
 		element: <ProfilePage />,
 	},
 	{
-		path: 'moderator', // Relative path for /moderator
+		path: 'moderator',
 		element: <ModeratorPage />,
 	},
 	{
-		path: 'admin', // Relative path for /admin
+		path: 'admin',
 		element: <AdminPage />,
 	},
 ];
 
-export default protectedRoutes;
+export default ProtectedRoutes;

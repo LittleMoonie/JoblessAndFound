@@ -1,5 +1,6 @@
 ﻿// API/Controllers/Authentification/AuthenticationController.cs
 using System.Security.Authentication;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Infrastructure.DTO.Authentication;
 using Infrastructure.Services.IServices.Authentification;
@@ -76,7 +77,7 @@ namespace API.Controllers.Authentification
         [HttpGet("status")]
         public async Task<IActionResult> Status()
         {
-            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
             if (string.IsNullOrEmpty(email))
             {
                 return Unauthorized(

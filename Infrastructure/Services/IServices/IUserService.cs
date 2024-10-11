@@ -11,7 +11,6 @@ namespace Infrastructure.Services.IServices
     public interface IUserService
     {
         Task<UserDTO> GetUserById(int UserId);
-        Task<UserDTO> GetCurrentUser(int UserId);
         Task<UserDTO> VerifyLogin(string email, string password);
         Task AddUser(
             string firstName,
