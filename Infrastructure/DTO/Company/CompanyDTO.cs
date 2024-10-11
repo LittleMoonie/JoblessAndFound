@@ -10,6 +10,7 @@ namespace Infrastructure.DTO.Company
         public string? Location { get; set; } 
         public string? Domain { get; set; }
         public int EmployeesId { get; set; }
+        public List<OfferAdvertisementDTO> OfferAdvertisement { get; set; }
 
 
         public void Mapping(Profile profile)
@@ -18,6 +19,11 @@ namespace Infrastructure.DTO.Company
                 .CreateMap<Core.Entities.Company, CompanyDTO>()
                 .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Id))
                 .ReverseMap();
+
+            //profile
+            //    .CreateMap<Core.Entities.Offer.Advertisement, CompanyDTO>()
+            //    .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Id))
+            //    .ReverseMap();
         }
     }
 }

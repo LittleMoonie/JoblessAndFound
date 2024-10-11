@@ -87,7 +87,7 @@ export default function MediaCard() {
     return (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
             {data.map((item, index) => {
-                const itemDate = new Date(item.Date);
+                const itemDate = new Date(item.CreatedAt);
                 const dateNow = new Date();
                 const monthsSince = Math.round(differenceInMonths(dateNow, itemDate));
 
@@ -103,7 +103,7 @@ export default function MediaCard() {
                             margin: "auto",
                         }}
                     >
-                        <CardMedia sx={{ height: 140 }} image={item.image} title="img" />
+                        <CardMedia sx={{ height: 140 }} image={"https://placehold.co/600x400"} title="img" />
 
                         <Box
                             sx={{
@@ -122,7 +122,7 @@ export default function MediaCard() {
                                     zIndex: 5,
                                     marginRight: '2rem',
                                 }}
-                                image={item.logo}
+                                image={"https://placehold.co/600x400"}
                                 title="logo"
                             />
 
@@ -167,7 +167,7 @@ export default function MediaCard() {
 
                         <CardContent sx={{ position: 'relative', bottom: 20 }}>
                             <Typography gutterBottom variant="h5" component="div" sx={{ paddingLeft: '15px' }}>
-                                {item.JobOffer}
+                                {item.Title}
                             </Typography>
 
                             <Typography
@@ -208,7 +208,7 @@ export default function MediaCard() {
                             </Typography>
 
                             <Typography variant="body2" sx={{ color: 'text.secondary', padding: '15px 15px 0px 15px' }}>
-                                {item.ShortDescription}
+                                {item.Description}
                             </Typography>
                         </CardContent>
                         <CardActions sx={{ display: 'flex', justifyContent: 'end', alignItems: "end", height: "58%" }}>

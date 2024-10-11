@@ -15,6 +15,7 @@ namespace Infrastructure.Repository
     using System.Threading.Tasks;
     using AutoMapper;
     using AutoMapper.QueryableExtensions;
+    using Core.Entities;
     using Core.Repository;
     using Microsoft.EntityFrameworkCore;
 
@@ -92,6 +93,11 @@ namespace Infrastructure.Repository
             return predicate == null
                 ? await _dbSet.CountAsync()
                 : await _dbSet.CountAsync(predicate);
+        }
+
+        public async Task LoadRelatedEntitiesAsync<TProperty>(T entity, Expression<Func<T, IEnumerable<TProperty>>> navigationProperty) where TProperty : class
+        {
+            await _context.Entry(entity).Collection(navigationProperty).LoadAsync();
         }
     }
 }

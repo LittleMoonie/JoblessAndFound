@@ -1,34 +1,40 @@
-﻿using Core.Entities;
-using Core.Entities.Enum;
+﻿using AutoMapper;
+using Core.Entities;
 using Core.Exceptions;
+using Core.Repository;
 using Infrastructure.DTO.Company;
 using Infrastructure.Services.IServices;
-using Infrastructure.Utility;
-using Core.Entities.Offer;
-using Core.Repository;
-using AutoMapper;
 
 namespace Infrastructure.Services
 {
-    public class CompanyService(IRepository<Core.Entities.Company> companyRepository, IMapper mapper) : ICompanyService
+    public class CompanyService : ICompanyService
     {
-        public async Task<CompanyDTO> GetCompanyById(int CompanyId)
+        private readonly IRepository<Core.Entities.Company> companyRepository;
+        private readonly IMapper mapper;
+
+        public CompanyService(IRepository<Core.Entities.Company> companyRepository, IMapper mapper)
         {
-            var company = await companyRepository.FindByIdAsync(CompanyId);
+            this.companyRepository = companyRepository;
+            this.mapper = mapper;
+        }
+
+        public async Task<CompanyDTO> GetCompanyById(int companyId)
+        {
+            // Utiliser FindByIdAsync pour récupérer l'objet Company
+            var company = await companyRepository.FindByIdAsync(companyId);
+
             if (company == null)
-                throw new NotFoundException($"Company with ID {CompanyId} not found.");
+                throw new NotFoundException($"Company with ID {companyId} not found.");
+
+            // Charger explicitement les offres si nécessaire
+            await companyRepository.LoadRelatedEntitiesAsync(company, c => c.Offers);
+
+            // Mapper l'entité Company vers CompanyDTO
             return mapper.Map<CompanyDTO>(company);
         }
 
-        public async Task AddCompany(
-            string CompanyName,
-            string Location,
-            string Domain,
-            int EmployeesId
-        )
+        public async Task AddCompany(string CompanyName, string Location, string Domain, int EmployeesId)
         {
-
-            // Create a new company object with the given details
             var newCompany = new Company
             {
                 CompanyName = CompanyName,
@@ -37,7 +43,6 @@ namespace Infrastructure.Services
                 EmployeesId = EmployeesId
             };
 
-            // Add the new user to the repository
             await companyRepository.AddAsync(newCompany);
         }
     }
