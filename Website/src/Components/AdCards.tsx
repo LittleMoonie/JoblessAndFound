@@ -16,42 +16,6 @@ import { differenceInMonths } from 'date-fns';
 import { useState } from 'react';
 import axios from 'axios';
 
-// const data = [
-//   {
-//     image: 'https://placehold.co/600x400',
-//     logo: 'https://placehold.co/400',
-//     CompanyName: 'CompanyName',
-//     ApplyCount: 18,
-//     JobOffer: 'Développeur Web',
-//     EmployeeCount: '50',
-//     Date: '2024-05-12',
-//     Location: 'New York',
-//     ShortDescription: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae, harum.',
-//   },
-//   {
-//     image: 'https://placehold.co/600x400',
-//     logo: 'https://placehold.co/400',
-//     CompanyName: 'Business 2',
-//     ApplyCount: 82,
-//     JobOffer: 'Développeur Web',
-//     EmployeeCount: '50',
-//     Date: '2024-02-12',
-//     Location: 'New York',
-//     ShortDescription: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae, harum.',
-//   },
-//   {
-//     image: 'https://placehold.co/600x400',
-//     logo: 'https://placehold.co/400',
-//     CompanyName: 'Business 2',
-//     ApplyCount: 103,
-//     JobOffer: 'Développeur Web',
-//     EmployeeCount: '50',
-//     Date: '2024-05-12',
-//     Location: 'New York',
-//     ShortDescription: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae, harum.',
-//   },
-// ];
-
 interface Data {
     id: number;
     CompanyName: string;
