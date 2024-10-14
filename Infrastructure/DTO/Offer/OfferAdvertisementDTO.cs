@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Core.Mapping;
 
-namespace Infrastructure.DTO.Company
+namespace Infrastructure.DTO.Offer
 {
     public class OfferAdvertisementDTO
     {

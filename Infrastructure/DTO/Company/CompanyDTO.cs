@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Mapping;
+using Infrastructure.DTO.Offer;
 
 namespace Infrastructure.DTO.Company
 {
