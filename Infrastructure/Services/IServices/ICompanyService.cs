@@ -10,7 +10,7 @@ namespace Infrastructure.Services.IServices
 {
     public interface ICompanyService
     {
-        Task<CompanyDTO> GetCompanyById(int CompanyId);
+        Task<CompanyDTO> GetCompanyById(int companyId);
         Task AddCompany(
             string CompanyName,
             string Location,

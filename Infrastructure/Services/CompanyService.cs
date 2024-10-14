@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Entities;
+using Core.Entities.Offer;
 using Core.Exceptions;
 using Core.Repository;
 using Infrastructure.DTO.Company;
@@ -10,28 +11,24 @@ namespace Infrastructure.Services
     public class CompanyService : ICompanyService
     {
         private readonly IRepository<Core.Entities.Company> companyRepository;
+        private readonly IRepository<Advertisement> _offerRepository;
         private readonly IMapper mapper;
 
-        public CompanyService(IRepository<Core.Entities.Company> companyRepository, IMapper mapper)
+        public CompanyService(IRepository<Core.Entities.Company> companyRepository, IRepository<Advertisement> offerRepository, IMapper mapper)
         {
             this.companyRepository = companyRepository;
+            _offerRepository = offerRepository;
             this.mapper = mapper;
         }
 
         public async Task<CompanyDTO> GetCompanyById(int companyId)
         {
-            // Utiliser FindByIdAsync pour récupérer l'objet Company
-            var company = await companyRepository.FindByIdAsync(companyId);
+            var companyDTO = await companyRepository.FindAsync<CompanyDTO>(c => c.Id == companyId);
 
-            if (company == null)
-                throw new NotFoundException($"Company with ID {companyId} not found.");
-
-            // Charger explicitement les offres si nécessaire
-            await companyRepository.LoadRelatedEntitiesAsync(company, c => c.Offers);
-
-            // Mapper l'entité Company vers CompanyDTO
-            return mapper.Map<CompanyDTO>(company);
+            return companyDTO;
         }
+
+
 
         public async Task AddCompany(string CompanyName, string Location, string Domain, int EmployeesId)
         {

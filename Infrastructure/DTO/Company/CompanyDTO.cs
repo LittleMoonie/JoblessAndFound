@@ -10,7 +10,7 @@ namespace Infrastructure.DTO.Company
         public string? Location { get; set; } 
         public string? Domain { get; set; }
         public int EmployeesId { get; set; }
-        public List<OfferAdvertisementDTO> OfferAdvertisement { get; set; }
+        public List<OfferAdvertisementDTO>? OfferAdvertisement { get; set; }
 
 
         public void Mapping(Profile profile)
@@ -25,5 +25,11 @@ namespace Infrastructure.DTO.Company
             //    .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Id))
             //    .ReverseMap();
         }
+    }
+
+    public class CompanyWithOffersDTO
+    {
+        public CompanyDTO? Company { get; set; }
+        public List<OfferAdvertisementDTO>? Offers { get; set; }
     }
 }

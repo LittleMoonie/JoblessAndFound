@@ -13,15 +13,26 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Link from '@mui/material/Link';
 import { Box } from '@mui/material';
 import { differenceInMonths } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+interface OfferAdvertisement {
+    offerAdvertisementId: number;
+    title: string;
+    description: string;
+    createdAt: string;
+    updatedAt: string;
+    companyId: number;
+    postedByUserId: number;
+}
+
 interface Data {
-    id: number;
-    CompanyName: string;
-    Location: string;
-    Domain: string;
-    EmployeesId: number;
+    companyId: number;
+    companyName: string;
+    location: string;
+    domain: string;
+    employeesId: number;
+    offerAdvertisement: OfferAdvertisement[];
 }
 
 export default function MediaCard() {
@@ -35,10 +46,10 @@ export default function MediaCard() {
         }));
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get<Data[]>('http://localhost:3000/api/v1/endpoint'); // Remplace par l'URL de ton API
+                const response = await axios.get<Data[]>('https://localhost:5001/api/Company/GetCompanyById');
                 setData(response.data);
             } catch (error) {
                 console.error("Erreur lors de la récupération des données", error);
@@ -51,11 +62,19 @@ export default function MediaCard() {
     return (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
             {data.map((item, index) => {
-                const itemDate = new Date(item.CreatedAt);
+                // Vérifiez qu'il y a au moins une offre publicitaire
+                const offer = item.offerAdvertisement[0];
+                if (!offer) {
+                    return null; // Si aucune offre n'existe, ne pas afficher la carte
+                }
+
+                const itemDate = new Date(offer.createdAt);
                 const dateNow = new Date();
                 const monthsSince = Math.round(differenceInMonths(dateNow, itemDate));
 
                 const isClicked = clickedCards[index] || false;
+
+                console.log(offer, item);
 
                 return (
                     <Card
@@ -69,11 +88,7 @@ export default function MediaCard() {
                     >
                         <CardMedia sx={{ height: 140 }} image={"https://placehold.co/600x400"} title="img" />
 
-                        <Box
-                            sx={{
-                                display: 'flex',
-                            }}
-                        >
+                        <Box sx={{ display: 'flex' }}>
                             <CardMedia
                                 sx={{
                                     height: 80,
@@ -110,7 +125,7 @@ export default function MediaCard() {
                                         },
                                     }}
                                 >
-                                    {item.CompanyName}
+                                    {item.companyName}
                                 </Link>
 
                                 <Typography
@@ -118,20 +133,15 @@ export default function MediaCard() {
                                     component="div"
                                     sx={{ display: 'flex', alignItems: 'center', height: '10%' }}
                                 >
-                                    <PersonIcon
-                                        sx={{
-                                            width: '1rem',
-                                            paddingRight: '2px',
-                                        }}
-                                    />
-                                    {item.ApplyCount > 100 ? '100+' : item.ApplyCount}
+                                    <PersonIcon sx={{ width: '1rem', paddingRight: '2px' }} />
+                                    {item.employeesId > 100 ? '100+' : item.employeesId}
                                 </Typography>
                             </Box>
                         </Box>
 
                         <CardContent sx={{ position: 'relative', bottom: 20 }}>
                             <Typography gutterBottom variant="h5" component="div" sx={{ paddingLeft: '15px' }}>
-                                {item.Title}
+                                {offer.title}
                             </Typography>
 
                             <Typography
@@ -143,7 +153,7 @@ export default function MediaCard() {
                                     alignItems: 'center',
                                 }}
                             >
-                                <PlaceIcon sx={{ width: '1rem', margin: '0px 5px 0px 5px' }} /> {item.Location}
+                                <PlaceIcon sx={{ width: '1rem', margin: '0px 5px 0px 5px' }} /> {item.location}
                             </Typography>
                             <Typography
                                 variant="body2"
@@ -155,7 +165,7 @@ export default function MediaCard() {
                                 }}
                             >
                                 <GroupsIcon sx={{ width: '1rem', margin: '0px 5px 0px 5px' }} />
-                                {item.EmployeeCount} employees
+                                {item.employeesId} employés
                             </Typography>
                             <Typography
                                 variant="body2"
@@ -166,19 +176,19 @@ export default function MediaCard() {
                                     alignItems: 'center',
                                 }}
                             >
-                                <CalendarMonthIcon sx={{ width: '1rem', margin: '0px 5px 0px 5px' }} /> {item.Date}{' '}
-                                <QueryBuilderIcon sx={{ width: '1rem', margin: '0px 5px 0px 5px' }} /> Since {monthsSince}{' '}
-                                months
+                                <CalendarMonthIcon sx={{ width: '1rem', margin: '0px 5px 0px 5px' }} /> {offer.createdAt}{' '}
+                                <QueryBuilderIcon sx={{ width: '1rem', margin: '0px 5px 0px 5px' }} /> Depuis {monthsSince}{' '}
+                                mois
                             </Typography>
 
                             <Typography variant="body2" sx={{ color: 'text.secondary', padding: '15px 15px 0px 15px' }}>
-                                {item.Description}
+                                {offer.description}
                             </Typography>
                         </CardContent>
                         <CardActions sx={{ display: 'flex', justifyContent: 'end', alignItems: "end", height: "58%" }}>
                             <Button
                                 size="small"
-                                href={`/share/${item.CompanyName}`}
+                                href={`/share/${item.companyName}`}
                                 sx={{
                                     backgroundColor: '#232453',
                                     color: 'white',
@@ -188,7 +198,7 @@ export default function MediaCard() {
                                     },
                                 }}
                             >
-                                Share
+                                Partager
                             </Button>
 
                             <Button
@@ -203,7 +213,7 @@ export default function MediaCard() {
                                     },
                                 }}
                             >
-                                Learn More
+                                En savoir plus
                             </Button>
                         </CardActions>
                     </Card>

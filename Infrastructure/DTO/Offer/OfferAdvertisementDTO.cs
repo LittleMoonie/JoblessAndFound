@@ -10,12 +10,6 @@ namespace Infrastructure.DTO.Company
         public string? Description { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
-        #region Foreign Key Mappings
-        public int CompanyId { get; set; } // Foreign key to Company table
-        public int PostedByUserId { get; set; } // Foreign key to User table
-
-        #endregion
     }
 }
 
