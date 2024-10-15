@@ -15,7 +15,7 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../Context/AuthContext';
+import { useAuth } from '../../Context/authContext';
 import { useMutation } from '@tanstack/react-query';
 import apiClient from '../../API/apiClient';
 

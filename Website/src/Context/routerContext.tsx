@@ -1,7 +1,7 @@
 // src/Router/RouterContext.tsx
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useAuth } from '../Context/AuthContext'; // Update the path to the correct location of AuthContext
+import { useAuth } from '../Context/authContext'; // Update the path to the correct location of AuthContext
 import { Navigate, useLocation } from 'react-router-dom';
 
 interface RouterContextProps {

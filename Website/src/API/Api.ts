@@ -15,6 +15,17 @@ export interface AuthenticationResponseDTO {
   message?: string | null;
 }
 
+export interface CompanyDTO {
+  /** @format int32 */
+  companyId?: number;
+  companyName?: string | null;
+  location?: string | null;
+  domain?: string | null;
+  /** @format int32 */
+  employeesId?: number;
+  offerAdvertisement?: OfferAdvertisementDTO[] | null;
+}
+
 export interface LoginRequestDTO {
   /**
    * @format email
@@ -31,6 +42,17 @@ export interface LoginRequestDTO {
 export interface LoginResponseDTO {
   token?: string | null;
   message?: string | null;
+}
+
+export interface OfferAdvertisementDTO {
+  /** @format int32 */
+  offerAdvertisementId?: number;
+  title?: string | null;
+  description?: string | null;
+  /** @format date-time */
+  createdAt?: string | null;
+  /** @format date-time */
+  updatedAt?: string | null;
 }
 
 export interface ProblemDetails {
@@ -350,6 +372,109 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Company
+     * @name CompanyGetCompanyByIdList
+     * @request GET:/api/Company/GetCompanyById
+     * @secure
+     */
+    companyGetCompanyByIdList: (
+      query?: {
+        /** @format int32 */
+        companyId?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<CompanyDTO, any>({
+        path: `/api/Company/GetCompanyById`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Company
+     * @name CompanyAddCompanyCreate
+     * @request POST:/api/Company/AddCompany
+     * @secure
+     */
+    companyAddCompanyCreate: (
+      query?: {
+        CompanyName?: string;
+        Location?: string;
+        Domain?: string;
+        /** @format int32 */
+        EmployeesId?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, ProblemDetails>({
+        path: `/api/Company/AddCompany`,
+        method: "POST",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Offer
+     * @name OfferGetOfferByCompanyIdList
+     * @request GET:/api/Offer/GetOfferByCompanyId
+     * @secure
+     */
+    offerGetOfferByCompanyIdList: (
+      query?: {
+        /** @format int32 */
+        companyId?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<OfferAdvertisementDTO, any>({
+        path: `/api/Offer/GetOfferByCompanyId`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Offer
+     * @name OfferAddOfferCreate
+     * @request POST:/api/Offer/AddOffer
+     * @secure
+     */
+    offerAddOfferCreate: (
+      query?: {
+        /** @format int32 */
+        OfferAdvertisementId?: number;
+        Description?: string;
+        Title?: string;
+        /** @format date-time */
+        CreatedAt?: string;
+        /** @format date-time */
+        UpdatedAt?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, ProblemDetails>({
+        path: `/api/Offer/AddOffer`,
+        method: "POST",
+        query: query,
+        secure: true,
         ...params,
       }),
 
