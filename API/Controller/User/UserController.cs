@@ -27,14 +27,6 @@ namespace API.Controller.User
             return await _UserService.GetUserById(userId);
         }
 
-        [HttpGet("VerifyLogin")]
-        [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<UserDTO> VerifyLogin(string email, string password)
-        {
-            return await _UserService.VerifyLogin(email, password);
-        }
-
         #endregion
 
         #region POST

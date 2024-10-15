@@ -11,98 +11,105 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import MenuButton from './MenuButton';
 
-import { useAuth } from '../../Context/authContext';
+import { useAuth } from '../../Context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import apiClient from '../../API/apiClient';
 
 // Styled MenuItem
 const MenuItem = styled(MuiMenuItem)({
-  margin: '2px 0',
+	margin: '2px 0',
 });
 
 export default function OptionsMenu() {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+	const open = Boolean(anchorEl);
 
-  const { logout } = useAuth(); // Get the logout function from context
-  const navigate = useNavigate(); // Get navigate to handle redirection
+	const { checkAuthStatus } = useAuth();
+	const navigate = useNavigate();
 
-  // Function to handle logout
-  const handleLogout = async () => {
-    try {
-      await logout(); // Call the logout function from context
-      navigate('/login'); // Redirect to the login page
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
-  };
+	const logoutMutation = useMutation({
+		mutationFn: () => apiClient.authentication_logout(),
+		onSuccess: async () => {
+			await checkAuthStatus();
+			navigate('/login');
+		},
+		onError: (err: unknown) => {
+			console.error('Logout failed:', err);
+		},
+	});
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+	const handleLogout = () => {
+		logoutMutation.mutate();
+	};
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+		setAnchorEl(event.currentTarget);
+	};
 
-  return (
-    <React.Fragment>
-      <MenuButton
-        aria-label='Open menu'
-        onClick={handleClick}
-        sx={{ borderColor: 'transparent' }}
-      >
-        <MoreVertRoundedIcon />
-      </MenuButton>
-      <Menu
-        anchorEl={anchorEl}
-        id='menu'
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        sx={{
-          [`& .${listClasses.root}`]: {
-            padding: '4px',
-          },
-          [`& .${paperClasses.root}`]: {
-            padding: 0,
-          },
-          [`& .${dividerClasses.root}`]: {
-            margin: '4px -4px',
-          },
-        }}
-      >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        {/* <MenuItem onClick={handleClose}>My account</MenuItem> */}
-        {/* <Divider /> */}
-        {/* <MenuItem onClick={handleClose}>Add another account</MenuItem> */}
-        <MenuItem onClick={handleClose}>Settings</MenuItem>
-        <Divider />
-        <MenuItem
-          onClick={() => {
-            handleClose(); // Close the menu first
-            handleLogout(); // Trigger logout
-          }}
-          sx={{
-            [`& .${listItemIconClasses.root}`]: {
-              ml: 'auto',
-              minWidth: 0,
-            },
-          }}
-        >
-          <ListItemText
-            sx={{
-              paddingRight: '5px',
-            }}
-          >
-            Logout
-          </ListItemText>
-          <ListItemIcon>
-            <LogoutRoundedIcon fontSize='small' />
-          </ListItemIcon>
-        </MenuItem>
-      </Menu>
-    </React.Fragment>
-  );
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
+
+	return (
+		<React.Fragment>
+			<MenuButton
+				aria-label='Open menu'
+				onClick={handleClick}
+				sx={{ borderColor: 'transparent' }}
+			>
+				<MoreVertRoundedIcon />
+			</MenuButton>
+			<Menu
+				anchorEl={anchorEl}
+				id='menu'
+				open={open}
+				onClose={handleClose}
+				onClick={handleClose}
+				transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+				anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+				sx={{
+					[`& .${listClasses.root}`]: {
+						padding: '4px',
+					},
+					[`& .${paperClasses.root}`]: {
+						padding: 0,
+					},
+					[`& .${dividerClasses.root}`]: {
+						margin: '4px -4px',
+					},
+				}}
+			>
+				<MenuItem onClick={handleClose}>Profile</MenuItem>
+				{/* <MenuItem onClick={handleClose}>My account</MenuItem> */}
+				{/* <Divider /> */}
+				{/* <MenuItem onClick={handleClose}>Add another account</MenuItem> */}
+				<MenuItem onClick={handleClose}>Settings</MenuItem>
+				<Divider />
+				<MenuItem
+					onClick={() => {
+						handleClose(); // Close the menu first
+						handleLogout(); // Trigger logout
+					}}
+					sx={{
+						[`& .${listItemIconClasses.root}`]: {
+							ml: 'auto',
+							minWidth: 0,
+						},
+					}}
+				>
+					<ListItemText
+						sx={{
+							paddingRight: '5px',
+						}}
+					>
+						Logout
+					</ListItemText>
+					<ListItemIcon>
+						<LogoutRoundedIcon fontSize='small' />
+					</ListItemIcon>
+				</MenuItem>
+			</Menu>
+		</React.Fragment>
+	);
 }

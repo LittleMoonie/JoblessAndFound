@@ -1,14 +1,12 @@
-// Program.cs
 using System.Reflection;
 using System.Text;
-using API;
 using API.Extensions; // Namespace for service extensions like AddCustomServices
 using API.Middleware;
 using AspNetCoreRateLimit;
-using Infrastructure.Services.Authentifaction;
 using Infrastructure.Services.IServices.Authentification;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -23,21 +21,25 @@ builder.Services.Configure<IpRateLimitPolicies>(
 builder.Services.AddInMemoryRateLimiting();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
-// Register application services
+// Register IP rate limiting and other services (optional)
+builder.Services.AddOptions();
 builder.Services.AddCustomServices(builder.Configuration); // Calls AddCustomServices method from Extensions folder
 
 // Register CORS, Session, and other services
 builder.Services.AddCustomCors(
     "AllowFrontendOrigin",
-    "http://localhost:3000",
-    "https://localhost:3000"
+    "http://localhost:3000", // For frontend in development mode (HTTP)
+    "https://localhost:3000" // In case you're using HTTPS in development
 );
-builder.Services.AddCustomSession();
 
-// Register IHttpContextAccessor
+builder.Services.AddCustomSession(); // Optional, for adding session management
+
+// Register IHttpContextAccessor for accessing HTTP context in services
 builder.Services.AddHttpContextAccessor();
 
 // Add JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+
 builder
     .Services.AddAuthentication(options =>
     {
@@ -46,34 +48,20 @@ builder
     })
     .AddJwtBearer(options =>
     {
-        // JWT Configuration
-        var jwtKey = builder.Configuration["JwtSettings:Key"];
-        var jwtIssuer = builder.Configuration["JwtSettings:Issuer"];
-        var jwtAudience = builder.Configuration["JwtSettings:Audience"];
-
-        if (
-            string.IsNullOrEmpty(jwtKey)
-            || string.IsNullOrEmpty(jwtIssuer)
-            || string.IsNullOrEmpty(jwtAudience)
-        )
-        {
-            throw new InvalidOperationException(
-                "JWT settings are not configured correctly in appsettings or environment variables."
-            );
-        }
-
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ValidIssuer = jwtSettings["Issuer"], // Use the issuer from appsettings.json
+            ValidAudience = jwtSettings["Audience"], // Use the audience from appsettings.json
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings["Key"])
+            ) // Use the key from appsettings.json
+            ,
         };
 
-        // Read JWT token from the "Authorization" cookie
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -88,27 +76,16 @@ builder
         };
     });
 
+builder.Services.AddAuthorization();
+
 // Register Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(
-        "AdminPolicy",
-        policy =>
-        {
-            policy.RequireClaim("UserTypeId", "4"); // Allow only users with UserTypeId = 4
-        }
-    );
-
-    options.AddPolicy(
-        "UserPolicy",
-        policy =>
-        {
-            policy.RequireClaim("UserTypeId", "1", "2", "3"); // Allow regular users with UserTypeId 1, 2, or 3
-        }
-    );
+    options.AddPolicy("AdminPolicy", policy => policy.RequireClaim("UserTypeId", "4")); // Allow only users with UserTypeId = 4
+    options.AddPolicy("UserPolicy", policy => policy.RequireClaim("UserTypeId", "1", "2", "3")); // Allow regular users with UserTypeId 1, 2, or 3
 });
 
-// Register Swagger Configuration
+// Register Swagger Configuration (optional)
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
@@ -117,11 +94,11 @@ builder.Services.AddSwaggerGen(c =>
         new OpenApiSecurityScheme
         {
             Name = "Authorization",
-            Type = SecuritySchemeType.ApiKey,
-            Scheme = "Bearer",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
             BearerFormat = "JWT",
             In = ParameterLocation.Header,
-            Description = "JWT Authorization header using the Bearer scheme.",
+            Description = "Enter 'Bearer' followed by your JWT token in the text input below.",
         }
     );
     c.AddSecurityRequirement(
@@ -136,7 +113,7 @@ builder.Services.AddSwaggerGen(c =>
                         Id = "Bearer",
                     },
                 },
-                Array.Empty<string>()
+                new string[] { }
             },
         }
     );
@@ -144,23 +121,24 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Apply pending migrations
+// Apply pending migrations if applicable
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<Infrastructure.Data.DataContext>();
     dbContext.Database.Migrate();
 }
 
+// Configure the HTTP request pipeline
 app.UseRouting();
 
-// Apply CORS before authentication
-app.UseCors("AllowFrontendOrigin");
+// Apply CORS before authentication and authorization
+app.UseCors("AllowFrontendOrigin"); // Must come before UseAuthentication and UseAuthorization
 
-// Apply authentication and authorization
+// Add authentication and authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Enable Swagger (in development only)
+// Enable Swagger in development mode
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -173,16 +151,12 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage(); // Enable detailed error pages
 }
 
-app.UseMiddleware<ApiResponseMiddleware>();
+// Add your custom middlewares after authentication/authorization
+app.UseMiddleware<JwtCookieMiddleware>();
 
+// Configure the endpoints
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapControllers();
-    Console.WriteLine("Registered endpoints:");
-    foreach (var endpoint in endpoints.DataSources.SelectMany(source => source.Endpoints))
-    {
-        Console.WriteLine($" - {endpoint.DisplayName}");
-    }
+    endpoints.MapControllers(); // Map your controllers
 });
-
 app.Run();

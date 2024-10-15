@@ -6,6 +6,7 @@ using DotNetEnv;
 using Infrastructure.Data;
 using Infrastructure.Mapping;
 using Infrastructure.Repository;
+using Infrastructure.Services;
 using Infrastructure.Services.Authentifaction;
 using Infrastructure.Services.IServices.Authentification;
 using Infrastructure.Utility;
@@ -53,7 +54,7 @@ namespace API.Extensions
             services.AddMemoryCache();
             services.AddInMemoryRateLimiting();
             services.AddMvc();
-            services.AddAutoMapper(typeof(MappingProfile));
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // Register JWT Service
             services.AddScoped<IJwtService, JwtService>(); // Ensure JwtService is implemented
@@ -67,20 +68,15 @@ namespace API.Extensions
         {
             services.AddCors(options =>
             {
-                options.AddPolicy(
-                    policyName,
-                    builder =>
-                    {
-                        builder
-                            .WithOrigins(allowedOrigins)
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
-                    }
-                );
+                options.AddPolicy(policyName, builder =>
+                {
+                    builder.WithOrigins(allowedOrigins)
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials(); // Allows cookies and other credentials to be sent in requests
+                });
             });
         }
-
         public static void AddCustomSession(this IServiceCollection services)
         {
             services.AddDistributedMemoryCache();

@@ -23,7 +23,7 @@ namespace Infrastructure.DTO.Authentication
         public void Mapping(Profile profile)
         {
             profile
-                .CreateMap<Core.Entities.User.User, UserDTO>()
+                .CreateMap<Core.Entities.User.User, LoginRequestDTO>()
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.PasswordHash))
                 .ReverseMap();

@@ -86,29 +86,5 @@ namespace Infrastructure.Services
             // Add the new user to the repository
             await userRepository.AddAsync(newUser);
         }
-
-        public async Task<UserDTO> VerifyLogin(string email, string password)
-        {
-            var user = await userRepository.FindAsync<UserDTO>(u => u.Email == email);
-
-            if (user == null)
-            {
-                // User does not exist
-                return null;
-            }
-
-            // Verify the password
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-            if (isPasswordValid)
-            {
-                // Password is correct
-                return user;
-            }
-            else
-            {
-                // Password is incorrect
-                return null;
-            }
-        }
     }
 }
