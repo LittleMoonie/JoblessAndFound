@@ -9,6 +9,12 @@
  * ---------------------------------------------------------------
  */
 
+export interface AuthenticationResponseDTO {
+  isAuthenticated?: boolean;
+  user?: UserDTO;
+  message?: string | null;
+}
+
 export interface LoginRequestDTO {
   /**
    * @format email
@@ -20,6 +26,11 @@ export interface LoginRequestDTO {
    * @maxLength 100
    */
   password: string;
+}
+
+export interface LoginResponseDTO {
+  token?: string | null;
+  message?: string | null;
 }
 
 export interface ProblemDetails {
@@ -38,16 +49,8 @@ export interface UserDTO {
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
-  password?: string | null;
-  userType?: UserTypeEnum;
-}
-
-/** @format int32 */
-export enum UserTypeEnum {
-  Value1 = 1,
-  Value2 = 2,
-  Value3 = 3,
-  Value4 = 4,
+  /** @format int32 */
+  userTypeId?: number;
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -269,18 +272,51 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
+     * @tags Admin
+     * @name AdminAdminEndpointList
+     * @request GET:/api/Admin/admin-endpoint
+     * @secure
+     */
+    adminAdminEndpointList: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/Admin/admin-endpoint`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin
+     * @name AdminUserEndpointList
+     * @request GET:/api/Admin/user-endpoint
+     * @secure
+     */
+    adminUserEndpointList: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/Admin/user-endpoint`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags Authentication
      * @name AuthenticationLoginCreate
      * @request POST:/api/Authentication/login
      * @secure
      */
     authenticationLoginCreate: (data: LoginRequestDTO, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<LoginResponseDTO, ProblemDetails | void>({
         path: `/api/Authentication/login`,
         method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -309,10 +345,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @secure
      */
     authenticationStatusList: (params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<AuthenticationResponseDTO, any>({
         path: `/api/Authentication/status`,
         method: "GET",
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -333,30 +370,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     ) =>
       this.request<UserDTO, any>({
         path: `/api/User/GetUserById`,
-        method: "GET",
-        query: query,
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags User
-     * @name UserVerifyLoginList
-     * @request GET:/api/User/VerifyLogin
-     * @secure
-     */
-    userVerifyLoginList: (
-      query?: {
-        email?: string;
-        password?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<UserDTO, ProblemDetails>({
-        path: `/api/User/VerifyLogin`,
         method: "GET",
         query: query,
         secure: true,

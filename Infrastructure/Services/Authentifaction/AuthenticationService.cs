@@ -1,40 +1,34 @@
 ﻿// Infrastructure/Services/Authentifaction/AuthenticationService.cs
+
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Authentication;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Core.Entities.Enum;
 using Core.Entities.User;
 using Core.Repository;
 using Infrastructure.DTO.Authentication;
 using Infrastructure.DTO.User;
 using Infrastructure.Services.IServices.Authentification;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Services.Authentifaction
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly IJwtService _jwtService;
-        private readonly IRepository<User> _userRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<AuthenticationService> _logger;
-        private readonly IMapper _mapper;
-        private readonly IConfiguration _configuration;
+        private readonly IJwtService _jwtService; // Service to handle JWT token operations
+        private readonly IRepository<User> _userRepository; // Repository for accessing user data
+        private readonly IHttpContextAccessor _httpContextAccessor; // Accessor for HTTP context (used for claims)
+        private readonly ILogger<AuthenticationService> _logger; // Logger for logging information and errors
+        private readonly IMapper _mapper; // AutoMapper to map between entity and DTO
 
         public AuthenticationService(
             IJwtService jwtService,
             IRepository<User> userRepository,
             IHttpContextAccessor httpContextAccessor,
             ILogger<AuthenticationService> logger,
-            IConfiguration configuration,
             IMapper mapper
         )
         {
@@ -42,106 +36,132 @@ namespace Infrastructure.Services.Authentifaction
             _userRepository = userRepository;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
-            _configuration = configuration;
             _mapper = mapper;
         }
 
-        public async Task<LoginResponseDTO> Login(string email, string password)
+        // 1. LOGIN LOGIC
+        public async Task<LoginResponseDTO> Login(LoginRequestDTO model)
         {
             try
             {
-                var user = await _userRepository.FindAsync(u => u.Email == email);
-                if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+                _logger.LogInformation($"Attempting to authenticate user: {model.Email}");
+
+                // Retrieve the user from the database using the email
+                var user = await _userRepository.FindAsync(u => u.Email == model.Email);
+
+                // Check if user was found
+                if (user == null)
                 {
-                    _logger.LogWarning($"Authentication failed for email: {email}");
+                    _logger.LogWarning($"No user found for email: {model.Email}");
                     throw new AuthenticationException("Invalid email or password.");
                 }
 
-                var token = _jwtService.GenerateToken(user); // Implement IJwtService accordingly
+                // Verify if the password is correct
+                if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+                {
+                    _logger.LogWarning($"Password verification failed for email: {model.Email}");
+                    throw new AuthenticationException("Invalid email or password.");
+                }
 
-                _logger.LogInformation($"User logged in: {user.Email}");
+                _logger.LogInformation($"Generating JWT token for user: {user.Email}");
 
-                // Return the token
+                // Generate a JWT token for the authenticated user
+                var token = _jwtService.GenerateToken(user);
+
+                // Log the login action
+                _logger.LogInformation($"User logged in successfully: {user.Email}");
+
+                // Return the token and a success message
                 return new LoginResponseDTO { Token = token, Message = "Logged in successfully." };
+            }
+            catch (AuthenticationException authEx)
+            {
+                _logger.LogWarning(
+                    $"Authentication failed for email: {model.Email}. Reason: {authEx.Message}"
+                );
+                throw; // Re-throw the specific AuthenticationException to handle in the calling function
             }
             catch (Exception ex)
             {
-                var user = await _userRepository.FindAsync(u => u.Email == email);
-
-                if (user != null)
-                {
-                    _logger.LogInformation(
-                        $"User found: {user.Email}, ID: {user.Id}, UserType: {user.UserTypeId}"
-                    );
-                }
-
+                // Log any unexpected errors
                 _logger.LogError(
-                    $"An error occurred during login for user {email}. Exception: {ex.Message}. Stack Trace: {ex.StackTrace}"
+                    $"An unexpected error occurred during login for email {model.Email}: {ex.Message}. Stack Trace: {ex.StackTrace}"
                 );
-                throw;
+                throw new AuthenticationException("An error occurred during login.");
             }
         }
 
-        public async Task<bool> Logout()
+        // 2. LOGOUT LOGIC
+        public void Logout()
         {
-            // Since JWT is stateless, logout can be handled on the client side by deleting the cookie
-            // Alternatively, implement token blacklisting if needed
-            return true;
+            // Since JWTs are stateless, we can simply log out by removing the token on the client side.
+            // Assuming you are using cookies to store the token
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                _logger.LogInformation("User logged out.");
+                var cookies = _httpContextAccessor.HttpContext.Response.Cookies;
+                cookies.Delete("AuthToken");
+                _logger.LogInformation("Token removed from client-side storage.");
+            }
         }
 
-        public async Task<bool> IsAuthenticatedAsync(ClaimsPrincipal user)
+        // 3. STATUS LOGIC
+        public async Task<AuthenticationResponseDTO> GetUserStatusResponse()
         {
-            if (!user.Identity.IsAuthenticated)
+            var context = _httpContextAccessor.HttpContext;
+
+            if (context == null || context.User == null)
             {
-                _logger.LogWarning("User is not authenticated");
-                return false;
+                return new AuthenticationResponseDTO
+                {
+                    IsAuthenticated = false,
+                    Message = "No user context found.",
+                };
             }
 
-            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
+            var userIdClaim = context
+                .User.FindFirst(
+                    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+                )
+                ?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
             {
-                _logger.LogWarning("NameIdentifier claim not found");
-                return false;
+                return new AuthenticationResponseDTO
+                {
+                    IsAuthenticated = false,
+                    Message = "User ID claim not found.",
+                };
             }
 
-            var emailClaim = user.FindFirst(ClaimTypes.Email);
-            if (emailClaim == null || string.IsNullOrEmpty(emailClaim.Value))
+            if (!int.TryParse(userIdClaim, out var userId))
             {
-                _logger.LogWarning("Email claim not found or empty");
-                return false;
+                return new AuthenticationResponseDTO
+                {
+                    IsAuthenticated = false,
+                    Message = "Invalid user ID.",
+                };
             }
 
-            return true;
-        }
+            var user = await _userRepository.FindByIdAsync(userId);
 
-        public async Task<UserDTO> Status(string email)
-        {
-            if (string.IsNullOrEmpty(email))
-            {
-                _logger.LogWarning("GetUserStatus called with null or empty email.");
-                return null;
-            }
-
-            var user = await _userRepository.FindAsync(u => u.Email == email);
             if (user == null)
             {
-                _logger.LogWarning($"No user found for email: {email}");
-                return null;
+                return new AuthenticationResponseDTO
+                {
+                    IsAuthenticated = false,
+                    Message = "User not found.",
+                };
             }
 
-            return new UserDTO
-            {
-                UserId = user.Id,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                UserType = (UserTypeEnum)user.UserTypeId,
-            };
-        }
+            var userDto = _mapper.Map<UserDTO>(user);
 
-        public async Task<User> GetUserByEmail(string email)
-        {
-            return await _userRepository.FindAsync(u => u.Email == email);
+            return new AuthenticationResponseDTO
+            {
+                IsAuthenticated = true,
+                User = userDto, // Manually set UserDTO
+                Message = "User is authenticated.",
+            };
         }
     }
 }
