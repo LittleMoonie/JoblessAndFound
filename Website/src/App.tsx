@@ -3,8 +3,8 @@ import React from 'react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppRouter from './Router/Routes'; // Use AppRouter instead of custom router
-import { ApiProvider } from './Context/ApiContext';
-import { AuthProvider } from './Context/AuthContext';
+import { ApiProvider } from './Context/apiContext';
+import { AuthProvider } from './Context/authContext';
 
 const theme = createTheme({});
 const queryClient = new QueryClient();

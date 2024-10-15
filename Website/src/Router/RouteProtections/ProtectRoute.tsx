@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../Context/AuthContext';
+import { useAuth } from '../../Context/authContext';
 
 interface ProtectRouteProps {
 	children: ReactElement;
@@ -19,7 +19,7 @@ const ProtectRoute: React.FC<ProtectRouteProps> = ({ children }) => {
 		};
 
 		checkAuth();
-	}, [checkAuthStatus]); // You might still want to include checkAuthStatus here, but ensure it's stable
+	}, [checkAuthStatus]);
 
 	if (isLoading) {
 		return <div>Loading...</div>; // Optionally show a loading indicator

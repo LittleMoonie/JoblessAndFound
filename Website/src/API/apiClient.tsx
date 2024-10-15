@@ -257,6 +257,213 @@ async function authentication_status(): Promise<
 }
 
 /**
+ * company_get_company_by_id
+ */
+async function company_get_company_by_id(
+  query: { companyId?: number | undefined } | undefined,
+): Promise<
+  | import('C:/Pas_Emploi/Website/src/API/Api').HttpResponse<
+      import('C:/Pas_Emploi/Website/src/API/Api').CompanyDTO,
+      any
+    >
+  | null
+> {
+  try {
+    const token = await getAuthToken();
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${baseUrl}/api/Company/GetCompanyById`, {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      // Handle different return types based on your API's response
+      if (response.status === 204) {
+        // No Content
+        return null; // Or any default value you prefer
+      }
+      const responseData = await parseJSON(response); // Expecting the direct response
+      return responseData; // Return the response directly
+    } else {
+      const errorData = await parseJSON(response);
+      console.error(
+        `company_get_company_by_id Error: ${response.status} ${response.statusText}`,
+        errorData,
+      );
+      return null;
+    }
+  } catch (error) {
+    console.error('company_get_company_by_id Exception:', error);
+    return null;
+  }
+}
+
+/**
+ * company_add_company
+ */
+async function company_add_company(
+  query:
+    | {
+        CompanyName?: string | undefined;
+        Location?: string | undefined;
+        Domain?: string | undefined;
+        EmployeesId?: number | undefined;
+      }
+    | undefined,
+): Promise<
+  | import('C:/Pas_Emploi/Website/src/API/Api').HttpResponse<
+      void,
+      import('C:/Pas_Emploi/Website/src/API/Api').ProblemDetails
+    >
+  | null
+> {
+  try {
+    const token = await getAuthToken();
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${baseUrl}/api/Company/AddCompany`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+
+      body: JSON.stringify({ query }),
+    });
+
+    if (response.ok) {
+      // Handle different return types based on your API's response
+      if (response.status === 204) {
+        // No Content
+        return null; // Or any default value you prefer
+      }
+      const responseData = await parseJSON(response); // Expecting the direct response
+      return responseData; // Return the response directly
+    } else {
+      const errorData = await parseJSON(response);
+      console.error(
+        `company_add_company Error: ${response.status} ${response.statusText}`,
+        errorData,
+      );
+      return null;
+    }
+  } catch (error) {
+    console.error('company_add_company Exception:', error);
+    return null;
+  }
+}
+
+/**
+ * offer_get_offer_by_company_id
+ */
+async function offer_get_offer_by_company_id(
+  query: { companyId?: number | undefined } | undefined,
+): Promise<
+  | import('C:/Pas_Emploi/Website/src/API/Api').HttpResponse<
+      import('C:/Pas_Emploi/Website/src/API/Api').OfferAdvertisementDTO,
+      any
+    >
+  | null
+> {
+  try {
+    const token = await getAuthToken();
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${baseUrl}/api/Offer/GetOfferByCompanyId`, {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      // Handle different return types based on your API's response
+      if (response.status === 204) {
+        // No Content
+        return null; // Or any default value you prefer
+      }
+      const responseData = await parseJSON(response); // Expecting the direct response
+      return responseData; // Return the response directly
+    } else {
+      const errorData = await parseJSON(response);
+      console.error(
+        `offer_get_offer_by_company_id Error: ${response.status} ${response.statusText}`,
+        errorData,
+      );
+      return null;
+    }
+  } catch (error) {
+    console.error('offer_get_offer_by_company_id Exception:', error);
+    return null;
+  }
+}
+
+/**
+ * offer_add_offer
+ */
+async function offer_add_offer(
+  query:
+    | {
+        OfferAdvertisementId?: number | undefined;
+        Description?: string | undefined;
+        Title?: string | undefined;
+        CreatedAt?: string | undefined;
+        UpdatedAt?: string | undefined;
+      }
+    | undefined,
+): Promise<
+  | import('C:/Pas_Emploi/Website/src/API/Api').HttpResponse<
+      void,
+      import('C:/Pas_Emploi/Website/src/API/Api').ProblemDetails
+    >
+  | null
+> {
+  try {
+    const token = await getAuthToken();
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${baseUrl}/api/Offer/AddOffer`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+
+      body: JSON.stringify({ query }),
+    });
+
+    if (response.ok) {
+      // Handle different return types based on your API's response
+      if (response.status === 204) {
+        // No Content
+        return null; // Or any default value you prefer
+      }
+      const responseData = await parseJSON(response); // Expecting the direct response
+      return responseData; // Return the response directly
+    } else {
+      const errorData = await parseJSON(response);
+      console.error(
+        `offer_add_offer Error: ${response.status} ${response.statusText}`,
+        errorData,
+      );
+      return null;
+    }
+  } catch (error) {
+    console.error('offer_add_offer Exception:', error);
+    return null;
+  }
+}
+
+/**
  * user_get_user_by_id
  */
 async function user_get_user_by_id(
@@ -364,6 +571,10 @@ export default {
   authentication_login,
   authentication_logout,
   authentication_status,
+  company_get_company_by_id,
+  company_add_company,
+  offer_get_offer_by_company_id,
+  offer_add_offer,
   user_get_user_by_id,
   user_add_user,
 };

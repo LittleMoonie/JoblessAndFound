@@ -12,7 +12,7 @@ import MenuButton from './MenuButton';
 import MenuContent from './MenuContent';
 // import CardAlert from './CardAlert';
 
-import { useAuth } from '../../Context/AuthContext';
+import { useAuth } from '../../Context/authContext';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import apiClient from '../../API/apiClient';
