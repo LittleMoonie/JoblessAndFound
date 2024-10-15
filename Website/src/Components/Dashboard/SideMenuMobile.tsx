@@ -12,8 +12,10 @@ import MenuButton from './MenuButton';
 import MenuContent from './MenuContent';
 // import CardAlert from './CardAlert';
 
-import { useAuth } from '../../Context/authContext';
+import { useAuth } from '../../Context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import apiClient from '../../API/apiClient';
 
 interface SideMenuMobileProps {
 	open: boolean | undefined;
@@ -24,17 +26,22 @@ export default function SideMenuMobile({
 	open,
 	toggleDrawer,
 }: SideMenuMobileProps) {
-	const { logout } = useAuth(); // Get the logout function from context
-	const navigate = useNavigate(); // Get navigate to handle redirection
+	const { checkAuthStatus } = useAuth();
+	const navigate = useNavigate();
 
-	// Function to handle logout
-	const handleLogout = async () => {
-		try {
-			await logout(); // Call the logout function from context
-			navigate('/login'); // Redirect to the login page
-		} catch (error) {
-			console.error('Logout failed', error);
-		}
+	const logoutMutation = useMutation({
+		mutationFn: () => apiClient.authentication_logout(),
+		onSuccess: async () => {
+			await checkAuthStatus();
+			navigate('/login');
+		},
+		onError: (err: unknown) => {
+			console.error('Logout failed:', err);
+		},
+	});
+
+	const handleLogout = () => {
+		logoutMutation.mutate();
 	};
 
 	return (
