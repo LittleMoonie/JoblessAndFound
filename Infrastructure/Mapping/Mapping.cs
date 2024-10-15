@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using Core.Mapping;
+using Infrastructure.DTO.Offer; // Assurez-vous d'inclure l'espace de noms pour votre DTO
+using Core.Entities.Offer; // Assurez-vous d'inclure l'espace de noms pour votre entité
 
 namespace Infrastructure.Mapping
 {
@@ -13,6 +12,9 @@ namespace Infrastructure.Mapping
     {
         public MappingProfile()
         {
+            // Définition du mappage entre Advertisement et OfferAdvertisementDTO
+            CreateMap<Advertisement, OfferAdvertisementDTO>();
+
             // Scan assemblies for IMap implementations and apply their mappings
             ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
         }

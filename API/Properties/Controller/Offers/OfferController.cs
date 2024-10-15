@@ -13,23 +13,41 @@ namespace API.Controller.Offers
     {
         private readonly IOfferService _OfferService;
         private readonly IMapper _mapper;
+        private readonly ILogger<OfferController> _logger; // Ajout du logger
 
-        public OfferController(IOfferService OfferService, IMapper mapper)
+        public OfferController(IOfferService OfferService, IMapper mapper, ILogger<OfferController> logger)
         {
             _OfferService = OfferService;
             _mapper = mapper;
+            _logger = logger; // Assignation du logger
         }
 
         #region GET
         [HttpGet("GetOfferByCompanyId")]
-        [ProducesResponseType(typeof(OfferAdvertisementDTO), StatusCodes.Status200OK)]
-        public async Task<OfferAdvertisementDTO> GetOfferByCompanyId(int companyId)
+        public async Task<IActionResult> GetOfferByCompanyId(int CompanyId)
         {
-            return await _OfferService.GetOfferByCompanyId(companyId);
-        }
+            if (CompanyId <= 0)
+            {
+                return BadRequest("Invalid company ID.");
+            }
 
-        [ProducesResponseType(typeof(OfferAdvertisementDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+            try
+            {
+                var offer = await _OfferService.GetOfferByCompanyId(CompanyId);
+                if (offer == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(offer);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la récupération de l'offre pour la compagnie {CompanyId}", CompanyId);
+                return StatusCode(500, ex.Message); // Pour voir le message d'erreur lors du débogage
+            }
+
+        }
 
         #endregion
 
@@ -45,11 +63,13 @@ namespace API.Controller.Offers
         )
         {
             await _OfferService.AddOffer(
+                OfferAdvertisementId,
                 Description,
                 Title,
-                (DateTime)CreatedAt,
-                (DateTime)UpdatedAt
+                CreatedAt ?? DateTime.UtcNow, // Valeur par défaut si null
+                UpdatedAt ?? DateTime.UtcNow  // Valeur par défaut si null
             );
+
         }
         #endregion
     }

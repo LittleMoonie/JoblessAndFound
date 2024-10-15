@@ -19,11 +19,24 @@ namespace Infrastructure.Services
             this.mapper = mapper;
         }
 
-        public async Task<OfferAdvertisementDTO> GetOfferByCompanyId(int companyId)
+        public async Task<OfferAdvertisementDTO> GetOfferByCompanyId(int CompanyId)
         {
-            var offerAdvertisementDTO = await offerRepository.FindAsync<OfferAdvertisementDTO>(c => c.Id == companyId);
+            if (CompanyId <= 0)
+            {
+                throw new ArgumentException("L'ID de la compagnie doit être supérieur à zéro.", nameof(CompanyId));
+            }
 
-            return offerAdvertisementDTO;
+            try
+            {
+                // Vérifie que l'ID est correct
+                var offerAdvertisementDTO = await offerRepository.FindAsync<OfferAdvertisementDTO>(c => c.CompanyId == CompanyId);
+                return offerAdvertisementDTO;
+            }
+            catch (Exception ex)
+            {
+                // Log l'erreur ici
+                throw new ApplicationException("Une erreur est survenue lors de la récupération de l'offre.", ex);
+            }
         }
 
         public async Task AddOffer(int OfferAdvertisementId,

@@ -9,7 +9,7 @@ namespace Infrastructure.Services.IServices
 {
     public interface IOfferService
     {
-        Task<OfferAdvertisementDTO> GetOfferByCompanyId(int companyId);
+        Task<OfferAdvertisementDTO> GetOfferByCompanyId(int CompanyId);
         Task AddOffer(
             int OfferAdvertisementId,
             string? Description,
