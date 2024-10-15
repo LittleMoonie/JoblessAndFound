@@ -2,27 +2,27 @@
 import React from 'react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import AppRouter from './Router/Routes'; // Use AppRouter instead of custom router
 import { ApiProvider } from './Context/apiContext';
 import { AuthProvider } from './Context/authContext';
-import AppRouter from './Router/index'; // Use AppRouter instead of custom router
 
 const theme = createTheme({});
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
-  return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ApiProvider>
-          <AuthProvider>
-            <ThemeProvider theme={theme}>
-              <AppRouter />
-            </ThemeProvider>
-          </AuthProvider>
-        </ApiProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
-  );
+	return (
+		<React.StrictMode>
+			<QueryClientProvider client={queryClient}>
+				<ApiProvider>
+					<AuthProvider>
+						<ThemeProvider theme={theme}>
+							<AppRouter />
+						</ThemeProvider>
+					</AuthProvider>
+				</ApiProvider>
+			</QueryClientProvider>
+		</React.StrictMode>
+	);
 };
 
 export default App;

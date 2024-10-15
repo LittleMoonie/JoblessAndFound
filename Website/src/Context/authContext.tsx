@@ -1,76 +1,66 @@
-// src/Context/authContext.tsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAPIClient } from './apiContext';
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useState,
+	useCallback,
+} from 'react';
+import apiClient from '../API/apiClient';
+import { ReactNode } from 'react';
 
 interface AuthContextType {
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  user: any; // Replace `any` with your user type if defined
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+	isAuthenticated: boolean; // Indicates if the user is authenticated
+	isLoading: boolean; // Indicates if the authentication check is in progress
+	checkAuthStatus: () => Promise<void>; // Function to check authentication status
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { apiClient } = useAPIClient();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Track loading state
-  const [user, setUser] = useState<any>(null);
+interface AuthProviderProps {
+	children: ReactNode;
+}
 
-  // Check authentication status when the component mounts
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      setIsLoading(true); // Set loading to true while checking auth status
-      try {
-        const response = await apiClient.authentication_status();
-        if (response) {
-          setIsAuthenticated(true);
-          setUser(response);
-        } else {
-          setIsAuthenticated(false);
-          setUser(null);
-        }
-      } catch (error) {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-      setIsLoading(false); // Set loading to false after checking auth status
-    };
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    checkAuthStatus();
-  }, [apiClient]);
+	// Fetch authentication status directly using an API call
+	const checkAuthStatus = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const authStatus = await apiClient.authentication_status();
+			if (authStatus && typeof authStatus === 'object') {
+				setIsAuthenticated(authStatus.isAuthenticated ?? false);
+			} else {
+				setIsAuthenticated(false);
+				console.error('Auth status response is not valid:', authStatus);
+			}
+		} catch (error) {
+			setIsAuthenticated(false); // Set as unauthenticated on error
+			console.error('Authentication check failed:', error);
+		} finally {
+			setIsLoading(false); // Stop loading once the check is complete
+		}
+	}, []); // Removed dependency on useQuery data
 
-  const login = async (email: string, password: string) => {
-    try {
-      await apiClient.authentication_login(email, password);
-      const response = await apiClient.authentication_status();
-      if (response) {
-        setIsAuthenticated(true);
-        setUser(response);
-      }
-    } catch (error) {
-      setIsAuthenticated(false);
-    }
-  };
+	useEffect(() => {
+		// Check auth status on mount
+		checkAuthStatus();
+	}, [checkAuthStatus]);
 
-  const logout = async () => {
-    await apiClient.authentication_logout();
-    setIsAuthenticated(false);
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+	return (
+		<AuthContext.Provider
+			value={{ isAuthenticated, isLoading, checkAuthStatus }}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+export const useAuth = (): AuthContextType => {
+	const context = useContext(AuthContext);
+	if (!context) {
+		throw new Error('useAuth must be used within an AuthProvider');
+	}
+	return context;
 };

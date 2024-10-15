@@ -8,16 +8,15 @@ import LoginPage from '../Views/LoginPage';
 import Register from '../Views/Register';
 // Import other public pages as needed
 
-const publicRoutes: RouteObject[] = [
+const PublicRoutes: RouteObject[] = [
 	{
 		path: '/',
 		element: <LandingPage />,
 	},
 	{
-		path: '/login',
+		path: 'login',
 		element: <LoginPage />,
 	},
-	// Add more public routes here
 	{
 		path: '/register',
 		element: <Register />,
@@ -28,4 +27,4 @@ const publicRoutes: RouteObject[] = [
 	},
 ];
 
-export default publicRoutes;
+export default PublicRoutes;
