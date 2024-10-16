@@ -235,7 +235,7 @@ export default function MediaCard() {
 									<CalendarMonthIcon
 										sx={{ width: '1rem', marginRight: '5px' }}
 									/>
-									Posted {postedSince} ago
+									Posted {postedSince}
 								</Typography>
 
 								<Typography
