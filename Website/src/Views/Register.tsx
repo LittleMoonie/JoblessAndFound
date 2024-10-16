@@ -177,7 +177,7 @@ export default function Register(props: { disableCustomTheme?: boolean }) {
                         },
                     }}
                 >
-                    <ArrowBackIcon sx={{ paddingRight: "3px" }} /> Return back
+                    <ArrowBackIcon sx={{ paddingRight: "3px" }} /> Return home
                 </Link>
                 <ColorModeIconDropdown />
             </Box>
