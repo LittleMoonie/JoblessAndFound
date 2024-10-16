@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -23,16 +23,14 @@ const mainListItems = [
 ];
 
 const secondaryListItems = [
-    { text: 'Settings', icon: <SettingsRoundedIcon />, path: '/settings' },
-    { text: 'Moderator', icon: <GavelIcon />, path: '/moderator' },
-    { text: 'Admin', icon: <LockIcon />, path: '/admin' },
-  // You can uncomment and add more items here as needed
-  // { text: 'About', icon: <InfoRoundedIcon />, path: '/about' },
-  // { text: 'Feedback', icon: <HelpRoundedIcon />, path: '/feedback' },
+  { text: 'Settings', icon: <SettingsRoundedIcon />, path: '/settings' },
+  { text: 'Moderator', icon: <GavelIcon />, path: '/moderator' },
+  { text: 'Admin', icon: <LockIcon />, path: '/admin' },
 ];
 
 export default function MenuContent() {
   const navigate = useNavigate(); // Initialize useNavigate
+  const location = useLocation(); // Get current location
 
   // Function to handle navigation
   const handleNavigation = (path: string) => {
@@ -44,7 +42,7 @@ export default function MenuContent() {
       <List dense>
         {mainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={() => handleNavigation(item.path)} selected={index === 0}>
+            <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
@@ -55,7 +53,7 @@ export default function MenuContent() {
       <List dense>
         {secondaryListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={() => handleNavigation(item.path)}>
+            <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
