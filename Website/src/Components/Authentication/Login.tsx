@@ -1,4 +1,3 @@
-// Login.tsx
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -11,14 +10,13 @@ import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AppTheme from '../AppTheme';
 import Link from '@mui/material/Link';
-import ColorModeIconDropdown from '../Dashboard/ColorModeIconDropdown';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/authContext';
 import { useMutation } from '@tanstack/react-query';
-import apiClient from '../../API/apiClient';
 import { Alert, Grid } from '@mui/material';
+import ColorModeIconDropdown from '../Dashboard/ColorModeIconDropdown';
+import AppTheme from '../AppTheme';
 
 const Card = styled(MuiCard)(({ theme }) => ({
 	display: 'flex',
@@ -64,12 +62,28 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState<string | null>(null);
 
+	// Directly use fetch to make the login API request
 	const loginMutation = useMutation({
-		mutationFn: () => apiClient.authentication_login(email, password),
+		mutationFn: async () => {
+			const response = await fetch('http://localhost:5000/api/Authentication/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email, password }),
+				credentials: 'include', // This ensures cookies are included for cross-origin requests
+			});
+
+			if (!response.ok) {
+				throw new Error('Login failed');
+			}
+
+			// You can process the response if needed
+			return response.json();
+		},
 		onSuccess: async () => {
 			await checkAuthStatus(); // Check authentication status after login
-			console.log('Login successful, navigating to /home');
-			navigate('/home'); // Navigate to /home
+			navigate('/home'); // Navigate to /home after successful login
 		},
 		onError: (err: unknown) => {
 			setError('Login failed. Please check your credentials.');
@@ -82,28 +96,29 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 		setError(null);
 		loginMutation.mutate(); // Trigger the login mutation
 	};
+
 	return (
 		<AppTheme {...props}>
 			<CssBaseline enableColorScheme />
 			<Box
 				sx={{
-					display: "flex",
-					justifyContent: "space-between",
-					margin: "1%",
+					display: 'flex',
+					justifyContent: 'space-between',
+					margin: '1%',
 				}}
 			>
 				<Link
 					href="/"
 					variant="h6"
 					sx={{
-						display: "flex",
+						display: 'flex',
 						color: '#3E63DD',
 						'&:hover': {
 							color: '#004074',
 						},
 					}}
 				>
-					<ArrowBackIcon sx={{ paddingRight: "3px" }} /> Return home
+					<ArrowBackIcon sx={{ paddingRight: '3px' }} /> Return home
 				</Link>
 				<ColorModeIconDropdown />
 			</Box>
@@ -118,12 +133,12 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 						Sign In
 					</Typography>
 					{error && (
-						<Alert severity='error' sx={{ width: '100%', mb: 2 }}>
+						<Alert severity="error" sx={{ width: '100%', mb: 2 }}>
 							{error}
 						</Alert>
 					)}
 					{loginMutation.isSuccess && (
-						<Alert severity='success' sx={{ width: '100%', mb: 2 }}>
+						<Alert severity="success" sx={{ width: '100%', mb: 2 }}>
 							Logged in successfully
 						</Alert>
 					)}
@@ -151,8 +166,6 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 								required
 								fullWidth
 								variant="outlined"
-								// color={emailError ? 'error' : 'primary'}
-								sx={{ ariaLabel: 'email' }}
 							/>
 						</FormControl>
 
@@ -169,7 +182,6 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 								required
 								fullWidth
 								variant="outlined"
-							// color={passwordError ? 'error' : 'primary'}
 							/>
 						</FormControl>
 
@@ -180,18 +192,18 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 						>
 							Sign in
 						</Button>
-						<Grid container justifyContent='space-between'>
+						<Grid container justifyContent="space-between">
 							<Grid item>
-								<Button variant='text' size='small' color='secondary'>
+								<Button variant="text" size="small" color="secondary">
 									Forgot password?
 								</Button>
 							</Grid>
 							<Grid item>
 								<Button
-									href='/register'
-									variant='text'
-									size='small'
-									color='secondary'
+									href="/register"
+									variant="text"
+									size="small"
+									color="secondary"
 								>
 									{"Don't have an account? Sign Up"}
 								</Button>

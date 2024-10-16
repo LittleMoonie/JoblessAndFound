@@ -10,26 +10,19 @@ const ProtectRoute: React.FC<ProtectRouteProps> = ({ children }) => {
 	const { isAuthenticated, isLoading, checkAuthStatus } = useAuth();
 
 	useEffect(() => {
-		const checkAuth = async () => {
-			try {
-				await checkAuthStatus();
-			} catch (error) {
-				console.error('Failed to check auth status:', error);
-			}
-		};
-
-		checkAuth();
+		// Check authentication status on every page load or navigation
+		checkAuthStatus();
 	}, [checkAuthStatus]);
 
 	if (isLoading) {
-		return <div>Loading...</div>; // Optionally show a loading indicator
+		return <div>Loading...</div>;
 	}
 
 	if (!isAuthenticated) {
-		return <Navigate to='/login' replace />; // Redirect to login if not authenticated
+		return <Navigate to="/login" replace />;
 	}
 
-	return children; // Render the protected route's children
+	return children;
 };
 
 export default ProtectRoute;
