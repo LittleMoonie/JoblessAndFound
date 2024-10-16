@@ -14,8 +14,10 @@ namespace Infrastructure.Services.IServices
             int OfferAdvertisementId,
             string? Description,
             string? Title,
-            DateTime? CreatedAt,
-            DateTime? UpdatedAt
+            DateTime CreatedAt,
+            DateTime UpdatedAt,
+            int CompanyId,
+            int PostedByUserId
         );
         Task AddOffer(string? description, string? title, DateTime createdAt, DateTime updatedAt);
     }

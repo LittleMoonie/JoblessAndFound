@@ -35,8 +35,8 @@
   },
   "type": "module",
   "scripts": {
-    "start": "react-scripts start & npm run watch:api-client",
-    "build": "react-scripts build",
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build",
     "test": "react-scripts test --coverage --watchAll=false --passWithNoTests",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",

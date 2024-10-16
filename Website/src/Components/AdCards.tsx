@@ -12,81 +12,106 @@ import PlaceIcon from '@mui/icons-material/Place';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Link from '@mui/material/Link';
 import { Box } from '@mui/material';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { differenceInMonths } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
-import apiClient from '../API/apiClient';
+import { differenceInMonths } from 'date-fns';
 
-interface OfferAdvertisement {
-	offerAdvertisementId: number;
-	title: string;
-	description: string;
-	createdAt: string;
-	updatedAt: string;
-	companyId: number;
-	postedByUserId: number;
-}
-
-interface Data {
+interface CompanyData {
 	companyId: number;
 	companyName: string;
 	location: string;
 	domain: string;
 	employeesId: number;
-	offerAdvertisement: OfferAdvertisement[];
+	offerAdvertisement: OfferAdvertisement[] | null;
 }
 
+interface OfferAdvertisement {
+	offerAdvertisementId: number;
+	title: string;
+	description: string;
+	createdAt: Date;
+	updatedAt: Date;
+	companyId: number;
+}
+
+// Fetch company data for multiple companies
+const fetchCompanyData = async (): Promise<CompanyData[]> => {
+	// Fetching data for both Company 1 and Company 2
+	const company1Response = await fetch('http://localhost:5000/api/Company/GetCompanyById?CompanyId=1');
+	const company2Response = await fetch('http://localhost:5000/api/Company/GetCompanyById?CompanyId=2');
+
+	if (!company1Response.ok || !company2Response.ok) {
+		throw new Error('Error fetching company data');
+	}
+
+	const company1Data = await company1Response.json();
+	const company2Data = await company2Response.json();
+
+	return [company1Data, company2Data]; // Return both companies' data
+};
+
+// Fetch offers for a specific company
+const fetchOffers = async (companyId: number): Promise<OfferAdvertisement[]> => {
+	const response = await fetch(`http://localhost:5000/api/Offer/GetOfferByCompanyId?CompanyId=${companyId}`);
+	console.log("response", response);
+	if (!response.ok) {
+		throw new Error(`Error fetching offer data for CompanyId ${companyId}`);
+	}
+	const data = await response.json();
+	return data.offerAdvertisement ? data.offerAdvertisement : [];
+};
+
 export default function MediaCard() {
-	// UseQuery to fetch data from the API
-	const { data, isLoading, isError, error } = useQuery({
+	const { data: companies = [], isLoading: isLoadingCompanies, isError: isErrorCompanies } = useQuery({
 		queryKey: ['companies'],
-		queryFn: () => apiClient.company_get_company_by_id({ companyId: 1 }),
+		queryFn: fetchCompanyData,
 	});
 
-	// Handle loading state
-	if (isLoading) {
+	const { data: offersForCompany1 = [], isLoading: isLoadingOffers1, isError: isErrorOffers1 } = useQuery({
+		queryKey: ['offersCompany1'],
+		queryFn: () => fetchOffers(1), // Fetching offers for Company 1
+	});
+
+	const { data: offersForCompany2 = [], isLoading: isLoadingOffers2, isError: isErrorOffers2 } = useQuery({
+		queryKey: ['offersCompany2'],
+		queryFn: () => fetchOffers(2), // Fetching offers for Company 2
+	});
+
+	if (isLoadingCompanies || isLoadingOffers1 || isLoadingOffers2) {
 		return <div>Loading...</div>;
 	}
 
-	// Handle error state
-	if (isError) {
-		return <div>Error: {(error as Error).message}</div>;
+	if (isErrorCompanies || isErrorOffers1 || isErrorOffers2) {
+		return <div>Error loading data.</div>;
 	}
-    
-    return (
-		<div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-			{data?.map((item) => {
-				// Ensure there is at least one offer advertisement
-				const offer = item.offerAdvertisement[0];
-				if (!offer) {
-					return null; // If no offer exists, don't display the card
-				}
 
-				const itemDate = new Date(offer.createdAt);
-				const dateNow = new Date();
-				const monthsSince = Math.round(differenceInMonths(dateNow, itemDate));
+	return (
+		<div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+			{companies.map((company) => {
+				// Get the offers for the current company
+				console.log("company", company);
+				const offers = company.companyId === 1 ? offersForCompany1 : offersForCompany2;
 
 				return (
 					<Card
-						key={offer.offerAdvertisementId}
+						key={company.companyId}
 						sx={{
-							minWidth: 345,
-							maxWidth: 450,
+							minWidth: 500,
+							maxWidth: 550,
 							margin: 'auto',
+							padding: '16px',
 						}}
 					>
 						<CardMedia
-							sx={{ height: 140 }}
+							sx={{ height: 160 }}
 							image={'https://placehold.co/600x400'}
-							title='img'
+							title="Company Image"
 						/>
 
 						<Box sx={{ display: 'flex' }}>
 							<CardMedia
 								sx={{
-									height: 80,
-									width: '5.5rem',
+									height: 90,
+									width: '6rem',
 									borderRadius: '10px',
 									border: '1px solid black',
 									position: 'relative',
@@ -96,7 +121,7 @@ export default function MediaCard() {
 									marginRight: '2rem',
 								}}
 								image={'https://placehold.co/600x400'}
-								title='logo'
+								title="Company Logo"
 							/>
 
 							<Box
@@ -108,8 +133,8 @@ export default function MediaCard() {
 								}}
 							>
 								<Link
-									href='#'
-									variant='h5'
+									href="#"
+									variant="h5"
 									sx={{
 										color: '#6568FF',
 										'&:hover': {
@@ -117,75 +142,90 @@ export default function MediaCard() {
 										},
 									}}
 								>
-									{item.companyName}
+									{company.companyName}
 								</Link>
 
-								<Typography
-									component='div'
-									sx={{ display: 'flex', alignItems: 'center' }}
-								>
+								<Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
 									<PersonIcon sx={{ width: '1rem', paddingRight: '2px' }} />
-									{item.employeesId > 100 ? '100+' : item.employeesId}
+									{company.employeesId > 100 ? '100+' : company.employeesId}
 								</Typography>
 							</Box>
 						</Box>
 
 						<CardContent sx={{ position: 'relative', bottom: 20 }}>
-							<Typography
-								gutterBottom
-								variant='h5'
-								component='div'
-								sx={{ paddingLeft: '15px' }}
-							>
-								{offer.title}
-							</Typography>
+							{/* If there are no offers, display a message */}
+							{offers.length === 0 ? (
+								<Typography sx={{ paddingLeft: '15px', color: 'gray' }}>
+									No job offers available
+								</Typography>
+							) : (
+								offers.map((offer) => {
+									const itemDate = new Date(offer.createdAt);
+									const dateNow = new Date();
+									const monthsSince = Math.round(differenceInMonths(dateNow, itemDate));
 
-							<Typography
-								variant='body2'
-								sx={{
-									color: 'text.secondary',
-									paddingLeft: '15px',
-									display: 'flex',
-									alignItems: 'center',
-								}}
-							>
-								<PlaceIcon sx={{ width: '1rem', marginRight: '5px' }} />{' '}
-								{item.location}
-							</Typography>
-							<Typography
-								variant='body2'
-								sx={{
-									color: 'text.secondary',
-									paddingLeft: '15px',
-									display: 'flex',
-									alignItems: 'center',
-								}}
-							>
-								<GroupsIcon sx={{ width: '1rem', marginRight: '5px' }} />
-								{item.employeesId} employés
-							</Typography>
-							<Typography
-								variant='body2'
-								sx={{
-									color: 'text.secondary',
-									paddingLeft: '15px',
-									display: 'flex',
-									alignItems: 'center',
-								}}
-							>
-								<CalendarMonthIcon sx={{ width: '1rem', marginRight: '5px' }} />{' '}
-								{offer.createdAt}{' '}
-								<QueryBuilderIcon sx={{ width: '1rem', marginLeft: '5px' }} />{' '}
-								Depuis {monthsSince} mois
-							</Typography>
+									return (
+										<Box key={offer.offerAdvertisementId}>
+											<Typography
+												gutterBottom
+												variant="h5"
+												component="div"
+												sx={{ paddingLeft: '15px' }}
+											>
+												{offer.title}
+											</Typography>
 
-							<Typography
-								variant='body2'
-								sx={{ color: 'text.secondary', padding: '15px' }}
-							>
-								{offer.description}
-							</Typography>
+											<Typography
+												variant="body2"
+												sx={{
+													color: 'text.secondary',
+													paddingLeft: '15px',
+													display: 'flex',
+													alignItems: 'center',
+												}}
+											>
+												<PlaceIcon sx={{ width: '1rem', marginRight: '5px' }} />{' '}
+												{company.location}
+											</Typography>
+											<Typography
+												variant="body2"
+												sx={{
+													color: 'text.secondary',
+													paddingLeft: '15px',
+													display: 'flex',
+													alignItems: 'center',
+												}}
+											>
+												<GroupsIcon sx={{ width: '1rem', marginRight: '5px' }} />
+												{company.employeesId} employés
+											</Typography>
+											<Typography
+												variant="body2"
+												sx={{
+													color: 'text.secondary',
+													paddingLeft: '15px',
+													display: 'flex',
+													alignItems: 'center',
+												}}
+											>
+												<CalendarMonthIcon sx={{ width: '1rem', marginRight: '5px' }} />
+												{offer.createdAt.toLocaleDateString('fr-FR')}{' '}
+												<QueryBuilderIcon sx={{ width: '1rem', marginLeft: '5px' }} />
+												Depuis {monthsSince} mois
+											</Typography>
+
+											<Typography
+												variant="body2"
+												sx={{ color: 'text.secondary', padding: '15px' }}
+											>
+												{offer.description}
+											</Typography>
+										</Box>
+									);
+								})
+							)}
 						</CardContent>
+
 						<CardActions
 							sx={{
 								display: 'flex',
@@ -194,8 +234,8 @@ export default function MediaCard() {
 							}}
 						>
 							<Button
-								size='small'
-								href={`/share/${item.companyName}`}
+								size="small"
+								href={`/share/${company.companyName}`}
 								sx={{
 									backgroundColor: '#232453',
 									color: 'white',
@@ -209,7 +249,7 @@ export default function MediaCard() {
 							</Button>
 
 							<Button
-								size='small'
+								size="small"
 								sx={{
 									backgroundColor: '#232453',
 									color: 'white',

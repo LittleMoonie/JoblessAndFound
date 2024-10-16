@@ -15,7 +15,11 @@ namespace API.Controller.Offers
         private readonly IMapper _mapper;
         private readonly ILogger<OfferController> _logger; // Ajout du logger
 
-        public OfferController(IOfferService OfferService, IMapper mapper, ILogger<OfferController> logger)
+        public OfferController(
+            IOfferService OfferService,
+            IMapper mapper,
+            ILogger<OfferController> logger
+        )
         {
             _OfferService = OfferService;
             _mapper = mapper;
@@ -43,10 +47,13 @@ namespace API.Controller.Offers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur lors de la récupération de l'offre pour la compagnie {CompanyId}", CompanyId);
+                _logger.LogError(
+                    ex,
+                    "Erreur lors de la récupération de l'offre pour la compagnie {CompanyId}",
+                    CompanyId
+                );
                 return StatusCode(500, ex.Message); // Pour voir le message d'erreur lors du débogage
             }
-
         }
 
         #endregion
@@ -59,7 +66,9 @@ namespace API.Controller.Offers
             string? Description,
             string? Title,
             DateTime? CreatedAt,
-            DateTime? UpdatedAt
+            DateTime? UpdatedAt,
+            int CompanyId,
+            int PostedByUserId
         )
         {
             await _OfferService.AddOffer(
@@ -67,9 +76,10 @@ namespace API.Controller.Offers
                 Description,
                 Title,
                 CreatedAt ?? DateTime.UtcNow, // Valeur par défaut si null
-                UpdatedAt ?? DateTime.UtcNow  // Valeur par défaut si null
+                UpdatedAt ?? DateTime.UtcNow, // Valeur par défaut si null
+                CompanyId,
+                PostedByUserId
             );
-
         }
         #endregion
     }

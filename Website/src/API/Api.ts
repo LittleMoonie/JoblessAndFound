@@ -53,6 +53,10 @@ export interface OfferAdvertisementDTO {
   createdAt?: string | null;
   /** @format date-time */
   updatedAt?: string | null;
+  /** @format int32 */
+  companyId?: number;
+  /** @format int32 */
+  postedByUserId?: number;
 }
 
 export interface ProblemDetails {
@@ -436,16 +440,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     offerGetOfferByCompanyIdList: (
       query?: {
         /** @format int32 */
-        companyId?: number;
+        CompanyId?: number;
       },
       params: RequestParams = {},
     ) =>
-      this.request<OfferAdvertisementDTO, any>({
+      this.request<void, any>({
         path: `/api/Offer/GetOfferByCompanyId`,
         method: "GET",
         query: query,
         secure: true,
-        format: "json",
         ...params,
       }),
 
@@ -467,10 +470,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         CreatedAt?: string;
         /** @format date-time */
         UpdatedAt?: string;
+        /** @format int32 */
+        CompanyId?: number;
+        /** @format int32 */
+        PostedByUserId?: number;
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ProblemDetails>({
+      this.request<void, any>({
         path: `/api/Offer/AddOffer`,
         method: "POST",
         query: query,

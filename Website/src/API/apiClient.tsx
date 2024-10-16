@@ -363,13 +363,9 @@ async function company_add_company(
  * offer_get_offer_by_company_id
  */
 async function offer_get_offer_by_company_id(
-  query: { companyId?: number | undefined } | undefined,
+  query: { CompanyId?: number | undefined } | undefined,
 ): Promise<
-  | import('C:/Pas_Emploi/Website/src/API/Api').HttpResponse<
-      import('C:/Pas_Emploi/Website/src/API/Api').OfferAdvertisementDTO,
-      any
-    >
-  | null
+  import('C:/Pas_Emploi/Website/src/API/Api').HttpResponse<void, any> | null
 > {
   try {
     const token = await getAuthToken();
@@ -417,14 +413,12 @@ async function offer_add_offer(
         Title?: string | undefined;
         CreatedAt?: string | undefined;
         UpdatedAt?: string | undefined;
+        CompanyId?: number | undefined;
+        PostedByUserId?: number | undefined;
       }
     | undefined,
 ): Promise<
-  | import('C:/Pas_Emploi/Website/src/API/Api').HttpResponse<
-      void,
-      import('C:/Pas_Emploi/Website/src/API/Api').ProblemDetails
-    >
-  | null
+  import('C:/Pas_Emploi/Website/src/API/Api').HttpResponse<void, any> | null
 > {
   try {
     const token = await getAuthToken();
