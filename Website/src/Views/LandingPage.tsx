@@ -1,7 +1,12 @@
-import { autocompleteClasses, Box, Button, Card, CardContent, Grid } from '@mui/material';
+import { autocompleteClasses, Box, Button, Card, CardContent, Grid, Link } from '@mui/material';
 import React from 'react';
 import monImage from '../Assets/logo.png';
 import bgImage from '../Assets/bgMontains.png';
+import googleLogo from '../Assets/Logos/google.png';
+import linkedinLogo from '../Assets/Logos/linkedin.png';
+import microsoftLogo from '../Assets/Logos/microsoft.png';
+import poleEmploiLogo from '../Assets/Logos/pole_emploi.png';
+import ubisoftLogo from '../Assets/Logos/ubisoft.png';
 import Typography from '@mui/material/Typography';
 import { ReactComponent as Compass } from '../Assets/compass.svg';
 import { ReactComponent as Bag } from '../Assets/bag.svg';
@@ -330,29 +335,34 @@ function LandingPage() {
                             paddingBottom: "8%"
                         }}
                     >
-                        <img src="https://placehold.co/150x150" alt="" style={{
-                            borderRadius: "100%",
-                            width: "15%",
+                        <img src={microsoftLogo} alt="logo" style={{
+                            borderRadius: "20px",
+                            backgroundColor: "rgba(32, 32, 32, 0.5)",
+                            width: "20%",
                         }} />
 
-                        <img src="https://placehold.co/150x150" alt="" style={{
-                            borderRadius: "100%",
-                            width: "15%",
+                        <img src={googleLogo} alt="logo" style={{
+                            borderRadius: "20px",
+                            backgroundColor: "rgba(32, 32, 32, 0.5)",
+                            width: "17%",
                         }} />
 
-                        <img src="https://placehold.co/150x150" alt="" style={{
-                            borderRadius: "100%",
-                            width: "15%",
+                        <img src={ubisoftLogo} alt="logo" style={{
+                            borderRadius: "20px",
+                            backgroundColor: "rgba(32, 32, 32, 0.5)",
+                            width: "20%",
                         }} />
 
-                        <img src="https://placehold.co/150x150" alt="" style={{
-                            borderRadius: "100%",
-                            width: "15%",
+                        <img src={poleEmploiLogo} alt="logo" style={{
+                            borderRadius: "20px",
+                            backgroundColor: "rgba(32, 32, 32, 0.5)",
+                            width: "17%",
                         }} />
 
-                        <img src="https://placehold.co/150x150" alt="" style={{
-                            borderRadius: "100%",
-                            width: "15%",
+                        <img src={linkedinLogo} alt="logo" style={{
+                            borderRadius: "20px",
+                            backgroundColor: "rgba(32, 32, 32, 0.5)",
+                            width: "16%",
                         }} />
 
                     </Box>
@@ -372,15 +382,17 @@ function LandingPage() {
                 <Grid container spacing={2} justifyContent="center" alignItems="center">
                     {/* Image */}
                     <Grid item xs={12} md={3} textAlign="center">
-                        <Box
-                            component="img"
-                            src={monImage} // Remplacer par l'URL correcte de l'image
-                            alt="Jobless & Found"
-                            sx={{
-                                width: { xs: "50%", md: "80%" }, // Largeur de l'image pour mobile et desktop
-                                marginBottom: { xs: "1rem", md: "0" },
-                            }}
-                        />
+                        <Link href="/" underline="none">
+                            <Box
+                                component="img"
+                                src={monImage}
+                                alt="Jobless & Found"
+                                sx={{
+                                    width: { xs: "50%", md: "80%" }, // Largeur de l'image pour mobile et desktop
+                                    marginBottom: { xs: "1rem", md: "0" },
+                                }}
+                            />
+                        </Link>
                     </Grid>
 
                     {/* Contact */}
@@ -395,7 +407,7 @@ function LandingPage() {
                             CONTACT
                         </Typography>
                         <Typography>
-                            Contactez-nous sur jobless@found.com et nous vous répondrons dans les plus brefs délais !
+                            Contact us at jobless@found.com and we will respond as soon as possible !
                         </Typography>
                     </Grid>
 
@@ -408,11 +420,35 @@ function LandingPage() {
                                 marginBottom: "1rem",
                             }}
                         >
-                            SERVICE CLIENT
+                            CUSTOMER SERVICE
                         </Typography>
-                        <Typography>Problème avec mon compte</Typography>
-                        <Typography>Je sais pas</Typography>
-                        <Typography>Aucune idée</Typography>
+                        <Link href="/problem-with-my-account" color="inherit" underline="none">
+                            <Typography
+                                sx={{
+                                    '&:hover': {
+                                        color: "#BF7900"
+                                    },
+                                }}
+                            >Problem with my account</Typography>
+                        </Link>
+                        <Link href="/how-to-add-my-business" color="inherit" underline="none">
+                            <Typography
+                                sx={{
+                                    '&:hover': {
+                                        color: "#BF7900"
+                                    },
+                                }}
+                            >How to add my business</Typography>
+                        </Link>
+                        <Link href="/problem-with-my-business" color="inherit" underline="none">
+                            <Typography
+                                sx={{
+                                    '&:hover': {
+                                        color: "#BF7900"
+                                    },
+                                }}
+                            >Problem with my business</Typography>
+                        </Link>
                     </Grid>
 
                     {/* Autre */}
@@ -424,11 +460,35 @@ function LandingPage() {
                                 marginBottom: "1rem",
                             }}
                         >
-                            AUTRE
+                            OTHER
                         </Typography>
-                        <Typography>Conditions générales de vente</Typography>
-                        <Typography>Politique de confidentialité</Typography>
-                        <Typography>Mentions légales</Typography>
+                        <Link href="/general-conditions" color="inherit" underline="none">
+                            <Typography
+                                sx={{
+                                    '&:hover': {
+                                        color: "#BF7900"
+                                    },
+                                }}
+                            >General conditions of use</Typography>
+                        </Link>
+                        <Link href="/privacy-policy" color="inherit" underline="none">
+                            <Typography
+                                sx={{
+                                    '&:hover': {
+                                        color: "#BF7900"
+                                    },
+                                }}
+                            >Privacy Policy</Typography>
+                        </Link>
+                        <Link href="/legal-notices" color="inherit" underline="none">
+                            <Typography
+                                sx={{
+                                    '&:hover': {
+                                        color: "#BF7900"
+                                    },
+                                }}
+                            >Legal notices</Typography>
+                        </Link>
                     </Grid>
                 </Grid>
 
@@ -443,7 +503,7 @@ function LandingPage() {
                     }}
                 >
                     <Typography variant="body2" color="#F2BD61">
-                        2024 - Tous droits réservés
+                        2024 - All rights reserved
                     </Typography>
                 </Box>
             </Box>
