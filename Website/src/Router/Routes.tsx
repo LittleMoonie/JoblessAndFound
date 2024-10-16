@@ -27,14 +27,7 @@ const AppRouter: React.FC = () => {
 						<Route key={route.path} path={route.path} element={route.element} />
 					))}
 
-					<Route
-						path='/'
-						element={
-							<ProtectedRoute>
-								<Layout />
-							</ProtectedRoute>
-						}
-					>
+					<Route path='/'>
 						{AdminRoutes.map((route) => (
 							<Route key={route.path} path={route.path} element={route.element}>
 								{route.children?.map((child) => (
