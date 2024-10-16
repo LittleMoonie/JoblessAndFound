@@ -1,70 +1,63 @@
 // Login.tsx
 import React, { useState } from 'react';
-import {
-	Avatar,
-	Button,
-	Container,
-	Grid,
-	Paper,
-	TextField,
-	Typography,
-	Box,
-	useTheme,
-	Alert,
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { styled } from '@mui/system';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import MuiCard from '@mui/material/Card';
+import { styled } from '@mui/material/styles';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AppTheme from '../AppTheme';
+import Link from '@mui/material/Link';
+import ColorModeIconDropdown from '../Dashboard/ColorModeIconDropdown';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/authContext';
 import { useMutation } from '@tanstack/react-query';
 import apiClient from '../../API/apiClient';
+import { Alert, Grid } from '@mui/material';
 
-const StyledPaper = styled(Paper)`
-	padding: ${({ theme }) => theme.spacing(6)};
-	margin-top: ${({ theme }) => theme.spacing(8)};
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	border-radius: ${({ theme }) => theme.shape.borderRadius * 2}px;
-	box-shadow: 5;
-	background-color: ${({ theme }) => theme.palette.background.paper};
-	transition:
-		transform 0.3s,
-		box-shadow 0.3s;
-	&:hover {
-		transform: translateY(-5px);
-		box-shadow: 10;
-	}
-`;
+const Card = styled(MuiCard)(({ theme }) => ({
+	display: 'flex',
+	flexDirection: 'column',
+	alignSelf: 'center',
+	width: '100%',
+	padding: theme.spacing(4),
+	gap: theme.spacing(2),
+	margin: 'auto',
+	[theme.breakpoints.up('sm')]: {
+		maxWidth: '450px',
+	},
+	boxShadow: 'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
+	...theme.applyStyles('dark', {
+		boxShadow: 'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
+	}),
+}));
 
-const BackgroundBox = styled(Box)`
-	min-height: 100vh;
-	background: ${({ theme }) =>
-		`linear-gradient(135deg, ${theme.palette.primary.light} 30%, ${theme.palette.primary.main} 90%)`};
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: ${({ theme }) => theme.spacing(3)};
-`;
+const LoginContainer = styled(Stack)(({ theme }) => ({
+	minHeight: '100%',
+	padding: theme.spacing(2),
+	[theme.breakpoints.up('sm')]: {
+		padding: theme.spacing(4),
+	},
+	'&::before': {
+		content: '""',
+		display: 'block',
+		position: 'absolute',
+		zIndex: -1,
+		inset: 0,
+		backgroundImage: 'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
+		backgroundRepeat: 'no-repeat',
+		...theme.applyStyles('dark', {
+			backgroundImage: 'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
+		}),
+	},
+}));
 
-const StyledButton = styled(Button)`
-	margin-top: ${({ theme }) => theme.spacing(3)};
-	margin-bottom: ${({ theme }) => theme.spacing(2)};
-	padding: ${({ theme }) => theme.spacing(1.5)};
-	font-weight: bold;
-	border-radius: 20px;
-	box-shadow: 3;
-	transition:
-		background-color 0.3s,
-		box-shadow 0.3s;
-	&:hover {
-		background-color: ${({ theme }) => theme.palette.primary.dark};
-		box-shadow: 6;
-	}
-`;
-
-const Login: React.FC = () => {
-	const theme = useTheme();
+const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 	const { checkAuthStatus } = useAuth();
 	const navigate = useNavigate();
 	const [email, setEmail] = useState('');
@@ -90,16 +83,37 @@ const Login: React.FC = () => {
 		loginMutation.mutate(); // Trigger the login mutation
 	};
 	return (
-		<BackgroundBox>
-			<Container component='main' maxWidth='xs'>
-				<StyledPaper elevation={6}>
-					<Avatar sx={{ m: 1, bgcolor: theme.palette.secondary.main }}>
-						<LockOutlinedIcon />
-					</Avatar>
+		<AppTheme {...props}>
+			<CssBaseline enableColorScheme />
+			<Box
+				sx={{
+					display: "flex",
+					justifyContent: "space-between",
+					margin: "1%",
+				}}
+			>
+				<Link
+					href="/"
+					variant="h6"
+					sx={{
+						display: "flex",
+						color: '#3E63DD',
+						'&:hover': {
+							color: '#004074',
+						},
+					}}
+				>
+					<ArrowBackIcon sx={{ paddingRight: "3px" }} /> Return home
+				</Link>
+				<ColorModeIconDropdown />
+			</Box>
+
+			<LoginContainer direction="column" justifyContent="space-between">
+				<Card variant="outlined">
 					<Typography
-						component='h1'
-						variant='h5'
-						sx={{ mb: 2, fontWeight: 'bold' }}
+						component="h1"
+						variant="h4"
+						sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
 					>
 						Sign In
 					</Typography>
@@ -114,50 +128,58 @@ const Login: React.FC = () => {
 						</Alert>
 					)}
 					<Box
-						component='form'
+						component="form"
 						onSubmit={handleSubmit}
 						noValidate
-						sx={{ width: '100%' }}
+						sx={{
+							display: 'flex',
+							flexDirection: 'column',
+							width: '100%',
+							gap: 2,
+						}}
 					>
-						<TextField
-							variant='outlined'
-							margin='normal'
-							required
+						<FormControl>
+							<FormLabel htmlFor="email">Email</FormLabel>
+							<TextField
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								id="email"
+								type="email"
+								name="email"
+								placeholder="your@email.com"
+								autoComplete="email"
+								required
+								fullWidth
+								variant="outlined"
+								// color={emailError ? 'error' : 'primary'}
+								sx={{ ariaLabel: 'email' }}
+							/>
+						</FormControl>
+
+						<FormControl>
+							<FormLabel htmlFor="password">Password</FormLabel>
+							<TextField
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								name="password"
+								placeholder="••••••"
+								type="password"
+								id="password"
+								autoComplete="current-password"
+								required
+								fullWidth
+								variant="outlined"
+							// color={passwordError ? 'error' : 'primary'}
+							/>
+						</FormControl>
+
+						<Button
+							type="submit"
 							fullWidth
-							id='email'
-							label='Email Address'
-							name='email'
-							autoComplete='email'
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							InputProps={{
-								style: { borderRadius: '10px' },
-							}}
-						/>
-						<TextField
-							variant='outlined'
-							margin='normal'
-							required
-							fullWidth
-							name='password'
-							label='Password'
-							type='password'
-							id='password'
-							autoComplete='current-password'
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							InputProps={{
-								style: { borderRadius: '10px' },
-							}}
-						/>
-						<StyledButton
-							type='submit'
-							fullWidth
-							variant='contained'
-							color='primary'
+							variant="contained"
 						>
-							Sign In
-						</StyledButton>
+							Sign in
+						</Button>
 						<Grid container justifyContent='space-between'>
 							<Grid item>
 								<Button variant='text' size='small' color='secondary'>
@@ -176,9 +198,9 @@ const Login: React.FC = () => {
 							</Grid>
 						</Grid>
 					</Box>
-				</StyledPaper>
-			</Container>
-		</BackgroundBox>
+				</Card>
+			</LoginContainer>
+		</AppTheme>
 	);
 };
 
