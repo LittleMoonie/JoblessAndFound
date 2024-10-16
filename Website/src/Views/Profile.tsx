@@ -2,9 +2,11 @@ import { Box, Card, CardContent, CardMedia, Typography } from '@mui/material';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import { useAuth } from '../Context/authContext';
 
 function ProfilePage() {
 	const theme = useTheme();
+	const { userFirstName, userLastName, userEmail } = useAuth();
 	return (
 		<Box
 			sx={{
@@ -52,7 +54,7 @@ function ProfilePage() {
 								paddingTop: "1%"
 							}}
 						>
-							Firstname LASTNAME
+							{userFirstName} {userLastName}
 						</Typography>
 
 						<Typography

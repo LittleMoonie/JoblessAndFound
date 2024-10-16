@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
+import WorkIcon from '@mui/icons-material/Work';
 import LockIcon from '@mui/icons-material/Lock';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import GavelIcon from '@mui/icons-material/Gavel';
@@ -16,6 +17,7 @@ import GavelIcon from '@mui/icons-material/Gavel';
 // Define the menu items with path properties for navigation
 const mainListItems = [
   { text: 'Home', icon: <HomeRoundedIcon />, path: '/home' },
+  { text: 'Offers', icon: <WorkIcon />, path: '/offers' },
   { text: 'User', icon: <PeopleRoundedIcon />, path: '/user' },
   { text: 'Business', icon: <CorporateFareIcon />, path: '/business' },
 ];

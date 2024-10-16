@@ -3,9 +3,11 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { useAuth } from '../Context/authContext';
 
 function AdminPage() {
 	const theme = useTheme();
+	const { userFirstName, userLastName, userEmail } = useAuth();
 	return (
 		<Box
 			sx={{
@@ -53,7 +55,7 @@ function AdminPage() {
 								paddingTop: "1%"
 							}}
 						>
-							Firstname LASTNAME
+							{userFirstName} {userLastName}
 						</Typography>
 
 						<Box

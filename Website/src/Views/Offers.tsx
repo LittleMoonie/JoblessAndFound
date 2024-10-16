@@ -1,10 +1,12 @@
 import React from 'react';
+import MediaCard from '../Components/AdCards';
+import { ApiProvider } from '../Context/apiContext';
 
 function OffersPage() {
 	return (
-		<div>
-			<h1>Messages Page</h1>
-		</div>
+		<ApiProvider>
+			<MediaCard />
+		</ApiProvider>
 	);
 }
 
