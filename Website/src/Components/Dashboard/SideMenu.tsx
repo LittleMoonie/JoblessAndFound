@@ -43,7 +43,7 @@ export default function SideMenu() {
 					p: 1.5,
 				}}
 			>
-				{/* <SelectContent /> */}
+				
 				<SpaceDashboardIcon
 					sx={{
 						marginTop: '5px',
