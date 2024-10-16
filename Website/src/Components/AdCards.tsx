@@ -14,8 +14,9 @@ import Link from '@mui/material/Link';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { differenceInMonths } from 'date-fns';
-import { CompanyDTO, OfferAdvertisementDTO } from '../API/Api';
-// Fetch company data for multiple companies
+import { CompanyDTO } from '../API/Api';
+
+// Fetch company data for multiple companies, including offers
 const fetchCompanyData = async (): Promise<CompanyDTO[]> => {
 	// Fetching data for both Company 1 and Company 2
 	const company1Response = await fetch('http://localhost:5000/api/Company/GetCompanyById?CompanyId=1');
@@ -31,47 +32,25 @@ const fetchCompanyData = async (): Promise<CompanyDTO[]> => {
 	return [company1Data, company2Data]; // Return both companies' data
 };
 
-// Fetch offers for a specific company
-const fetchOffers = async (companyId: number): Promise<OfferAdvertisementDTO[]> => {
-	const response = await fetch(`http://localhost:5000/api/Offer/GetOfferByCompanyId?CompanyId=${companyId}`);
-	console.log("response", response);
-	if (!response.ok) {
-		throw new Error(`Error fetching offer data for CompanyId ${companyId}`);
-	}
-	const data = await response.json();
-	return data.offerAdvertisement ? data.offerAdvertisement : [];
-};
-
 export default function MediaCard() {
 	const { data: companies = [], isLoading: isLoadingCompanies, isError: isErrorCompanies } = useQuery({
 		queryKey: ['companies'],
 		queryFn: fetchCompanyData,
 	});
 
-	const { data: offersForCompany1 = [], isLoading: isLoadingOffers1, isError: isErrorOffers1 } = useQuery({
-		queryKey: ['offersCompany1'],
-		queryFn: () => fetchOffers(1), // Fetching offers for Company 1
-	});
-
-	const { data: offersForCompany2 = [], isLoading: isLoadingOffers2, isError: isErrorOffers2 } = useQuery({
-		queryKey: ['offersCompany2'],
-		queryFn: () => fetchOffers(2), // Fetching offers for Company 2
-	});
-
-	if (isLoadingCompanies || isLoadingOffers1 || isLoadingOffers2) {
+	if (isLoadingCompanies) {
 		return <div>Loading...</div>;
 	}
 
-	if (isErrorCompanies || isErrorOffers1 || isErrorOffers2) {
+	if (isErrorCompanies) {
 		return <div>Error loading data.</div>;
 	}
 
 	return (
 		<div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
 			{companies.map((company) => {
-				// Get the offers for the current company
-				console.log("company", company);
-				const offers = company.companyId === 1 ? offersForCompany1 : offersForCompany2;
+				// Get the offers directly from the company data
+				const offers = company.offerAdvertisement || [];
 
 				return (
 					<Card
