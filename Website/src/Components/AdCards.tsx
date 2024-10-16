@@ -14,27 +14,9 @@ import Link from '@mui/material/Link';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { differenceInMonths } from 'date-fns';
-
-interface CompanyData {
-	companyId: number;
-	companyName: string;
-	location: string;
-	domain: string;
-	employeesId: number;
-	offerAdvertisement: OfferAdvertisement[] | null;
-}
-
-interface OfferAdvertisement {
-	offerAdvertisementId: number;
-	title: string;
-	description: string;
-	createdAt: Date;
-	updatedAt: Date;
-	companyId: number;
-}
-
+import { CompanyDTO, OfferAdvertisementDTO } from '../API/Api';
 // Fetch company data for multiple companies
-const fetchCompanyData = async (): Promise<CompanyData[]> => {
+const fetchCompanyData = async (): Promise<CompanyDTO[]> => {
 	// Fetching data for both Company 1 and Company 2
 	const company1Response = await fetch('http://localhost:5000/api/Company/GetCompanyById?CompanyId=1');
 	const company2Response = await fetch('http://localhost:5000/api/Company/GetCompanyById?CompanyId=2');
@@ -50,7 +32,7 @@ const fetchCompanyData = async (): Promise<CompanyData[]> => {
 };
 
 // Fetch offers for a specific company
-const fetchOffers = async (companyId: number): Promise<OfferAdvertisement[]> => {
+const fetchOffers = async (companyId: number): Promise<OfferAdvertisementDTO[]> => {
 	const response = await fetch(`http://localhost:5000/api/Offer/GetOfferByCompanyId?CompanyId=${companyId}`);
 	console.log("response", response);
 	if (!response.ok) {
@@ -147,7 +129,7 @@ export default function MediaCard() {
 
 								<Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
 									<PersonIcon sx={{ width: '1rem', paddingRight: '2px' }} />
-									{company.employeesId > 100 ? '100+' : company.employeesId}
+									{(company?.employeesId ?? 0) > 100 ? '100+' : company?.employeesId ?? 0}
 								</Typography>
 							</Box>
 						</Box>
@@ -160,7 +142,7 @@ export default function MediaCard() {
 								</Typography>
 							) : (
 								offers.map((offer) => {
-									const itemDate = new Date(offer.createdAt);
+									const itemDate = offer.createdAt ? new Date(offer.createdAt) : new Date();
 									const dateNow = new Date();
 									const monthsSince = Math.round(differenceInMonths(dateNow, itemDate));
 
@@ -209,7 +191,7 @@ export default function MediaCard() {
 												}}
 											>
 												<CalendarMonthIcon sx={{ width: '1rem', marginRight: '5px' }} />
-												{offer.createdAt.toLocaleDateString('fr-FR')}{' '}
+												{offer.createdAt ? new Date(offer.createdAt).toLocaleDateString('fr-FR') : 'Date not available'}{' '}
 												<QueryBuilderIcon sx={{ width: '1rem', marginLeft: '5px' }} />
 												Depuis {monthsSince} mois
 											</Typography>
