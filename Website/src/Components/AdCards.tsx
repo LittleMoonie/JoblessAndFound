@@ -15,6 +15,7 @@ import Link from '@mui/material/Link';
 import { Box, Snackbar, Alert } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { CompanyDTO } from '../API/Api';
+import TextWithFormatting from './TextWithFormattingProps';
 
 const formatDistanceToNow = (date: Date): string => {
 	const now = new Date();
@@ -134,7 +135,9 @@ export default function MediaCard() {
 							}}
 						>
 							<CardMedia
-								sx={{ height: 160 }}
+								sx={{ 
+									height: isExpanded ? 300 : 160,
+								}}
 								image={'https://placehold.co/600x400'}
 								title='Company Image'
 							/>
@@ -168,6 +171,7 @@ export default function MediaCard() {
 										href='#'
 										variant='h5'
 										sx={{
+											marginTop: "2%",
 											color: '#6568FF',
 											'&:hover': {
 												color: '#33348A',
@@ -179,12 +183,12 @@ export default function MediaCard() {
 
 									<Typography
 										component='div'
-										sx={{ display: 'flex', alignItems: 'center' }}
+										sx={{ display: 'flex', alignItems: 'center', backgroundColor: "#232453", color: "#FFFFFF", padding: "3px", marginTop: "2%", borderRadius: "10px", '&:hover': { backgroundColor: '#33348A' }, }}
 									>
-										<PersonIcon sx={{ width: '1rem', paddingRight: '2px' }} />
+										<PersonIcon sx={{ width: '1.3rem', paddingRight: '2px' }} />
 										{(company?.employeesId ?? 0) > 100
 											? '100+ current applicants'
-											: (company?.employeesId ?? 0) + ' current applicants'}
+											: (company?.employeesId ?? 0) + ' applicants'}
 									</Typography>
 								</Box>
 							</Box>
@@ -242,8 +246,9 @@ export default function MediaCard() {
 									variant='body2'
 									sx={{ color: 'text.secondary', padding: '15px' }}
 								>
-									{offer.description}
+									<TextWithFormatting text={isExpanded ? (offer.longDescription || '') : (offer.description || '')} />
 								</Typography>
+
 							</CardContent>
 
 							<CardActions

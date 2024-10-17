@@ -50,6 +50,7 @@ namespace Infrastructure.Services
         public async Task AddOffer(
             int OfferAdvertisementId,
             string? Description,
+            string? LongDescription,
             string? Title,
             DateTime CreatedAt,
             DateTime UpdatedAt,
@@ -60,6 +61,7 @@ namespace Infrastructure.Services
             var newOfferAdvertisement = new Advertisement
             {
                 Description = Description,
+                LongDescription = LongDescription,
                 Title = Title,
                 CreatedAt = CreatedAt,
                 UpdatedAt = UpdatedAt,

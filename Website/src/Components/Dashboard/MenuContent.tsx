@@ -38,28 +38,29 @@ export default function MenuContent() {
   };
 
   return (
-    <Stack sx={{ flexGrow: 1, p: 1, justifyContent: 'space-between' }}>
-      <List dense>
-        {mainListItems.map((item, index) => (
-          <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+    <Stack sx={{ flexGrow: 1, p: 1, flexDirection: 'column', justifyContent: 'space-between' }}>
+  <List dense>
+    {mainListItems.map((item, index) => (
+      <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+        <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.text} />
+        </ListItemButton>
+      </ListItem>
+    ))}
+  </List>
 
-      <List dense>
-        {secondaryListItems.map((item, index) => (
-          <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Stack>
+  <List dense>
+    {secondaryListItems.map((item, index) => (
+      <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+        <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.text} />
+        </ListItemButton>
+      </ListItem>
+    ))}
+  </List>
+</Stack>
+
   );
 }

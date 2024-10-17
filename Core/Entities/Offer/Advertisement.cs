@@ -12,6 +12,7 @@ namespace Core.Entities.Offer
         #region Properties
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
+        public string LongDescription { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
