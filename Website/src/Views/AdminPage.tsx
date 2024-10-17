@@ -7,7 +7,7 @@ import { useAuth } from '../Context/authContext';
 
 function AdminPage() {
 	const theme = useTheme();
-	const { userFirstName, userLastName, userEmail } = useAuth();
+	const { userFirstName, userLastName } = useAuth();
 	return (
 		<Box
 			sx={{
