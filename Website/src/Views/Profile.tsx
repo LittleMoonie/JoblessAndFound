@@ -6,7 +6,7 @@ import { useAuth } from '../Context/authContext';
 
 function ProfilePage() {
 	const theme = useTheme();
-	const { userFirstName, userLastName, userEmail } = useAuth();
+	const { userFirstName, userLastName } = useAuth();
 	return (
 		<Box
 			sx={{

@@ -1,6 +1,6 @@
 import React from 'react';
 import monImage from '../../Assets/logo.png';
-import { Container, Typography, Box, Grid, Link } from '@mui/material';
+import { Typography, Box, Grid, Link } from '@mui/material';
 
 const PrivacyPolicy: React.FC = () => {
   return (

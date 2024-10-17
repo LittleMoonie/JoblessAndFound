@@ -1,4 +1,4 @@
-import { autocompleteClasses, Box, Button, Card, CardContent, Grid, Link } from '@mui/material';
+import { Box, Button, Card, CardContent, Grid, Link } from '@mui/material';
 import React from 'react';
 import monImage from '../Assets/logo.png';
 import bgImage from '../Assets/bgMontains.png';
