@@ -74,6 +74,7 @@ namespace Infrastructure.Services
 
         Task IOfferService.AddOffer(
             string? description,
+            string? longDescription,
             string? title,
             DateTime createdAt,
             DateTime updatedAt

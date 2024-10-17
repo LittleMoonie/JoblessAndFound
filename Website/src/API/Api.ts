@@ -60,6 +60,17 @@ export interface OfferAdvertisementDTO {
   postedByUserId?: number;
 }
 
+export interface OfferJobApplicationDTO {
+  /** @format int32 */
+  offerJobApplicationId?: number;
+  message?: string | null;
+  /** @format date-time */
+  createdAt?: Date | null;
+  adId?: number | null;
+  applicantUserId?: number | null;
+  statusId?: number;
+}
+
 export interface ProblemDetails {
   type?: string | null;
   title?: string | null;
@@ -267,18 +278,18 @@ export class HttpClient<SecurityDataType = unknown> {
       const data = !responseFormat
         ? r
         : await response[responseFormat]()
-            .then((data) => {
-              if (r.ok) {
-                r.data = data;
-              } else {
-                r.error = data;
-              }
-              return r;
-            })
-            .catch((e) => {
-              r.error = e;
-              return r;
-            });
+          .then((data) => {
+            if (r.ok) {
+              r.data = data;
+            } else {
+              r.error = data;
+            }
+            return r;
+          })
+          .catch((e) => {
+            r.error = e;
+            return r;
+          });
 
       if (cancelToken) {
         this.abortControllers.delete(cancelToken);
@@ -448,6 +459,61 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<void, any>({
         path: `/api/Offer/GetOfferByCompanyId`,
         method: "GET",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+   * No description
+   *
+   * @tags Offer
+   * @name OfferGetJobApplicationByApplicantUserIdList
+   * @request GET:/api/Offer/GetJobApplicationByApplicantUserIdList
+   * @secure
+   */
+    offerGetJobApplicationByApplicantUserIdList: (
+      query?: {
+        /** @format int32 */
+        ApplicantUserId?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/Offer/GetJobApplicationByApplicantUserIdList`,
+        method: "GET",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+   * No description
+   *
+   * @tags Offer
+   * @name OfferAddJobApplication
+   * @request POST:/api/Offer/AddJobApplication
+   * @secure
+   */
+    offerAddJobApplication: (
+      query?: {
+        /** @format int32 */
+        OfferJobApplicationId?: number;
+        Message?: string;
+        /** @format date-time */
+        CreatedAt?: string;
+        /** @format int32 */
+        AdId?: number;
+        /** @format int32 */
+        ApplicantUserId?: number;
+        /** @format int32 */
+        statusId?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/Offer/AddOffer`,
+        method: "POST",
         query: query,
         secure: true,
         ...params,

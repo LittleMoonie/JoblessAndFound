@@ -20,6 +20,6 @@ namespace Infrastructure.Services.IServices
             int CompanyId,
             int PostedByUserId
         );
-        Task AddOffer(string? description, string? title, DateTime createdAt, DateTime updatedAt);
+        Task AddOffer(string? description, string? longDescription, string? title, DateTime createdAt, DateTime updatedAt);
     }
 }

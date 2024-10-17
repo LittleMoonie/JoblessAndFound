@@ -113,7 +113,7 @@ export default function MediaCard() {
 	}
 
 	return (
-		<div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+		<div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', maxWidth: "100%" }}>
 			{companies.map((company) => {
 				return company.offerAdvertisement?.map((offer) => {
 					const isExpanded = expandedCardId === offer.offerAdvertisementId;
@@ -126,12 +126,13 @@ export default function MediaCard() {
 						<Card
 							key={offer.offerAdvertisementId}
 							sx={{
-								minWidth: isExpanded ? '100%' : 500,
-								maxWidth: isExpanded ? '100%' : 550,
+								width: isExpanded ? '100%' : '400px',
+								height: isExpanded ? 'auto' : '500px',
 								margin: 'auto',
 								padding: '16px',
-								transition: 'all 0.3s ease', 
-								height: 'auto',
+								transition: 'all 0.3s ease',
+								display: 'flex',
+								flexDirection: 'column', // S'assure que le contenu s'aligne correctement
 							}}
 						>
 							<CardMedia
@@ -260,7 +261,7 @@ export default function MediaCard() {
 							>
 								<Button
 									size='small'
-									onClick={() => company.companyId && handleCopy(company.companyId)}
+									// onClick={() => company.companyId && handleCopy(company.companyId)}
 									sx={{
 										backgroundColor: '#232453',
 										color: 'white',
@@ -270,26 +271,50 @@ export default function MediaCard() {
 										},
 									}}
 								>
-									Copy URL
+									Apply
 								</Button>
 
-								<Button
-									size='small'
-									onClick={() =>
-										company.companyId &&
-										offer.offerAdvertisementId !== undefined && handleLearnMore(offer.offerAdvertisementId)
-									}
+								<Box
 									sx={{
-										backgroundColor: '#232453',
-										color: 'white',
-										width: { xs: '40%', sm: '30%', md: '30%' },
-										'&:hover': {
-											backgroundColor: '#33348A',
-										},
+										display: 'flex',
+										justifyContent: 'flex-end',
+										width: "100%"
 									}}
 								>
-									{isExpanded ? 'Show Less' : 'Learn More'}
-								</Button>
+									<Button
+										size='small'
+										onClick={() => company.companyId && handleCopy(company.companyId)}
+										sx={{
+											backgroundColor: '#232453',
+											color: 'white',
+											marginRight: "2%",
+											width: { xs: '40%', sm: '30%', md: '30%' },
+											'&:hover': {
+												backgroundColor: '#33348A',
+											},
+										}}
+									>
+										Copy URL
+									</Button>
+
+									<Button
+										size='small'
+										onClick={() =>
+											company.companyId &&
+											offer.offerAdvertisementId !== undefined && handleLearnMore(offer.offerAdvertisementId)
+										}
+										sx={{
+											backgroundColor: '#232453',
+											color: 'white',
+											width: { xs: '40%', sm: '30%', md: '30%' },
+											'&:hover': {
+												backgroundColor: '#33348A',
+											},
+										}}
+									>
+										{isExpanded ? 'Show Less' : 'Learn More'}
+									</Button>
+								</Box>
 							</CardActions>
 						</Card>
 					);
