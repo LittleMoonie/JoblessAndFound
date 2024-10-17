@@ -48,7 +48,6 @@ namespace Infrastructure.Services
         }
 
         public async Task AddJobApplication(
-            int OfferJobApplicationId,
             string? Message,
             DateTime CreatedAt,
             int AdId,

@@ -16,6 +16,10 @@ import { Box, Snackbar, Alert } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { CompanyDTO } from '../API/Api';
 import TextWithFormatting from './TextWithFormattingProps';
+import { useAuth } from '../Context/authContext';
+import { Api } from '../API/Api';
+
+const api = new Api({ baseUrl: 'http://localhost:5000' });
 
 const formatDistanceToNow = (date: Date): string => {
 	const now = new Date();
@@ -65,9 +69,10 @@ const fetchCompanyData = async (): Promise<CompanyDTO[]> => {
 export default function MediaCard() {
 	const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [searchParams] = useSearchParams(); 
+	const [searchParams] = useSearchParams();
 	const location = useLocation();
-	
+	const { userId } = useAuth();
+
 	const {
 		data: companies = [],
 		isLoading: isLoadingCompanies,
@@ -82,9 +87,9 @@ export default function MediaCard() {
 
 		if (companyIdFromUrl && !isNaN(Number(companyIdFromUrl))) {
 			const companyId = Number(companyIdFromUrl);
-			
+
 			const companyExists = companies.some((company) => company.companyId === companyId);
-			
+
 			if (companyExists) {
 				setExpandedCardId(companyId);
 			} else {
@@ -96,6 +101,22 @@ export default function MediaCard() {
 
 	const handleLearnMore = (offerId: number) => {
 		setExpandedCardId(expandedCardId === offerId ? null : offerId);
+	};
+
+	const handleApply = async (offerId: number, userId: number) => {
+		try {
+			const response = await api.api.offerAddJobApplication({
+				AdId: offerId,                // ID de l'offre
+				ApplicantUserId: userId,      // ID de l'utilisateur
+				CreatedAt: new Date().toISOString(), // Date actuelle au format ISO
+				statusId: 1                   // Statut défini à 1 pour l'application
+			});
+	
+			console.log('Application soumise avec succès', response);
+			alert('Candidature soumise avec succès');
+		} catch (error) {
+			console.error('Erreur lors de la soumission de la candidature', error);
+		}
 	};
 
 	const handleCopy = (companyId: number) => {
@@ -120,7 +141,7 @@ export default function MediaCard() {
 					const itemDate = offer.createdAt
 						? new Date(offer.createdAt)
 						: new Date();
-					const postedSince = formatDistanceToNow(itemDate); 
+					const postedSince = formatDistanceToNow(itemDate);
 
 					return (
 						<Card
@@ -136,7 +157,7 @@ export default function MediaCard() {
 							}}
 						>
 							<CardMedia
-								sx={{ 
+								sx={{
 									height: isExpanded ? 300 : 160,
 								}}
 								image={'https://placehold.co/600x400'}
@@ -261,7 +282,7 @@ export default function MediaCard() {
 							>
 								<Button
 									size='small'
-									// onClick={() => company.companyId && handleCopy(company.companyId)}
+									onClick={() => userId && offer.offerAdvertisementId !== undefined && handleApply(offer.offerAdvertisementId, userId)}
 									sx={{
 										backgroundColor: '#232453',
 										color: 'white',

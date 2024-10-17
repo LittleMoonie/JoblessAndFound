@@ -512,7 +512,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       params: RequestParams = {},
     ) =>
       this.request<void, any>({
-        path: `/api/Offer/AddOffer`,
+        path: `/api/OfferJobApplication/AddJobApplication`,
         method: "POST",
         query: query,
         secure: true,

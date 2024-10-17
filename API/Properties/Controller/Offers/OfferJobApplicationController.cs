@@ -62,7 +62,6 @@ namespace API.Controller.Offers
         [HttpPost("AddJobApplication")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task AddJobApplication(
-            int OfferJobApplicationId,
             string? Message,
             DateTime? CreatedAt,
             int AdId,
@@ -71,7 +70,6 @@ namespace API.Controller.Offers
         )
         {
             await _OfferJobApplicationService.AddJobApplication(
-                OfferJobApplicationId,
                 Message,
                 CreatedAt ?? DateTime.UtcNow, // Valeur par défaut si null
                 AdId,

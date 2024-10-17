@@ -11,7 +11,6 @@ namespace Infrastructure.Services.IServices
     {
         Task<OfferJobApplicationDTO> GetJobApplicationByApplicantUserIdList(int ApplicantUserId);
         Task AddJobApplication(
-            int OfferJobApplicationId,
             string? Message,
             DateTime CreatedAt,
             int AdId,
