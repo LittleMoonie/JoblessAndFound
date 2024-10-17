@@ -1,17 +1,14 @@
-import React, {
-	createContext,
-	useContext,
-	useEffect,
-	useState,
-	useCallback,
-} from 'react';
-import apiClient from '../API/apiClient';
-import { ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 interface AuthContextType {
-	isAuthenticated: boolean; // Indicates if the user is authenticated
-	isLoading: boolean; // Indicates if the authentication check is in progress
-	checkAuthStatus: () => Promise<void>; // Function to check authentication status
+	isAuthenticated: boolean;
+	isLoading: boolean;
+	checkAuthStatus: () => void;
+	userFirstName: string | null;
+	userLastName: string | null;
+	userEmail: string | null;
+	userId: number | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,37 +17,67 @@ interface AuthProviderProps {
 	children: ReactNode;
 }
 
+// Update fetchAuthStatus to handle the new structure of the response
+const fetchAuthStatus = async (): Promise<{
+	isAuthenticated: boolean;
+	userFirstName: string;
+	userLastName: string;
+	userEmail: string;
+	userId: number;
+}> => {
+	const response = await fetch('http://localhost:5000/api/Authentication/status', {
+		credentials: 'include',
+	});
+	if (!response.ok) {
+		throw new Error('Failed to fetch authentication status');
+	}
+	const data = await response.json();
+
+	if (
+		typeof data !== 'object' ||
+		data.isAuthenticated === undefined ||
+		!data.user ||
+		!data.user.firstName ||
+		!data.user.lastName ||
+		!data.user.email ||
+		!data.user.userId
+	) {
+		throw new Error('Invalid response structure');
+	}
+
+	return {
+		isAuthenticated: data.isAuthenticated,
+		userFirstName: data.user.firstName,
+		userLastName: data.user.lastName,
+		userEmail: data.user.email,
+		userId: data.user.userId,
+	};
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-	const [isLoading, setIsLoading] = useState<boolean>(true);
+	// Use react-query to manage the auth status and fetch user info
+	const { data, isLoading, refetch } = useQuery({
+		queryKey: ['authStatus'],
+		queryFn: fetchAuthStatus,
+	});
 
-	// Fetch authentication status directly using an API call
-	const checkAuthStatus = useCallback(async () => {
-		setIsLoading(true);
-		try {
-			const authStatus = await apiClient.authentication_status();
-			if (authStatus && typeof authStatus === 'object') {
-				setIsAuthenticated(authStatus.isAuthenticated ?? false);
-			} else {
-				setIsAuthenticated(false);
-				console.error('Auth status response is not valid:', authStatus);
-			}
-		} catch (error) {
-			setIsAuthenticated(false); // Set as unauthenticated on error
-			console.error('Authentication check failed:', error);
-		} finally {
-			setIsLoading(false); // Stop loading once the check is complete
-		}
-	}, []); // Removed dependency on useQuery data
-
-	useEffect(() => {
-		// Check auth status on mount
-		checkAuthStatus();
-	}, [checkAuthStatus]);
+	const isAuthenticated = data?.isAuthenticated ?? false;
+	const userFirstName = data?.userFirstName ?? null;
+	const userLastName = data?.userLastName ?? null;
+	const userEmail = data?.userEmail ?? null;
+	const userId = data?.userId ?? null;
 
 	return (
 		<AuthContext.Provider
-			value={{ isAuthenticated, isLoading, checkAuthStatus }}
+			value={{
+				isAuthenticated,
+				isLoading,
+				checkAuthStatus: refetch,
+				userFirstName,
+				userLastName,
+				userEmail,
+				userId,
+			}}
 		>
 			{children}
 		</AuthContext.Provider>

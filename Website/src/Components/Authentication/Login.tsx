@@ -1,82 +1,89 @@
-// Login.tsx
 import React, { useState } from 'react';
-import {
-	Avatar,
-	Button,
-	Container,
-	Grid,
-	Paper,
-	TextField,
-	Typography,
-	Box,
-	useTheme,
-	Alert,
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { styled } from '@mui/system';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import MuiCard from '@mui/material/Card';
+import { styled } from '@mui/material/styles';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Link from '@mui/material/Link';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/authContext';
 import { useMutation } from '@tanstack/react-query';
-import apiClient from '../../API/apiClient';
+import { Alert, Grid } from '@mui/material';
+import ColorModeIconDropdown from '../Dashboard/ColorModeIconDropdown';
+import AppTheme from '../AppTheme';
 
-const StyledPaper = styled(Paper)`
-	padding: ${({ theme }) => theme.spacing(6)};
-	margin-top: ${({ theme }) => theme.spacing(8)};
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	border-radius: ${({ theme }) => theme.shape.borderRadius * 2}px;
-	box-shadow: 5;
-	background-color: ${({ theme }) => theme.palette.background.paper};
-	transition:
-		transform 0.3s,
-		box-shadow 0.3s;
-	&:hover {
-		transform: translateY(-5px);
-		box-shadow: 10;
-	}
-`;
+const Card = styled(MuiCard)(({ theme }) => ({
+	display: 'flex',
+	flexDirection: 'column',
+	alignSelf: 'center',
+	width: '100%',
+	padding: theme.spacing(4),
+	gap: theme.spacing(2),
+	margin: 'auto',
+	[theme.breakpoints.up('sm')]: {
+		maxWidth: '450px',
+	},
+	boxShadow: 'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
+	...theme.applyStyles('dark', {
+		boxShadow: 'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
+	}),
+}));
 
-const BackgroundBox = styled(Box)`
-	min-height: 100vh;
-	background: ${({ theme }) =>
-		`linear-gradient(135deg, ${theme.palette.primary.light} 30%, ${theme.palette.primary.main} 90%)`};
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: ${({ theme }) => theme.spacing(3)};
-`;
+const LoginContainer = styled(Stack)(({ theme }) => ({
+	minHeight: '100%',
+	padding: theme.spacing(2),
+	[theme.breakpoints.up('sm')]: {
+		padding: theme.spacing(4),
+	},
+	'&::before': {
+		content: '""',
+		display: 'block',
+		position: 'absolute',
+		zIndex: -1,
+		inset: 0,
+		backgroundImage: 'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
+		backgroundRepeat: 'no-repeat',
+		...theme.applyStyles('dark', {
+			backgroundImage: 'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
+		}),
+	},
+}));
 
-const StyledButton = styled(Button)`
-	margin-top: ${({ theme }) => theme.spacing(3)};
-	margin-bottom: ${({ theme }) => theme.spacing(2)};
-	padding: ${({ theme }) => theme.spacing(1.5)};
-	font-weight: bold;
-	border-radius: 20px;
-	box-shadow: 3;
-	transition:
-		background-color 0.3s,
-		box-shadow 0.3s;
-	&:hover {
-		background-color: ${({ theme }) => theme.palette.primary.dark};
-		box-shadow: 6;
-	}
-`;
-
-const Login: React.FC = () => {
-	const theme = useTheme();
+const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 	const { checkAuthStatus } = useAuth();
 	const navigate = useNavigate();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState<string | null>(null);
 
+	// Directly use fetch to make the login API request
 	const loginMutation = useMutation({
-		mutationFn: () => apiClient.authentication_login(email, password),
+		mutationFn: async () => {
+			const response = await fetch('http://localhost:5000/api/Authentication/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email, password }),
+				credentials: 'include', // This ensures cookies are included for cross-origin requests
+			});
+
+			if (!response.ok) {
+				throw new Error('Login failed');
+			}
+
+			// You can process the response if needed
+			return response.json();
+		},
 		onSuccess: async () => {
 			await checkAuthStatus(); // Check authentication status after login
-			console.log('Login successful, navigating to /home');
-			navigate('/home'); // Navigate to /home
+			navigate('/home'); // Navigate to /home after successful login
 		},
 		onError: (err: unknown) => {
 			setError('Login failed. Please check your credentials.');
@@ -89,96 +96,123 @@ const Login: React.FC = () => {
 		setError(null);
 		loginMutation.mutate(); // Trigger the login mutation
 	};
+
 	return (
-		<BackgroundBox>
-			<Container component='main' maxWidth='xs'>
-				<StyledPaper elevation={6}>
-					<Avatar sx={{ m: 1, bgcolor: theme.palette.secondary.main }}>
-						<LockOutlinedIcon />
-					</Avatar>
+		<AppTheme {...props}>
+			<CssBaseline enableColorScheme />
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					margin: '1%',
+				}}
+			>
+				<Link
+					href="/"
+					variant="h6"
+					sx={{
+						display: 'flex',
+						color: '#3E63DD',
+						'&:hover': {
+							color: '#004074',
+						},
+					}}
+				>
+					<ArrowBackIcon sx={{ paddingRight: '3px' }} /> Return home
+				</Link>
+				<ColorModeIconDropdown />
+			</Box>
+
+			<LoginContainer direction="column" justifyContent="space-between">
+				<Card variant="outlined">
 					<Typography
-						component='h1'
-						variant='h5'
-						sx={{ mb: 2, fontWeight: 'bold' }}
+						component="h1"
+						variant="h4"
+						sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
 					>
 						Sign In
 					</Typography>
 					{error && (
-						<Alert severity='error' sx={{ width: '100%', mb: 2 }}>
+						<Alert severity="error" sx={{ width: '100%', mb: 2 }}>
 							{error}
 						</Alert>
 					)}
 					{loginMutation.isSuccess && (
-						<Alert severity='success' sx={{ width: '100%', mb: 2 }}>
+						<Alert severity="success" sx={{ width: '100%', mb: 2 }}>
 							Logged in successfully
 						</Alert>
 					)}
 					<Box
-						component='form'
+						component="form"
 						onSubmit={handleSubmit}
 						noValidate
-						sx={{ width: '100%' }}
+						sx={{
+							display: 'flex',
+							flexDirection: 'column',
+							width: '100%',
+							gap: 2,
+						}}
 					>
-						<TextField
-							variant='outlined'
-							margin='normal'
-							required
+						<FormControl>
+							<FormLabel htmlFor="email">Email</FormLabel>
+							<TextField
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								id="email"
+								type="email"
+								name="email"
+								placeholder="your@email.com"
+								autoComplete="email"
+								required
+								fullWidth
+								variant="outlined"
+							/>
+						</FormControl>
+
+						<FormControl>
+							<FormLabel htmlFor="password">Password</FormLabel>
+							<TextField
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								name="password"
+								placeholder="••••••"
+								type="password"
+								id="password"
+								autoComplete="current-password"
+								required
+								fullWidth
+								variant="outlined"
+							/>
+						</FormControl>
+
+						<Button
+							type="submit"
 							fullWidth
-							id='email'
-							label='Email Address'
-							name='email'
-							autoComplete='email'
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							InputProps={{
-								style: { borderRadius: '10px' },
-							}}
-						/>
-						<TextField
-							variant='outlined'
-							margin='normal'
-							required
-							fullWidth
-							name='password'
-							label='Password'
-							type='password'
-							id='password'
-							autoComplete='current-password'
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							InputProps={{
-								style: { borderRadius: '10px' },
-							}}
-						/>
-						<StyledButton
-							type='submit'
-							fullWidth
-							variant='contained'
-							color='primary'
+							variant="contained"
 						>
-							Sign In
-						</StyledButton>
-						<Grid container justifyContent='space-between'>
+							Sign in
+						</Button>
+						<Grid container justifyContent="space-between">
 							<Grid item>
-								<Button variant='text' size='small' color='secondary'>
+								<Button variant="text" size="small" color="secondary">
 									Forgot password?
 								</Button>
 							</Grid>
 							<Grid item>
 								<Button
-									href='/register'
-									variant='text'
-									size='small'
-									color='secondary'
+									href="/register"
+									variant="text"
+									size="small"
+									color="secondary"
 								>
 									{"Don't have an account? Sign Up"}
 								</Button>
 							</Grid>
 						</Grid>
 					</Box>
-				</StyledPaper>
-			</Container>
-		</BackgroundBox>
+				</Card>
+			</LoginContainer>
+		</AppTheme>
 	);
 };
 

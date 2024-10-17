@@ -15,7 +15,6 @@ import MenuContent from './MenuContent';
 import { useAuth } from '../../Context/authContext';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import apiClient from '../../API/apiClient';
 
 interface SideMenuMobileProps {
 	open: boolean | undefined;
@@ -26,13 +25,23 @@ export default function SideMenuMobile({
 	open,
 	toggleDrawer,
 }: SideMenuMobileProps) {
-	const { checkAuthStatus } = useAuth();
+	const { checkAuthStatus, userFirstName, userLastName } = useAuth();
+
 	const navigate = useNavigate();
 
 	const logoutMutation = useMutation({
-		mutationFn: () => apiClient.authentication_logout(),
+		mutationFn: async () => {
+			const response = await fetch('http://localhost:5000/api/Authentication/logout', {
+				method: 'POST',
+				credentials: 'include', 
+			});
+
+			if (!response.ok) {
+				throw new Error('Logout failed');
+			}
+		},
 		onSuccess: async () => {
-			await checkAuthStatus();
+			await checkAuthStatus(); 
 			navigate('/login');
 		},
 		onError: (err: unknown) => {
@@ -68,13 +77,12 @@ export default function SideMenuMobile({
 						sx={{ gap: 1, alignItems: 'center', flexGrow: 1, p: 1 }}
 					>
 						<Avatar
-							sizes='small'
-							alt='temp'
+							alt={userFirstName + ' ' + userLastName}
 							src='/static/images/avatar/7.jpg'
-							sx={{ width: 24, height: 24 }}
+							sx={{ width: 36, height: 36 }}
 						/>
 						<Typography component='p' variant='h6'>
-							Template Name
+							{userFirstName} {userLastName}
 						</Typography>
 					</Stack>
 					<MenuButton showBadge>

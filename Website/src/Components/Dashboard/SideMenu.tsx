@@ -7,25 +7,30 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import Typography from '@mui/material/Typography';
-// import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
-// import CardAlert from './CardAlert';
 import OptionsMenu from './OptionsMenu';
+import Tooltip from '@mui/material/Tooltip';
+import { useAuth } from '../../Context/authContext';
 
 const drawerWidth = 240;
 
-const Drawer = styled(MuiDrawer)({
+const Drawer = styled(MuiDrawer)(({ theme }) => ({
 	width: drawerWidth,
 	flexShrink: 0,
 	boxSizing: 'border-box',
-	mt: 10,
 	[`& .${drawerClasses.paper}`]: {
 		width: drawerWidth,
 		boxSizing: 'border-box',
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'space-between',
+		backgroundColor: theme.palette.background.paper,
 	},
-});
+}));
 
 export default function SideMenu() {
+	const { userFirstName, userLastName, userEmail } = useAuth();
+
 	return (
 		<Drawer
 			variant='permanent'
@@ -39,24 +44,31 @@ export default function SideMenu() {
 			<Box
 				sx={{
 					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'flex-start',
 					mt: 'calc(var(--template-frame-height, 0px) + 4px)',
 					p: 1.5,
+					width: '100%',
 				}}
 			>
-				{/* <SelectContent /> */}
 				<SpaceDashboardIcon
 					sx={{
-						marginTop: '5px',
-						paddingRight: '5px',
+						marginRight: '8px',
 					}}
 				/>
-				<Typography variant='h4' component='h1' sx={{ color: 'text.primary' }}>
+				<Typography
+					variant='h5'
+					component='h1'
+					noWrap
+					sx={{ color: 'text.primary', fontSize: '1.5rem' }}
+				>
 					Jobless & Found
 				</Typography>
 			</Box>
 			<Divider />
-			<MenuContent />
-			{/* <CardAlert /> */}
+			<Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+				<MenuContent />
+			</Box>
 			<Stack
 				direction='row'
 				sx={{
@@ -65,24 +77,45 @@ export default function SideMenu() {
 					alignItems: 'center',
 					borderTop: '1px solid',
 					borderColor: 'divider',
+					justifyContent: 'space-between',
+					width: '100%',
 				}}
 			>
 				<Avatar
-					sizes='small'
-					alt='template'
+					alt={userFirstName + ' ' + userLastName}
 					src='/static/images/avatar/7.jpg'
 					sx={{ width: 36, height: 36 }}
 				/>
-				<Box sx={{ mr: 'auto' }}>
-					<Typography
-						variant='body2'
-						sx={{ fontWeight: 500, lineHeight: '16px' }}
-					>
-						Template Name
-					</Typography>
-					<Typography variant='caption' sx={{ color: 'text.secondary' }}>
-						template@email.com
-					</Typography>
+				<Box sx={{ flex: 1, ml: 1, overflow: 'hidden' }}>
+					<Tooltip title={`${userFirstName} ${userLastName}`}>
+						<Typography
+							variant='body2'
+							sx={{
+								fontWeight: 500,
+								lineHeight: '16px',
+								whiteSpace: 'nowrap',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								maxWidth: '120px',
+							}}
+						>
+							{userFirstName} {userLastName}
+						</Typography>
+					</Tooltip>
+					<Tooltip title={userEmail}>
+						<Typography
+							variant='caption'
+							sx={{
+								color: 'text.secondary',
+								whiteSpace: 'nowrap',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								maxWidth: '120px',
+							}}
+						>
+							{userEmail}
+						</Typography>
+					</Tooltip>
 				</Box>
 				<OptionsMenu />
 			</Stack>

@@ -14,9 +14,7 @@ import MenuButton from './MenuButton';
 import { useAuth } from '../../Context/authContext';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import apiClient from '../../API/apiClient';
 
-// Styled MenuItem
 const MenuItem = styled(MuiMenuItem)({
 	margin: '2px 0',
 });
@@ -29,10 +27,22 @@ export default function OptionsMenu() {
 	const navigate = useNavigate();
 
 	const logoutMutation = useMutation({
-		mutationFn: () => apiClient.authentication_logout(),
+		mutationFn: async () => {
+			const response = await fetch(
+				'http://localhost:5000/api/Authentication/logout',
+				{
+					method: 'POST',
+					credentials: 'include', 
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error('Logout failed');
+			}
+		},
 		onSuccess: async () => {
-			await checkAuthStatus();
-			navigate('/login');
+			await checkAuthStatus(); 
+			navigate('/login'); 
 		},
 		onError: (err: unknown) => {
 			console.error('Logout failed:', err);

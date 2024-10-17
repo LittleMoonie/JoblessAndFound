@@ -9,13 +9,16 @@ namespace Infrastructure.Services.IServices
 {
     public interface IOfferService
     {
-        Task<OfferAdvertisementDTO> GetOfferByCompanyId(int companyId);
+        Task<OfferAdvertisementDTO> GetOfferByCompanyId(int CompanyId);
         Task AddOffer(
             int OfferAdvertisementId,
             string? Description,
+            string? LongDescription,
             string? Title,
-            DateTime? CreatedAt,
-            DateTime? UpdatedAt
+            DateTime CreatedAt,
+            DateTime UpdatedAt,
+            int CompanyId,
+            int PostedByUserId
         );
         Task AddOffer(string? description, string? title, DateTime createdAt, DateTime updatedAt);
     }

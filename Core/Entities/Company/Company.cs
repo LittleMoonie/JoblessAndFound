@@ -15,7 +15,6 @@ namespace Core.Entities
         public string? Location { get; set; }
         public string? Domain { get; set; }
         public string? EmployeeCount { get; set; }
-        public virtual List<Offer.Advertisement> Offers { get; set; }
 
         #region Foreign Key Mappings
         public int EmployeesId { get; set; } // Foreign key to CompanyEmployeeCountEnum table
