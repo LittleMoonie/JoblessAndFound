@@ -27,33 +27,15 @@ namespace API.Controller.Offers
         }
 
         #region GET
-        [HttpGet("GetJobApplicationByApplicantUserIdList")]
-        public async Task<IActionResult> GetJobApplicationByApplicantUserIdList(int ApplicantUserId)
+        [HttpGet("GetJobApplicationsByApplicantUserIdList")]
+        public async Task<IEnumerable<OfferJobApplicationDTO>> GetJobApplicationsByApplicantUserIdList(int ApplicantUserId)
         {
-            if (ApplicantUserId <= 0)
-            {
-                return BadRequest("Invalid user ID.");
-            }
 
-            try
-            {
-                var jobApplication = await _OfferJobApplicationService.GetJobApplicationByApplicantUserIdList(ApplicantUserId);
-                if (jobApplication == null)
-                {
-                    return NotFound();
-                }
 
-                return Ok(jobApplication);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Erreur lors de la récupération de l'offre pour le user {ApplicantUserId}",
-                    ApplicantUserId
-                );
-                return StatusCode(500, ex.Message); // Pour voir le message d'erreur lors du débogage
-            }
+
+                return await _OfferJobApplicationService.GetJobApplicationsByApplicantUserIdList(ApplicantUserId);
+
+
         }
 
         #endregion

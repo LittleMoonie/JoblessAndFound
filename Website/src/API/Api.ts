@@ -63,11 +63,11 @@ export interface OfferAdvertisementDTO {
 export interface OfferJobApplicationDTO {
   /** @format int32 */
   offerJobApplicationId?: number;
-  message?: string | null;
+  message?: string;
   /** @format date-time */
-  createdAt?: Date | null;
-  adId?: number | null;
-  applicantUserId?: number | null;
+  createdAt?: Date;
+  adId?: number;
+  applicantUserId?: number;
   statusId?: number;
 }
 
@@ -465,13 +465,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-   * No description
-   *
-   * @tags Offer
-   * @name OfferGetJobApplicationByApplicantUserIdList
-   * @request GET:/api/Offer/GetJobApplicationByApplicantUserIdList
-   * @secure
-   */
+     * No description
+     *
+     * @tags Offer
+     * @name OfferGetJobApplicationByApplicantUserIdList
+     * @request GET:/api/OfferJobApplication/GetJobApplicationsByApplicantUserIdList
+     * @secure
+     */
     offerGetJobApplicationByApplicantUserIdList: (
       query?: {
         /** @format int32 */
@@ -479,20 +479,21 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, any>({
-        path: `/api/Offer/GetJobApplicationByApplicantUserIdList`,
+      this.request<OfferJobApplicationDTO[], any>({
+        path: `/api/OfferJobApplication/GetJobApplicationsByApplicantUserIdList`, // Chemin correct ici
         method: "GET",
         query: query,
         secure: true,
         ...params,
       }),
 
+
     /**
    * No description
    *
    * @tags Offer
    * @name OfferAddJobApplication
-   * @request POST:/api/Offer/AddJobApplication
+   * @request POST:/api/OfferJobApplication/AddJobApplication
    * @secure
    */
     offerAddJobApplication: (

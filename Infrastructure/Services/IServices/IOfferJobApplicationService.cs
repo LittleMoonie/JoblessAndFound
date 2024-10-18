@@ -9,10 +9,10 @@ namespace Infrastructure.Services.IServices
 {
     public interface IOfferJobApplicationService
     {
-        Task<OfferJobApplicationDTO> GetJobApplicationByApplicantUserIdList(int ApplicantUserId);
+        Task<IEnumerable<OfferJobApplicationDTO>> GetJobApplicationsByApplicantUserIdList(int ApplicantUserId);
         Task AddJobApplication(
             string? Message,
-            DateTime CreatedAt,
+            DateTime? CreatedAt,
             int AdId,
             int ApplicantUserId,
             int StatusId

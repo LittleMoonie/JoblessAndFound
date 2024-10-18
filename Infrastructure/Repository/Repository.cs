@@ -112,6 +112,11 @@ namespace Infrastructure.Repository
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
+        public async Task<IEnumerable<T>> FindAllAsync<T>(Expression<Func<T, bool>> predicate) where T : class
+        {
+            return await _context.Set<T>().Where(predicate).ToListAsync();
+        }
+
 
         public virtual async Task<IEnumerable<T>> GetAllAsync()
         {

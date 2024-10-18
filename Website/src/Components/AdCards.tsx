@@ -5,6 +5,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
@@ -12,7 +13,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import PlaceIcon from '@mui/icons-material/Place';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Link from '@mui/material/Link';
-import { Box, Snackbar, Alert } from '@mui/material';
+import { Box, Snackbar, Alert, FormControl, TextField, TextareaAutosize } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { CompanyDTO } from '../API/Api';
 import TextWithFormatting from './TextWithFormattingProps';
@@ -48,6 +49,20 @@ const formatDistanceToNow = (date: Date): string => {
 	return `${Math.floor(seconds)} seconds ago`;
 };
 
+const fetchJobApplicationsData = async (userId: number) => {
+	const response = await fetch(
+		`http://localhost:5000/api/OfferJobApplication/GetJobApplicationsByApplicantUserIdList?ApplicantUserId=${userId}`
+	);
+
+	if (!response.ok) {
+		throw new Error('Error fetching job application data');
+	}
+
+	const result = await response.json();
+
+	return { data: result.data };
+};
+
 const fetchCompanyData = async (): Promise<CompanyDTO[]> => {
 	const company1Response = await fetch(
 		'http://localhost:5000/api/Company/GetCompanyById?CompanyId=1'
@@ -72,6 +87,23 @@ export default function MediaCard() {
 	const [searchParams] = useSearchParams();
 	const location = useLocation();
 	const { userId } = useAuth();
+	const [open, setOpen] = React.useState(false);
+	const handleOpen = () => setOpen(true);
+	const handleClose = () => setOpen(false);
+	const [message, setMessage] = useState('');
+	const [errorMessage, setErrorMessage] = useState('');
+
+	const handleMessageChange = (e: { target: { value: any; }; }) => {
+		const value = e.target.value;
+		setMessage(value);
+
+		// Vérification de la longueur du message
+		if (value.length < 10) {
+			setErrorMessage('Votre message est trop court');
+		} else {
+			setErrorMessage('');
+		}
+	};
 
 	const {
 		data: companies = [],
@@ -80,6 +112,13 @@ export default function MediaCard() {
 	} = useQuery({
 		queryKey: ['companies'],
 		queryFn: fetchCompanyData,
+	});
+
+	const {
+		data: jobApplications = []
+	} = useQuery({
+		queryKey: ['jobApplications', userId],
+		queryFn: () => fetchJobApplicationsData(userId!),
 	});
 
 	useEffect(() => {
@@ -103,17 +142,18 @@ export default function MediaCard() {
 		setExpandedCardId(expandedCardId === offerId ? null : offerId);
 	};
 
-	const handleApply = async (offerId: number, userId: number) => {
+	const handleApply = async (offerId: number, userId: number, message: string) => {
 		try {
 			const response = await api.api.offerAddJobApplication({
-				AdId: offerId,                // ID de l'offre
-				ApplicantUserId: userId,      // ID de l'utilisateur
-				CreatedAt: new Date().toISOString(), // Date actuelle au format ISO
-				statusId: 1                   // Statut défini à 1 pour l'application
+				AdId: offerId,
+				ApplicantUserId: userId,
+				Message: message,
+				CreatedAt: new Date().toISOString(),
+				statusId: 1,
 			});
-	
-			console.log('Application soumise avec succès', response);
+
 			alert('Candidature soumise avec succès');
+			handleClose(); // Fermer le modal
 		} catch (error) {
 			console.error('Erreur lors de la soumission de la candidature', error);
 		}
@@ -282,7 +322,7 @@ export default function MediaCard() {
 							>
 								<Button
 									size='small'
-									onClick={() => userId && offer.offerAdvertisementId !== undefined && handleApply(offer.offerAdvertisementId, userId)}
+									onClick={handleOpen}
 									sx={{
 										backgroundColor: '#232453',
 										color: 'white',
@@ -294,6 +334,103 @@ export default function MediaCard() {
 								>
 									Apply
 								</Button>
+
+								{/* Corps du modal */}
+								<Modal
+									open={open}
+									onClose={handleClose}
+									aria-labelledby="modal-modal-title"
+									aria-describedby="modal-modal-description"
+								>
+									<Box
+										component="form"
+										onSubmit={(e) => {
+											e.preventDefault();
+											// Vérification des ID
+											if (!userId || offer.offerAdvertisementId === undefined) {
+												return; // Ne pas soumettre si les ID ne sont pas valides
+											}
+
+											// Vérifier si l'utilisateur a déjà postulé à cette offre
+											const hasApplied = jobApplications.some((jobApplication: { AdId: number }) => jobApplication.AdId === offer.offerAdvertisementId);
+											if (hasApplied) {
+												alert('Vous avez déjà postulé à cette offre.');
+												return;
+											}
+
+											// Vérification de la longueur du message
+											if (message.length < 10) {
+												alert('Votre message doit contenir au moins 10 caractères.');
+												return;
+											}
+
+											handleApply(offer.offerAdvertisementId, userId, message)
+												.then(() => {
+													setMessage(''); // Réinitialiser le message
+													handleClose(); // Fermer le modal
+												})
+												.catch((error) => {
+													console.error('Erreur lors de la soumission de la candidature', error);
+												});
+										}}
+										sx={{
+											position: 'absolute',
+											top: '50%',
+											left: '50%',
+											transform: 'translate(-50%, -50%)',
+											width: 400,
+											bgcolor: 'background.paper',
+											border: '1px solid #000',
+											boxShadow: 24,
+											p: 4,
+											display: "flex",
+											flexDirection: 'column'
+										}}
+									>
+										<Typography id="modal-title" variant="h6" component="h2">
+											Message
+										</Typography>
+										<FormControl
+											sx={{
+												marginTop: "3%"
+											}}
+										>
+											<TextareaAutosize
+												style={{
+													borderRadius: "10px",
+													padding: "10px",
+													color: "text.primary"
+												}}
+												id="message"
+												name="message"
+												aria-label="message"
+												placeholder="Hello, I'm very interest for your announce..."
+												minRows={6}
+												maxLength={1000}
+												required
+												value={message}
+												onChange={handleMessageChange}
+											/>
+											{errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+										</FormControl>
+										<Button
+											id="modal-submit"
+											size='small'
+											type="submit"
+											sx={{
+												marginTop: "5%",
+												backgroundColor: '#232453',
+												color: 'white',
+												width: { xs: '40%', sm: '30%', md: '20%' },
+												'&:hover': {
+													backgroundColor: '#33348A',
+												},
+											}}
+										>
+											Send
+										</Button>
+									</Box>
+								</Modal>
 
 								<Box
 									sx={{
@@ -341,16 +478,6 @@ export default function MediaCard() {
 					);
 				});
 			})}
-
-			<Snackbar
-				open={!!error}
-				autoHideDuration={6000}
-				onClose={() => setError(null)}
-			>
-				<Alert onClose={() => setError(null)} severity="error">
-					{error}
-				</Alert>
-			</Snackbar>
 		</div>
 	);
 }

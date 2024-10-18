@@ -15,9 +15,13 @@ namespace Infrastructure.DTO.Offer
 
         public void Mapping(Profile profile)
         {
-            profile
-                .CreateMap<JobApplication, OfferJobApplicationDTO>()
-                .ForMember(desc => desc.OfferJobApplicationId, opt => opt.MapFrom(src => src.Id))
+            profile.CreateMap<JobApplication, OfferJobApplicationDTO>()
+                .ForMember(dest => dest.OfferJobApplicationId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.AdId, opt => opt.MapFrom(src => src.AdId))
+                .ForMember(dest => dest.ApplicantUserId, opt => opt.MapFrom(src => src.ApplicantUserId))
+                .ForMember(dest => dest.StatusId, opt => opt.MapFrom(src => src.StatusId))
                 .ReverseMap();
         }
     }

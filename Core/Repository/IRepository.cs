@@ -27,5 +27,7 @@ namespace Core.Repository
         Task<TResult> FindAsync<TResult>(
                 Expression<Func<T, bool>> predicate,
                 params Expression<Func<T, object>>[] includes) where TResult : class;
+
+        Task<IEnumerable<T>> FindAllAsync<T>(Expression<Func<T, bool>> predicate) where T : class;
     }
 }
