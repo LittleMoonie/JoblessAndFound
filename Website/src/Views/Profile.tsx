@@ -1,31 +1,28 @@
 import React from 'react';
 import { Box, Avatar, CardMedia, Typography, Button, Divider, Stack, Grid, Tab, Tabs } from '@mui/material';
 import { useAuth } from '../Context/authContext';
-import { Link } from 'react-router-dom';
 
 function ProfilePage() {
   const { userFirstName, userLastName } = useAuth();
 
   return (
     <Box sx={{ width: '100%', bgcolor: '#f5f5f5', padding: 2 }}>
-      {/* Profile Cover Photo */}
       <CardMedia
         component="img"
-        image="https://placehold.co/1200x400" // Replace with actual cover image
+        image="https://placehold.co/1200x400" 
         alt="Profile cover"
         sx={{
-          height: { xs: 200, md: 300 }, // Responsive height for mobile/desktop
+          height: { xs: 200, md: 300 },
           borderRadius: '10px',
           position: 'relative',
         }}
       />
 
-      {/* Avatar and Profile Info */}
       <Box sx={{ mt: -10, px: { xs: 2, md: 4 }, position: 'relative' }}>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-end' }}>
           <Avatar
             alt={`${userFirstName} ${userLastName}`}
-            src="https://placehold.co/100x100" // Replace with actual avatar image
+            src="https://placehold.co/100x100" 
             sx={{
               width: { xs: 80, md: 150 },
               height: { xs: 80, md: 150 },
@@ -52,7 +49,6 @@ function ProfilePage() {
         </Stack>
       </Box>
 
-      {/* Tabs Section */}
       <Box sx={{ mt: 4 }}>
         <Tabs value={0} textColor="primary" indicatorColor="primary">
           <Tab label="Profile" />
@@ -63,7 +59,6 @@ function ProfilePage() {
         </Tabs>
       </Box>
 
-      {/* Stats Cards */}
       <Grid container spacing={2} sx={{ mt: 2 }}>
         <Grid item xs={6} md={3}>
           <Box
@@ -103,7 +98,6 @@ function ProfilePage() {
         </Grid>
       </Grid>
 
-      {/* About Section */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6" fontWeight="bold">
           About
@@ -114,7 +108,6 @@ function ProfilePage() {
         </Typography>
       </Box>
 
-      {/* Post Section */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6" fontWeight="bold">
           {`What's on your mind, ${userFirstName}?`}
@@ -145,7 +138,6 @@ function ProfilePage() {
         </Box>
       </Box>
 
-      {/* Feed Section */}
       <Box sx={{ mt: 4 }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar alt={`${userFirstName} ${userLastName}`} src="https://placehold.co/50x50" />

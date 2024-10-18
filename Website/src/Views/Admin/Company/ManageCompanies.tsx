@@ -71,7 +71,6 @@ const ManageCompanies = () => {
         Back to Admin Dashboard
       </Button>
 
-      {/* Page Header */}
       <Typography variant="h4" gutterBottom>
         Manage Companies
       </Typography>

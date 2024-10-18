@@ -12,7 +12,7 @@ import GeneralConditions from '../Views/FooterLinks/cgu';
 import ProblemWithMyAccount from '../Views/FooterLinks/probAccount';
 import ProblemWithMyBusiness from '../Views/FooterLinks/probBusiness';
 import HowToAddMyBusiness from '../Views/FooterLinks/addBusiness';
-
+import Unauthorized from '../Views/Unauthorized';
 
 const PublicRoutes: RouteObject[] = [
 	{
@@ -54,6 +54,10 @@ const PublicRoutes: RouteObject[] = [
 	{
 		path: '*',
 		element: <NotFoundPage />,
+	},
+	{
+		path: '/unauthorized',
+		element: <Unauthorized />,
 	},
 ];
 

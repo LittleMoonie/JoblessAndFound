@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import AppNavbar from '../Components/AppNavbar';
 import AppTheme from '../Components/AppTheme';
 import { chartsCustomizations } from '../Components/customizations/chart';

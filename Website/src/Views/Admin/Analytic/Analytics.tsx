@@ -63,7 +63,6 @@ const AnalyticsDashboard = () => {
         Analytics Dashboard
       </Typography>
 
-      {/* First Row: Line Chart (User Growth) */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
           <Card sx={cardStyle}>
@@ -76,7 +75,6 @@ const AnalyticsDashboard = () => {
           </Card>
         </Grid>
 
-        {/* Right Side Cards */}
         <Grid item xs={12} md={4}>
           <Card sx={cardStyle}>
             <CardContent>
@@ -108,7 +106,6 @@ const AnalyticsDashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Second Row: Bar Chart (Job Posts per Category) */}
       <Grid container spacing={3} sx={{ mt: 3 }}>
         <Grid item xs={12} md={8}>
           <Card sx={cardStyle}>
@@ -121,7 +118,6 @@ const AnalyticsDashboard = () => {
           </Card>
         </Grid>
 
-        {/* Right Side Cards */}
         <Grid item xs={12} md={4}>
           <Card sx={cardStyle}>
             <CardContent>
@@ -153,7 +149,6 @@ const AnalyticsDashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Third Row: Pie Chart (User Types) */}
       <Grid container spacing={3} sx={{ mt: 3 }}>
         <Grid item xs={12} md={6}>
           <Card sx={cardStyle}>
@@ -166,7 +161,6 @@ const AnalyticsDashboard = () => {
           </Card>
         </Grid>
 
-        {/* Additional Analytics Card */}
         <Grid item xs={12} md={6}>
           <Card sx={cardStyle}>
             <CardContent>

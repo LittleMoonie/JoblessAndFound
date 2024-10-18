@@ -9,6 +9,10 @@ interface AuthContextType {
 	userLastName: string | null;
 	userEmail: string | null;
 	userId: number | null;
+	userTypeId: number | null;
+	isRecruiter: boolean;
+	isAdmin: boolean;
+	isModerator: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,17 +21,20 @@ interface AuthProviderProps {
 	children: ReactNode;
 }
 
-// Update fetchAuthStatus to handle the new structure of the response
 const fetchAuthStatus = async (): Promise<{
 	isAuthenticated: boolean;
 	userFirstName: string;
 	userLastName: string;
 	userEmail: string;
 	userId: number;
+	userTypeId: number;
 }> => {
-	const response = await fetch('http://localhost:5000/api/Authentication/status', {
-		credentials: 'include',
-	});
+	const response = await fetch(
+		'http://localhost:5000/api/Authentication/status',
+		{
+			credentials: 'include',
+		}
+	);
 	if (!response.ok) {
 		throw new Error('Failed to fetch authentication status');
 	}
@@ -40,7 +47,9 @@ const fetchAuthStatus = async (): Promise<{
 		!data.user.firstName ||
 		!data.user.lastName ||
 		!data.user.email ||
-		!data.user.userId
+		!data.user.userId ||
+		!data.user.userTypeId
+		
 	) {
 		throw new Error('Invalid response structure');
 	}
@@ -51,11 +60,11 @@ const fetchAuthStatus = async (): Promise<{
 		userLastName: data.user.lastName,
 		userEmail: data.user.email,
 		userId: data.user.userId,
+		userTypeId: data.user.userTypeId,
 	};
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-	// Use react-query to manage the auth status and fetch user info
 	const { data, isLoading, refetch } = useQuery({
 		queryKey: ['authStatus'],
 		queryFn: fetchAuthStatus,
@@ -66,6 +75,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const userLastName = data?.userLastName ?? null;
 	const userEmail = data?.userEmail ?? null;
 	const userId = data?.userId ?? null;
+	const userTypeId = data?.userTypeId ?? null;
+
+	const isRecruiter = userTypeId === 2;
+	const isAdmin = userTypeId === 4; 
+	const isModerator = userTypeId === 3;
 
 	return (
 		<AuthContext.Provider
@@ -77,6 +91,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				userLastName,
 				userEmail,
 				userId,
+				userTypeId,
+				isRecruiter, 
+				isAdmin, 
+				isModerator,
 			}}
 		>
 			{children}
