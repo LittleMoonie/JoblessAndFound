@@ -30,15 +30,11 @@ namespace API.Controller.Offers
         [HttpGet("GetJobApplicationsByApplicantUserIdList")]
         public async Task<IEnumerable<OfferJobApplicationDTO>> GetJobApplicationsByApplicantUserIdList(int ApplicantUserId)
         {
-
-
-
                 return await _OfferJobApplicationService.GetJobApplicationsByApplicantUserIdList(ApplicantUserId);
-
-
         }
 
         #endregion
+
 
         #region POST
         [HttpPost("AddJobApplication")]
