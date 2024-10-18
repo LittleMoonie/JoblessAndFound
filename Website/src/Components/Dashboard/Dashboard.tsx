@@ -9,7 +9,6 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import AppNavbar from './AppNavbar';
 import Header from './Header';
-// import MainGrid from './MainGrid';
 import MediaCard from '../AdCards';
 import SideMenu from './SideMenu';
 import AppTheme from '../AppTheme';

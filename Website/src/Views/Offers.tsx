@@ -1,11 +1,8 @@
 import React from 'react';
+import MediaCard from '../Components/AdCards';
 
 function OffersPage() {
-	return (
-		<div>
-			<h1>Messages Page</h1>
-		</div>
-	);
+	return <MediaCard />;
 }
 
 export default OffersPage;

@@ -77,10 +77,9 @@ export default function SideMenuMobile({
 						sx={{ gap: 1, alignItems: 'center', flexGrow: 1, p: 1 }}
 					>
 						<Avatar
-							sizes='small'
-							alt='temp'
+							alt={userFirstName + ' ' + userLastName}
 							src='/static/images/avatar/7.jpg'
-							sx={{ width: 24, height: 24 }}
+							sx={{ width: 36, height: 36 }}
 						/>
 						<Typography component='p' variant='h6'>
 							{userFirstName} {userLastName}

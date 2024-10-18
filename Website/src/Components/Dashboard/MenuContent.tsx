@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -8,29 +8,26 @@ import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
-import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
+import WorkIcon from '@mui/icons-material/Work';
 import LockIcon from '@mui/icons-material/Lock';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import GavelIcon from '@mui/icons-material/Gavel';
 
 // Define the menu items with path properties for navigation
 const mainListItems = [
   { text: 'Home', icon: <HomeRoundedIcon />, path: '/home' },
-  { text: 'User', icon: <PeopleRoundedIcon />, path: '/user' },
-  { text: 'Business', icon: <CorporateFareIcon />, path: '/business' },
+  { text: 'Profile', icon: <HomeRoundedIcon />, path: '/profile' },
+  { text: 'Offers', icon: <WorkIcon />, path: '/offers' },
+  { text: 'Company', icon: <CorporateFareIcon />, path: '/company' },
 ];
 
 const secondaryListItems = [
-    { text: 'Settings', icon: <SettingsRoundedIcon />, path: '/settings' },
-    { text: 'Moderator', icon: <GavelIcon />, path: '/moderator' },
-    { text: 'Admin', icon: <LockIcon />, path: '/admin' },
-  // You can uncomment and add more items here as needed
-  // { text: 'About', icon: <InfoRoundedIcon />, path: '/about' },
-  // { text: 'Feedback', icon: <HelpRoundedIcon />, path: '/feedback' },
+  { text: 'Settings', icon: <SettingsRoundedIcon />, path: '/settings' },
+  { text: 'Admin', icon: <LockIcon />, path: '/admin' },
 ];
 
 export default function MenuContent() {
   const navigate = useNavigate(); // Initialize useNavigate
+  const location = useLocation(); // Get current location
 
   // Function to handle navigation
   const handleNavigation = (path: string) => {
@@ -38,28 +35,29 @@ export default function MenuContent() {
   };
 
   return (
-    <Stack sx={{ flexGrow: 1, p: 1, justifyContent: 'space-between' }}>
-      <List dense>
-        {mainListItems.map((item, index) => (
-          <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={() => handleNavigation(item.path)} selected={index === 0}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+    <Stack sx={{ flexGrow: 1, p: 1, flexDirection: 'column', justifyContent: 'space-between' }}>
+  <List dense>
+    {mainListItems.map((item, index) => (
+      <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+        <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.text} />
+        </ListItemButton>
+      </ListItem>
+    ))}
+  </List>
 
-      <List dense>
-        {secondaryListItems.map((item, index) => (
-          <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={() => handleNavigation(item.path)}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Stack>
+  <List dense>
+    {secondaryListItems.map((item, index) => (
+      <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+        <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.text} />
+        </ListItemButton>
+      </ListItem>
+    ))}
+  </List>
+</Stack>
+
   );
 }

@@ -49,6 +49,7 @@ export interface OfferAdvertisementDTO {
   offerAdvertisementId?: number;
   title?: string | null;
   description?: string | null;
+  longDescription?: string | null;
   /** @format date-time */
   createdAt?: string | null;
   /** @format date-time */
@@ -465,6 +466,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         /** @format int32 */
         OfferAdvertisementId?: number;
         Description?: string;
+        LongDescription?: string;
         Title?: string;
         /** @format date-time */
         CreatedAt?: string;

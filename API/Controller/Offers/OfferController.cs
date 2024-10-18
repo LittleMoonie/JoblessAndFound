@@ -64,6 +64,7 @@ namespace API.Controller.Offers
         public async Task AddOffer(
             int OfferAdvertisementId,
             string? Description,
+            string? LongDescription,
             string? Title,
             DateTime? CreatedAt,
             DateTime? UpdatedAt,
@@ -74,6 +75,7 @@ namespace API.Controller.Offers
             await _OfferService.AddOffer(
                 OfferAdvertisementId,
                 Description,
+                LongDescription,
                 Title,
                 CreatedAt ?? DateTime.UtcNow, // Valeur par défaut si null
                 UpdatedAt ?? DateTime.UtcNow, // Valeur par défaut si null

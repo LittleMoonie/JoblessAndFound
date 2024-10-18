@@ -1,0 +1,60 @@
+/* Style the PhoneInput container */
+.phone-input {
+    width: 100%;
+    border: 1px solid #c4c4c4;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 1rem;
+    background-color: #fff;
+    box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s ease-in-out;
+}
+
+/* Style the dropdown button */
+.phone-input .PhoneInputCountry {
+    background-color: transparent;
+    border: none;
+    padding-right: 8px;
+    cursor: pointer;
+}
+
+/* Make sure the flag dropdown is inline with input */
+.phone-input .PhoneInputCountryIcon {
+    display: inline-block;
+    width: 20px;
+    margin-right: 10px;
+}
+
+/* Style the text input */
+.phone-input input {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    width: 100%;
+}
+
+/* Focus state */
+.phone-input:focus-within {
+    border-color: #3f51b5; /* Use your theme's primary color */
+    box-shadow: 0 0 3px rgba(63, 81, 181, 0.2);
+}
+
+/* Remove default dropdown indicator styling */
+.phone-input .PhoneInputCountrySelect {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Customize the dropdown menu */
+.phone-input .PhoneInputCountrySelect:focus {
+    border-color: #3f51b5; /* Focus color */
+}
+
+.phone-input .PhoneInputCountrySelect:after {
+    content: '▼'; /* Custom dropdown arrow */
+    font-size: 0.75rem;
+    color: #555;
+    padding-left: 8px;
+}

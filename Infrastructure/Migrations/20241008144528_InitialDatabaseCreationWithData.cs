@@ -187,6 +187,9 @@ namespace Infrastructure.Migrations
                         Description = table
                             .Column<string>(type: "longtext", nullable: false)
                             .Annotation("MySql:CharSet", "utf8mb4"),
+                        LongDescription = table
+                            .Column<string>(type: "varchar(3000)", maxLength: 3000, nullable: false)
+                            .Annotation("MySql:CharSet", "utf8mb4"),
                         CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                         UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                         CompanyId = table.Column<int>(type: "int", nullable: false),

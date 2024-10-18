@@ -1,9 +1,13 @@
 import React from 'react';
-import MediaCard from '../Components/AdCards';
+import { Box, Typography } from '@mui/material';
 
 function HomePage() {
 	return (
-			<MediaCard />
+		<Box>
+			<Typography variant="h2">
+				Pannel de control
+			</Typography>
+		</Box>
 	);
 }
 

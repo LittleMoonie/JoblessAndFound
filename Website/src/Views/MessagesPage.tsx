@@ -1,9 +1,10 @@
 import React from 'react';
+import ChatPage from '../Components/Messages/ChatPage';
 
 function MessagesPage() {
 	return (
 		<div>
-			<h1>Messages Page</h1>
+			<ChatPage />
 		</div>
 	);
 }

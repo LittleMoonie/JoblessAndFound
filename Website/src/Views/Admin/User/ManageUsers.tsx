@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import {
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Paper,
-	IconButton,
+	Card,
+	CardContent,
 	Typography,
+	IconButton,
 	Box,
 	Pagination,
 	Stack,
@@ -22,99 +17,134 @@ import {
 	ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import UserModal from '../User/UserModal';
+
+export interface UserData {
+	userId: number;
+	firstName: string;
+	lastName: string;
+	email: string;
+	password?: string;
+	countryCode: string;
+	phoneNumber: string;
+	userTypeId: number;
+}
+
+const fetchUsers = async (
+	searchTerm: string,
+	page: number,
+	rowsPerPage: number
+) => {
+	const response = await fetch(
+		`http://localhost:5000/api/User/GetAllUsers?searchTerm=${searchTerm}&page=${page}&pageSize=${rowsPerPage}`
+	);
+	if (!response.ok) {
+		throw new Error('Error fetching users');
+	}
+	const result = await response.json();
+	return {
+		data: result.data,
+		totalCount: result.totalCount,
+	};
+};
 
 const ManageUsers = () => {
 	const navigate = useNavigate();
-
-	// Hardcoded user data
-	const users = [
-		{
-			id: 1,
-			firstName: 'John',
-			lastName: 'Doe',
-			email: 'john.doe@example.com',
-		},
-		{
-			id: 2,
-			firstName: 'Jane',
-			lastName: 'Smith',
-			email: 'jane.smith@example.com',
-		},
-		{
-			id: 3,
-			firstName: 'Michael',
-			lastName: 'Johnson',
-			email: 'michael.johnson@example.com',
-		},
-		{
-			id: 4,
-			firstName: 'Emily',
-			lastName: 'Davis',
-			email: 'emily.davis@example.com',
-		},
-		{
-			id: 5,
-			firstName: 'David',
-			lastName: 'Miller',
-			email: 'david.miller@example.com',
-		},
-		{
-			id: 6,
-			firstName: 'Sarah',
-			lastName: 'Brown',
-			email: 'sarah.brown@example.com',
-		},
-		{
-			id: 7,
-			firstName: 'James',
-			lastName: 'Wilson',
-			email: 'james.wilson@example.com',
-		},
-		{
-			id: 8,
-			firstName: 'Linda',
-			lastName: 'Moore',
-			email: 'linda.moore@example.com',
-		},
-		{
-			id: 9,
-			firstName: 'William',
-			lastName: 'Taylor',
-			email: 'william.taylor@example.com',
-		},
-		{
-			id: 10,
-			firstName: 'Patricia',
-			lastName: 'Anderson',
-			email: 'patricia.anderson@example.com',
-		},
-		{
-			id: 11,
-			firstName: 'Christopher',
-			lastName: 'Jackson',
-			email: 'christopher.jackson@example.com',
-		},
-		{
-			id: 12,
-			firstName: 'Barbara',
-			lastName: 'White',
-			email: 'barbara.white@example.com',
-		},
-	];
+	const queryClient = useQueryClient();
 
 	const [page, setPage] = useState(1);
-	const rowsPerPage = 10;
+	const rowsPerPage = 3;
 	const [searchTerm, setSearchTerm] = useState('');
+	const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+	const [openModal, setOpenModal] = useState(false);
 
-	// Search filter
-	const filteredUsers = users.filter(
-		(user) =>
-			user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			user.email.toLowerCase().includes(searchTerm.toLowerCase())
-	);
+	// Fetch users
+	const { data: users, refetch } = useQuery({
+		queryKey: ['users', page, searchTerm],
+		queryFn: () => fetchUsers(searchTerm, page, rowsPerPage),
+	});
 
-	// Pagination logic
+	const totalPages = users ? Math.ceil(users.totalCount / rowsPerPage) : 0;
+
+	// Add User API Call
+	const addUserMutation = useMutation({
+		mutationFn: async (userData: UserData) => {
+			const url = `http://localhost:5000/api/User/AddUser?firstName=${userData.firstName}&lastName=${userData.lastName}&email=${userData.email}&password=${userData.password}&countryCode=${userData.countryCode}&phoneNumber=${userData.phoneNumber}&userTypeId=${userData.userTypeId}`;
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(userData),
+			});
+			if (!response.ok) throw new Error('Failed to add user');
+			return response.json();
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['users'] });
+			refetch();
+		},
+	});
+
+	// Edit User API Call
+	const editUserMutation = useMutation({
+		mutationFn: async (userData: UserData) => {
+			const url = `http://localhost:5000/api/User/UpdateUser?userId=${userData.userId}&firstName=${userData.firstName}&lastName=${userData.lastName}&email=${userData.email}&countryCode=${userData.countryCode}&phoneNumber=${userData.phoneNumber}&userTypeId=${userData.userTypeId}`;
+			const response = await fetch(url, {
+				method: 'POST',
+			});
+			if (!response.ok) throw new Error('Failed to update user');
+			return response.json();
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['users'] });
+			refetch();
+		},
+	});
+
+	// Delete User API Call
+	const deleteUserMutation = useMutation({
+		mutationFn: async (userId: number) => {
+			const url = `http://localhost:5000/api/User/DeleteUser?userId=${userId}`;
+			const response = await fetch(url, {
+				method: 'POST', // Change this to POST for your API
+			});
+			if (!response.ok) throw new Error('Failed to delete user');
+			return response.json();
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['users'] });
+			refetch();
+		},
+	});
+
+	const handleDeleteUser = (userId: number) => {
+		console.log('Deleting user with userId:', userId);
+		deleteUserMutation.mutate(userId);
+	};
+
+	const handleSaveUser = (userData: {
+		userId: number;
+		firstName: string;
+		lastName: string;
+		email: string;
+		countryCode: string;
+		phoneNumber: string;
+		userTypeId: number;
+	}) => {
+		if (selectedUser) {
+			editUserMutation.mutate({ ...selectedUser, ...userData });
+		} else {
+			addUserMutation.mutate({ ...userData, userId: userData.userId ?? 0 });
+		}
+		setOpenModal(false);
+		setSelectedUser(null);
+	};
+
+	const handleEditUser = (user: UserData) => {
+		setSelectedUser(user);
+		setOpenModal(true);
+	};
+
 	const handleChangePage = (
 		event: React.ChangeEvent<unknown>,
 		newPage: number
@@ -122,14 +152,8 @@ const ManageUsers = () => {
 		setPage(newPage);
 	};
 
-	// Get paginated users based on search results
-	const paginatedUsers = filteredUsers.slice(
-		(page - 1) * rowsPerPage,
-		page * rowsPerPage
-	);
-
 	return (
-		<Box sx={{ p: 4 }}>
+		<Box sx={{ p: 2 }}>
 			{/* Back Button */}
 			<Button
 				startIcon={<ArrowBackIcon />}
@@ -150,65 +174,87 @@ const ManageUsers = () => {
 				label='Search Users'
 				variant='outlined'
 				fullWidth
-				sx={{ mb: 3 }}
+				sx={{ mb: 2 }}
 				value={searchTerm}
 				onChange={(e) => setSearchTerm(e.target.value)}
 				placeholder='Search by First Name, Last Name, or Email'
 			/>
 
-			{/* Users Table */}
-			<TableContainer component={Paper}>
-				<Table>
-					<TableHead>
-						<TableRow>
-							<TableCell>ID</TableCell>
-							<TableCell>First Name</TableCell>
-							<TableCell>Last Name</TableCell>
-							<TableCell>Email</TableCell>
-							<TableCell align='center'>Actions</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{paginatedUsers.length > 0 ? (
-							paginatedUsers.map((user) => (
-								<TableRow key={user.id}>
-									<TableCell>{user.id}</TableCell>
-									<TableCell>{user.firstName}</TableCell>
-									<TableCell>{user.lastName}</TableCell>
-									<TableCell>{user.email}</TableCell>
-									<TableCell align='center'>
-										<IconButton color='primary' aria-label='add user'>
-											<AddIcon />
-										</IconButton>
-										<IconButton color='secondary' aria-label='edit user'>
-											<EditIcon />
-										</IconButton>
-										<IconButton color='error' aria-label='delete user'>
-											<DeleteIcon />
-										</IconButton>
-									</TableCell>
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={5} align='center'>
-									No users found
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</TableContainer>
+			{/* Add User Button */}
+			<Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+				<Button
+					startIcon={<AddIcon />}
+					variant='contained'
+					color='primary'
+					onClick={() => {
+						setSelectedUser(null);
+						setOpenModal(true);
+					}}
+				>
+					Add User
+				</Button>
+			</Box>
+
+			{/* User Cards */}
+			{users?.data && users.data.length > 0 ? (
+				users.data.map((user: UserData) => (
+					<Card key={user.userId} sx={{ mb: 2, p: 2 }}>
+						<CardContent>
+							<Typography variant='h6'>
+								{user.firstName} {user.lastName}
+							</Typography>
+							<Typography>Email: {user.email}</Typography>
+							<Typography>Phone: {user.phoneNumber}</Typography>
+							<Typography>
+								Role:{' '}
+								{user.userTypeId === 1
+									? 'User'
+									: user.userTypeId === 2
+										? 'Recruiter'
+										: user.userTypeId === 3
+											? 'Moderator'
+											: 'Admin'}
+							</Typography>
+							<Box sx={{ mt: 2 }}>
+								<IconButton
+									color='primary'
+									aria-label='edit user'
+									onClick={() => handleEditUser(user)}
+								>
+									<EditIcon />
+								</IconButton>
+								<IconButton
+									color='error'
+									aria-label='delete user'
+									onClick={() => handleDeleteUser(user.userId)}
+								>
+									<DeleteIcon />
+								</IconButton>
+							</Box>
+						</CardContent>
+					</Card>
+				))
+			) : (
+				<Typography>No users found</Typography>
+			)}
 
 			{/* Pagination */}
 			<Stack spacing={2} sx={{ mt: 3, alignItems: 'center' }}>
 				<Pagination
-					count={Math.ceil(filteredUsers.length / rowsPerPage)}
+					count={totalPages}
 					page={page}
 					onChange={handleChangePage}
 					color='primary'
 				/>
 			</Stack>
+
+			{/* User Modal */}
+			<UserModal
+				open={openModal}
+				onClose={() => setOpenModal(false)}
+				onSave={handleSaveUser}
+				initialData={selectedUser || undefined}
+			/>
 		</Box>
 	);
 };

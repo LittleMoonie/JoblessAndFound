@@ -13,6 +13,7 @@ namespace Infrastructure.Services.IServices
         Task AddOffer(
             int OfferAdvertisementId,
             string? Description,
+            string? LongDescription,
             string? Title,
             DateTime CreatedAt,
             DateTime UpdatedAt,

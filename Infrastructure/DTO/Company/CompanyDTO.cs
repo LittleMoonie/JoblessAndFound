@@ -28,6 +28,7 @@ namespace Infrastructure.DTO.Company
                                     OfferAdvertisementId = o.Id,
                                     Title = o.Title,
                                     Description = o.Description,
+                                    LongDescription = o.LongDescription,
                                     CreatedAt = o.CreatedAt,
                                     UpdatedAt = o.UpdatedAt,
                                     CompanyId = o.CompanyId,
