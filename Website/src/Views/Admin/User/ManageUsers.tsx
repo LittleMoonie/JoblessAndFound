@@ -26,8 +26,8 @@ export interface UserData {
 	lastName: string;
 	email: string;
 	password?: string;
-	countryCode: string;
 	phoneNumber: string;
+	countryCode: string;
 	userTypeId: number;
 }
 
@@ -59,7 +59,6 @@ const ManageUsers = () => {
 	const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 	const [openModal, setOpenModal] = useState(false);
 
-	// Fetch users
 	const { data: users, refetch } = useQuery({
 		queryKey: ['users', page, searchTerm],
 		queryFn: () => fetchUsers(searchTerm, page, rowsPerPage),
@@ -67,7 +66,6 @@ const ManageUsers = () => {
 
 	const totalPages = users ? Math.ceil(users.totalCount / rowsPerPage) : 0;
 
-	// Add User API Call
 	const addUserMutation = useMutation({
 		mutationFn: async (userData: UserData) => {
 			const url = `http://localhost:5000/api/User/AddUser?firstName=${userData.firstName}&lastName=${userData.lastName}&email=${userData.email}&password=${userData.password}&countryCode=${userData.countryCode}&phoneNumber=${userData.phoneNumber}&userTypeId=${userData.userTypeId}`;
@@ -85,7 +83,6 @@ const ManageUsers = () => {
 		},
 	});
 
-	// Edit User API Call
 	const editUserMutation = useMutation({
 		mutationFn: async (userData: UserData) => {
 			const url = `http://localhost:5000/api/User/UpdateUser?userId=${userData.userId}&firstName=${userData.firstName}&lastName=${userData.lastName}&email=${userData.email}&countryCode=${userData.countryCode}&phoneNumber=${userData.phoneNumber}&userTypeId=${userData.userTypeId}`;
@@ -101,12 +98,11 @@ const ManageUsers = () => {
 		},
 	});
 
-	// Delete User API Call
 	const deleteUserMutation = useMutation({
 		mutationFn: async (userId: number) => {
 			const url = `http://localhost:5000/api/User/DeleteUser?userId=${userId}`;
 			const response = await fetch(url, {
-				method: 'POST', // Change this to POST for your API
+				method: 'POST',
 			});
 			if (!response.ok) throw new Error('Failed to delete user');
 			return response.json();
@@ -118,7 +114,6 @@ const ManageUsers = () => {
 	});
 
 	const handleDeleteUser = (userId: number) => {
-		console.log('Deleting user with userId:', userId);
 		deleteUserMutation.mutate(userId);
 	};
 
@@ -127,6 +122,7 @@ const ManageUsers = () => {
 		firstName: string;
 		lastName: string;
 		email: string;
+		password?: string;
 		countryCode: string;
 		phoneNumber: string;
 		userTypeId: number;
@@ -154,7 +150,6 @@ const ManageUsers = () => {
 
 	return (
 		<Box sx={{ p: 2 }}>
-			{/* Back Button */}
 			<Button
 				startIcon={<ArrowBackIcon />}
 				variant='contained'
@@ -164,12 +159,10 @@ const ManageUsers = () => {
 				Back to Admin Dashboard
 			</Button>
 
-			{/* Page Header */}
 			<Typography variant='h4' gutterBottom>
 				Manage Users
 			</Typography>
 
-			{/* Search Input */}
 			<TextField
 				label='Search Users'
 				variant='outlined'
@@ -180,7 +173,6 @@ const ManageUsers = () => {
 				placeholder='Search by First Name, Last Name, or Email'
 			/>
 
-			{/* Add User Button */}
 			<Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
 				<Button
 					startIcon={<AddIcon />}
@@ -195,7 +187,6 @@ const ManageUsers = () => {
 				</Button>
 			</Box>
 
-			{/* User Cards */}
 			{users?.data && users.data.length > 0 ? (
 				users.data.map((user: UserData) => (
 					<Card key={user.userId} sx={{ mb: 2, p: 2 }}>
@@ -238,7 +229,6 @@ const ManageUsers = () => {
 				<Typography>No users found</Typography>
 			)}
 
-			{/* Pagination */}
 			<Stack spacing={2} sx={{ mt: 3, alignItems: 'center' }}>
 				<Pagination
 					count={totalPages}
@@ -248,7 +238,6 @@ const ManageUsers = () => {
 				/>
 			</Stack>
 
-			{/* User Modal */}
 			<UserModal
 				open={openModal}
 				onClose={() => setOpenModal(false)}

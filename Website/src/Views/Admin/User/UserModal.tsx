@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
 	Button,
 	Dialog,
@@ -18,6 +18,7 @@ import PhoneInput from 'react-phone-number-input';
 import { UserData } from './ManageUsers';
 import 'react-phone-number-input/style.css';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { useState, useEffect } from 'react';
 
 interface UserModalProps {
 	open: boolean;
