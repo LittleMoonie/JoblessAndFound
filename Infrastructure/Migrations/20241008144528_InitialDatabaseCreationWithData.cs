@@ -109,9 +109,6 @@ namespace Infrastructure.Migrations
                         Domain = table
                             .Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
                             .Annotation("MySql:CharSet", "utf8mb4"),
-                        EmployeeCount = table
-                            .Column<string>(type: "longtext", nullable: true)
-                            .Annotation("MySql:CharSet", "utf8mb4"),
                         EmployeesId = table.Column<int>(type: "int", nullable: false),
                     },
                     constraints: table =>
@@ -121,6 +118,40 @@ namespace Infrastructure.Migrations
                             name: "FK_company.Company_enum.CompanyEmployeeCount_EmployeesId",
                             column: x => x.EmployeesId,
                             principalTable: "enum.CompanyEmployeeCount",
+                            principalColumn: "Id",
+                            onDelete: ReferentialAction.Cascade
+                        );
+                    }
+                )
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder
+                .CreateTable(
+                    name: "company.Recruiter",
+                    columns: table => new
+                    {
+                        idCompany = table
+                            .Column<int>(type: "int", nullable: false),
+                        idUser = table
+                            .Column<int>(type: "int", nullable: false),
+                    },
+                    constraints: table =>
+                    {
+                        // Définir la clé primaire composite
+                        table.PrimaryKey("PK_company.Recruiter", x => new { x.idCompany, x.idUser });
+
+                        // Définir les clés étrangères
+                        table.ForeignKey(
+                            name: "FK_company.Company",
+                            column: x => x.idCompany,
+                            principalTable: "company.Company",
+                            principalColumn: "Id",
+                            onDelete: ReferentialAction.Cascade
+                        );
+                        table.ForeignKey(
+                            name: "FK_user.User",
+                            column: x => x.idUser,
+                            principalTable: "user.User",
                             principalColumn: "Id",
                             onDelete: ReferentialAction.Cascade
                         );
