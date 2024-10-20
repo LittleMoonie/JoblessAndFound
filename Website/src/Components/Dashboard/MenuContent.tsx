@@ -13,25 +13,27 @@ import WorkIcon from '@mui/icons-material/Work';
 import LockIcon from '@mui/icons-material/Lock';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import GavelIcon from '@mui/icons-material/Gavel';
+import { useAuth } from '../../Context/authContext';
 
 // Define the menu items with path properties for navigation
 const mainListItems = [
   { text: 'Home', icon: <HomeRoundedIcon />, path: '/home' },
   { text: 'Offers', icon: <WorkIcon />, path: '/offers' },
-  { text: 'User', icon: <PeopleRoundedIcon />, path: '/user' },
-  { text: 'Business', icon: <CorporateFareIcon />, path: '/business' },
+  { text: 'User', icon: <PeopleRoundedIcon />, path: '/user', },
+  { text: 'Business', icon: <CorporateFareIcon />, path: '/business', allowedUserTypes: [1, 2] },
 ];
 
 const secondaryListItems = [
   { text: 'Settings', icon: <SettingsRoundedIcon />, path: '/settings' },
-  { text: 'Moderator', icon: <GavelIcon />, path: '/moderator' },
-  { text: 'Admin', icon: <LockIcon />, path: '/admin' },
+  { text: 'Moderator', icon: <GavelIcon />, path: '/moderator', allowedUserTypes: [3, 4] },
+  { text: 'Admin', icon: <LockIcon />, path: '/admin', allowedUserTypes: [4] },
 ];
 
 export default function MenuContent() {
   const navigate = useNavigate(); // Initialize useNavigate
   const location = useLocation(); // Get current location
-
+  const { userTypeId } = useAuth();
+  console.log(userTypeId);
   // Function to handle navigation
   const handleNavigation = (path: string) => {
     navigate(path); // Navigate to the path specified
@@ -39,28 +41,30 @@ export default function MenuContent() {
 
   return (
     <Stack sx={{ flexGrow: 1, p: 1, flexDirection: 'column', justifyContent: 'space-between' }}>
-  <List dense>
-    {mainListItems.map((item, index) => (
-      <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-        <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.text} />
-        </ListItemButton>
-      </ListItem>
-    ))}
-  </List>
+      <List dense>
+        {mainListItems.map((item, index) => (
+          <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+            <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
 
-  <List dense>
-    {secondaryListItems.map((item, index) => (
-      <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-        <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.text} />
-        </ListItemButton>
-      </ListItem>
-    ))}
-  </List>
-</Stack>
+      <List dense>
+        {secondaryListItems
+          .filter(item => !item.allowedUserTypes || item.allowedUserTypes.includes(userTypeId!)) // Filtrer en fonction de userTypeId
+          .map((item, index) => (
+            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+              <ListItemButton onClick={() => handleNavigation(item.path)} selected={location.pathname === item.path}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+      </List>
+    </Stack>
 
   );
 }

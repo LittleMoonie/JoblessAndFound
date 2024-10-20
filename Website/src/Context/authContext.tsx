@@ -9,6 +9,7 @@ interface AuthContextType {
 	userLastName: string | null;
 	userEmail: string | null;
 	userId: number | null;
+	userTypeId: number | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,6 +25,7 @@ const fetchAuthStatus = async (): Promise<{
 	userLastName: string;
 	userEmail: string;
 	userId: number;
+	userTypeId: number;
 }> => {
 	const response = await fetch('http://localhost:5000/api/Authentication/status', {
 		credentials: 'include',
@@ -40,7 +42,8 @@ const fetchAuthStatus = async (): Promise<{
 		!data.user.firstName ||
 		!data.user.lastName ||
 		!data.user.email ||
-		!data.user.userId
+		!data.user.userId ||
+		!data.user.userTypeId
 	) {
 		throw new Error('Invalid response structure');
 	}
@@ -51,6 +54,7 @@ const fetchAuthStatus = async (): Promise<{
 		userLastName: data.user.lastName,
 		userEmail: data.user.email,
 		userId: data.user.userId,
+		userTypeId: data.user.userTypeId,
 	};
 };
 
@@ -66,6 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const userLastName = data?.userLastName ?? null;
 	const userEmail = data?.userEmail ?? null;
 	const userId = data?.userId ?? null;
+	const userTypeId = data?.userTypeId ?? null;
 
 	return (
 		<AuthContext.Provider
@@ -77,6 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 				userLastName,
 				userEmail,
 				userId,
+				userTypeId,
 			}}
 		>
 			{children}
