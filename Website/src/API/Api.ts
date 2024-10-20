@@ -76,6 +76,9 @@ export interface UserDTO {
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
+  password?: string;
+  phoneNumber?: string;
+  countryCode?: number;
   /** @format int32 */
   userTypeId?: number;
 }
@@ -526,7 +529,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         email?: string;
         password?: string;
         phoneNumber?: string;
-        countryCode?: string;
+        countryCode?: number;
         /** @format int32 */
         userTypeId?: number;
       },

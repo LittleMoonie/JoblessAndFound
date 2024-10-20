@@ -12,6 +12,7 @@ import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AppTheme from '../Components/AppTheme';
 import Link from '@mui/material/Link';
+import { UserDTO } from '../API/Api';
 import ColorModeIconDropdown from '../Components/Dashboard/ColorModeIconDropdown';
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -51,6 +52,26 @@ const RegisterContainer = styled(Stack)(({ theme }) => ({
     },
 }));
 
+const addUser = async (newUser: UserDTO): Promise<UserDTO> => {
+    const response = await fetch('http://localhost:5000/api/User/AddUser', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+    });
+
+    if (!response.ok) {
+        const errorDetails = await response.text(); // Récupère le corps de la réponse
+        console.error('Error details:', errorDetails); // Affiche les détails de l'erreur
+        throw new Error('Error adding user');
+    }
+
+    const addedUser = await response.json();
+    return addedUser;
+};
+
+
 export default function Register(props: { disableCustomTheme?: boolean }) {
     const [emailError, setEmailError] = React.useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
@@ -64,6 +85,13 @@ export default function Register(props: { disableCustomTheme?: boolean }) {
     const [lnameErrorMessage, setLnameErrorMessage] = React.useState('');
     const [phoneError, setPhoneError] = React.useState(false);
     const [phoneErrorMessage, setPhoneErrorMessage] = React.useState('');
+
+    const generateCurl = (url: string, method: string, headers: Record<string, string>, body: object) => {
+        const headerLines = Object.entries(headers)
+            .map(([key, value]) => `-H "${key}: ${value}"`)
+            .join(' ');
+        return `curl -X ${method} ${headerLines} -d '${JSON.stringify(body)}' ${url}`;
+    };
 
     const validateInputs = () => {
         const email = document.getElementById('email') as HTMLInputElement;
@@ -141,20 +169,59 @@ export default function Register(props: { disableCustomTheme?: boolean }) {
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+    
         if (!validateInputs()) {
-            event.preventDefault();
             return;
         }
+    
         const data = new FormData(event.currentTarget);
+    
+        // Récupérer les valeurs du formulaire
+        const email = data.get('email')?.toString() || '';
+        const password = data.get('password')?.toString() || '';
+        const firstName = data.get('fname')?.toString() || '';
+        const lastName = data.get('lname')?.toString() || '';
+        let phoneNumber = data.get('phone')?.toString() || '';
+    
+        // Formatage du numéro de téléphone
+        if (phoneNumber.startsWith('0')) {
+            phoneNumber = '+33' + phoneNumber.substring(1);
+        }
+    
+        const newUser: UserDTO = {
+            firstName,
+            lastName,
+            email,
+            password,
+            phoneNumber,
+            countryCode: 1,
+            userTypeId: 1,
+        };
+        console.log(newUser);
 
-        // Envoyer les données au controller qui les insert en base données
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-            // etc..
+        const curlCommand = generateCurl(
+            'http://localhost:5000/api/User/AddUser',
+            'POST',
+            {
+                'Content-Type': 'application/json',
+            },
+            newUser
+        );
+    
+        // Appeler l'API pour ajouter l'utilisateur
+        addUser(newUser)
+        .then(response => {
+            console.log('Utilisateur ajouté avec succès:', response);
+            // Gérer le succès, par exemple rediriger l'utilisateur
+        })
+        .catch(error => {
+            console.error('Erreur lors de l\'ajout de l\'utilisateur:', error);
+            console.log(phoneNumber);
+            console.error('cURL command:', curlCommand);
         });
-
     };
+    
 
     return (
         <AppTheme {...props}>
@@ -216,7 +283,7 @@ export default function Register(props: { disableCustomTheme?: boolean }) {
                         </FormControl>
 
                         <FormControl error={lnameError}>
-                            <FormLabel htmlFor="lname">Last Name</FormLabel>
+                            <FormLabel htmlFor="fname">Last Name</FormLabel>
                             <TextField
                                 id="lname"
                                 type="text"
