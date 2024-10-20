@@ -113,6 +113,9 @@ namespace Infrastructure.Migrations
                             .Column<string>(type: "longtext", nullable: true)
                             .Annotation("MySql:CharSet", "utf8mb4"),
                         EmployeesId = table.Column<int>(type: "int", nullable: false),
+                        About = table
+                            .Column<string>(type: "varchar(3000)", maxLength: 3000, nullable: false)
+                            .Annotation("MySql:CharSet", "utf8mb4"),
                     },
                     constraints: table =>
                     {
