@@ -19,67 +19,78 @@ namespace Infrastructure.Services
             this.mapper = mapper;
         }
 
-        public async Task<OfferAdvertisementDTO> GetOfferByCompanyId(int CompanyId)
+        // Fetch offers by CompanyId
+        public async Task<IEnumerable<OfferAdvertisementDTO>> GetOffersByCompanyId(int companyId)
         {
-            if (CompanyId <= 0)
+            if (companyId <= 0)
             {
-                throw new ArgumentException(
-                    "L'ID de la compagnie doit être supérieur à zéro.",
-                    nameof(CompanyId)
-                );
+                throw new ArgumentException("Company ID must be greater than zero.", nameof(companyId));
             }
 
             try
             {
-                // Vérifie que l'ID est correct
-                var offerAdvertisementDTO = await offerRepository.FindAsync<OfferAdvertisementDTO>(
-                    c => c.CompanyId == CompanyId
-                );
-                return offerAdvertisementDTO;
+                var offers = await offerRepository.FindAllAsync(o => o.CompanyId == companyId);
+                return mapper.Map<IEnumerable<OfferAdvertisementDTO>>(offers);
             }
             catch (Exception ex)
             {
-                // Log l'erreur ici
-                throw new ApplicationException(
-                    "Une erreur est survenue lors de la récupération de l'offre.",
-                    ex
-                );
+                throw new ApplicationException("Error occurred while fetching offers.", ex);
             }
         }
 
-        public async Task AddOffer(
-            int OfferAdvertisementId,
-            string? Description,
-            string? LongDescription,
-            string? Title,
-            DateTime CreatedAt,
-            DateTime UpdatedAt,
-            int CompanyId,
-            int PostedByUserId
-        )
+        // Fetch a single offer by OfferId
+        public async Task<OfferAdvertisementDTO> GetOfferById(int offerId)
         {
-            var newOfferAdvertisement = new Advertisement
+            if (offerId <= 0)
             {
-                Description = Description,
-                LongDescription = LongDescription,
-                Title = Title,
-                CreatedAt = CreatedAt,
-                UpdatedAt = UpdatedAt,
-                CompanyId = CompanyId,
-                PostedByUserId = PostedByUserId,
-            };
+                throw new ArgumentException("Offer ID must be greater than zero.", nameof(offerId));
+            }
 
-            await offerRepository.AddAsync(newOfferAdvertisement);
+            try
+            {
+                var offer = await offerRepository.FindByIdAsync(offerId);
+                if (offer == null)
+                {
+                    throw new NotFoundException($"Offer with ID {offerId} not found.");
+                }
+                return mapper.Map<OfferAdvertisementDTO>(offer);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Error occurred while fetching the offer.", ex);
+            }
         }
 
-        Task IOfferService.AddOffer(
-            string? description,
-            string? title,
-            DateTime createdAt,
-            DateTime updatedAt
-        )
+        // Add a new offer
+        public async Task AddOffer(OfferAdvertisementDTO offerDto)
         {
-            throw new NotImplementedException();
+            var newOffer = mapper.Map<Advertisement>(offerDto);
+            await offerRepository.AddAsync(newOffer);
+        }
+
+        // Update an existing offer
+        public async Task UpdateOffer(int offerId, OfferAdvertisementDTO updatedOfferDto)
+        {
+            var existingOffer = await offerRepository.FindByIdAsync(offerId);
+            if (existingOffer == null)
+            {
+                throw new NotFoundException($"Offer with ID {offerId} not found.");
+            }
+
+            mapper.Map(updatedOfferDto, existingOffer); // Map updated fields
+            await offerRepository.UpdateAsync(existingOffer);
+        }
+
+        // Delete an offer
+        public async Task DeleteOffer(int offerId)
+        {
+            var offer = await offerRepository.FindByIdAsync(offerId);
+            if (offer == null)
+            {
+                throw new NotFoundException($"Offer with ID {offerId} not found.");
+            }
+
+            await offerRepository.DeleteAsync(offer.Id);
         }
     }
 }

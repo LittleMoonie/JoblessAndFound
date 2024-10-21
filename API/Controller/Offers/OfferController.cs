@@ -37,7 +37,7 @@ namespace API.Controller.Offers
 
             try
             {
-                var offer = await _OfferService.GetOfferByCompanyId(CompanyId);
+                var offer = await _OfferService.GetOffersByCompanyId(CompanyId);
                 if (offer == null)
                 {
                     return NotFound();
@@ -61,27 +61,9 @@ namespace API.Controller.Offers
         #region POST
         [HttpPost("AddOffer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task AddOffer(
-            int OfferAdvertisementId,
-            string? Description,
-            string? LongDescription,
-            string? Title,
-            DateTime? CreatedAt,
-            DateTime? UpdatedAt,
-            int CompanyId,
-            int PostedByUserId
-        )
+        public async Task AddOffer(OfferAdvertisementDTO offerDto)
         {
-            await _OfferService.AddOffer(
-                OfferAdvertisementId,
-                Description,
-                LongDescription,
-                Title,
-                CreatedAt ?? DateTime.UtcNow, // Valeur par défaut si null
-                UpdatedAt ?? DateTime.UtcNow, // Valeur par défaut si null
-                CompanyId,
-                PostedByUserId
-            );
+            await _OfferService.AddOffer(offerDto);
         }
         #endregion
     }
