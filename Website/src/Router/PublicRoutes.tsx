@@ -6,13 +6,13 @@ import LandingPage from '../Views/LandingPage';
 import NotFoundPage from '../Views/NotFoundPage';
 import LoginPage from '../Views/LoginPage';
 import Register from '../Views/Register';
-import HowToAddMyBusiness from '../Views/FooterLinks/addBusiness';
-import GeneralConditions from '../Views/FooterLinks/cgu';
 import LegalNotices from '../Views/FooterLinks/legalNotices';
 import PrivacyPolicy from '../Views/FooterLinks/privacyPolicy';
+import GeneralConditions from '../Views/FooterLinks/cgu';
 import ProblemWithMyAccount from '../Views/FooterLinks/probAccount';
 import ProblemWithMyBusiness from '../Views/FooterLinks/probBusiness';
-// Import other public pages as needed
+import HowToAddMyBusiness from '../Views/FooterLinks/addBusiness';
+import Unauthorized from '../Views/Unauthorized';
 
 const PublicRoutes: RouteObject[] = [
 	{
@@ -54,6 +54,10 @@ const PublicRoutes: RouteObject[] = [
 	{
 		path: '*',
 		element: <NotFoundPage />,
+	},
+	{
+		path: '/unauthorized',
+		element: <Unauthorized />,
 	},
 ];
 

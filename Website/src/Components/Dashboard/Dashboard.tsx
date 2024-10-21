@@ -31,7 +31,6 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
             <Box sx={{ display: 'flex' }}>
                 <SideMenu />
                 <AppNavbar />
-                {/* Main content */}
                 <Box
                     component="main"
                     sx={(theme) => ({
@@ -52,10 +51,6 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
                         }}
                     >
                         <Header />
-
-                        {/* --------- CONTENU DU DASHBOARD ----------- */}
-
-                        {/* Ad cards (for users) */}
                         <MediaCard />
 
 

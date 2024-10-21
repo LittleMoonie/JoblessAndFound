@@ -221,6 +221,10 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("LongDescription")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<int>("PostedByUserId")
                         .HasColumnType("int");
 

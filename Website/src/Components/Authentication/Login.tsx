@@ -62,7 +62,6 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState<string | null>(null);
 
-	// Directly use fetch to make the login API request
 	const loginMutation = useMutation({
 		mutationFn: async () => {
 			const response = await fetch('http://localhost:5000/api/Authentication/login', {
@@ -71,19 +70,18 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({ email, password }),
-				credentials: 'include', // This ensures cookies are included for cross-origin requests
+				credentials: 'include', 
 			});
 
 			if (!response.ok) {
 				throw new Error('Login failed');
 			}
 
-			// You can process the response if needed
 			return response.json();
 		},
 		onSuccess: async () => {
-			await checkAuthStatus(); // Check authentication status after login
-			navigate('/home'); // Navigate to /home after successful login
+			await checkAuthStatus(); 
+			navigate('/home');
 		},
 		onError: (err: unknown) => {
 			setError('Login failed. Please check your credentials.');
@@ -94,7 +92,7 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		setError(null);
-		loginMutation.mutate(); // Trigger the login mutation
+		loginMutation.mutate();
 	};
 
 	return (

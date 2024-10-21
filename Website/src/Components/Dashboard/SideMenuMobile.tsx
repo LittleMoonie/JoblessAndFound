@@ -94,7 +94,6 @@ export default function SideMenuMobile({
 					<MenuContent />
 					<Divider />
 				</Stack>
-				{/* <CardAlert /> */}
 				<Stack sx={{ p: 2 }}>
 					<Button
 						variant='outlined'

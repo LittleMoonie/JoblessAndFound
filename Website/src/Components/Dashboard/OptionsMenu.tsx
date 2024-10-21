@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import Divider, { dividerClasses } from '@mui/material/Divider';
+import { dividerClasses } from '@mui/material/Divider';
 import Menu from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import { paperClasses } from '@mui/material/Paper';
@@ -32,7 +32,7 @@ export default function OptionsMenu() {
 				'http://localhost:5000/api/Authentication/logout',
 				{
 					method: 'POST',
-					credentials: 'include', 
+					credentials: 'include',
 				}
 			);
 
@@ -41,8 +41,8 @@ export default function OptionsMenu() {
 			}
 		},
 		onSuccess: async () => {
-			await checkAuthStatus(); 
-			navigate('/login'); 
+			await checkAuthStatus();
+			navigate('/login');
 		},
 		onError: (err: unknown) => {
 			console.error('Logout failed:', err);
@@ -90,16 +90,10 @@ export default function OptionsMenu() {
 					},
 				}}
 			>
-				<MenuItem onClick={handleClose}>Profile</MenuItem>
-				{/* <MenuItem onClick={handleClose}>My account</MenuItem> */}
-				{/* <Divider /> */}
-				{/* <MenuItem onClick={handleClose}>Add another account</MenuItem> */}
-				<MenuItem onClick={handleClose}>Settings</MenuItem>
-				<Divider />
 				<MenuItem
 					onClick={() => {
-						handleClose(); // Close the menu first
-						handleLogout(); // Trigger logout
+						handleClose();
+						handleLogout();
 					}}
 					sx={{
 						[`& .${listItemIconClasses.root}`]: {

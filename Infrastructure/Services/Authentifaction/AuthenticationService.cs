@@ -56,6 +56,9 @@ namespace Infrastructure.Services.Authentifaction
                     throw new AuthenticationException("Invalid email or password.");
                 }
 
+                // Log the found user data for debugging purposes
+                _logger.LogInformation($"User found: {user.Email}, Hash: {user.PasswordHash}");
+
                 // Verify if the password is correct
                 if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
                 {
@@ -94,14 +97,33 @@ namespace Infrastructure.Services.Authentifaction
         // 2. LOGOUT LOGIC
         public void Logout()
         {
-            // Since JWTs are stateless, we can simply log out by removing the token on the client side.
-            // Assuming you are using cookies to store the token
-            if (_httpContextAccessor.HttpContext != null)
+            var context = _httpContextAccessor.HttpContext;
+
+            if (context != null)
             {
-                _logger.LogInformation("User logged out.");
-                var cookies = _httpContextAccessor.HttpContext.Response.Cookies;
-                cookies.Delete("AuthToken");
-                _logger.LogInformation("Token removed from client-side storage.");
+                var cookies = context.Response.Cookies;
+
+                _logger.LogInformation("Attempting to delete the Authorization cookie.");
+
+                // Ensure the correct cookie is deleted with matching attributes
+                cookies.Delete(
+                    "Authorization",
+                    new CookieOptions
+                    {
+                        Path = "/", // Match the path used when the cookie was created
+                        HttpOnly = true, // Match HttpOnly
+                        Secure = true, // Match Secure (only available over HTTPS)
+                        SameSite =
+                            SameSiteMode.None // Match SameSite=None
+                        ,
+                    }
+                );
+
+                _logger.LogInformation("Authorization cookie deletion attempt completed.");
+            }
+            else
+            {
+                _logger.LogWarning("No HttpContext found while trying to log out.");
             }
         }
 

@@ -59,8 +59,7 @@ namespace API.Controllers.Authentification
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Logout()
         {
-            _authenticationService.Logout(); // Service handles any logout-specific logic (e.g., token blacklisting)
-            Response.Cookies.Delete("Authorization"); // Remove the token cookie
+            _authenticationService.Logout(); // Call the service to handle logout
             return Ok(new { message = "Logout successful." });
         }
 

@@ -16,6 +16,7 @@ import { Box, Snackbar, Alert } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { CompanyDTO } from '../API/Api';
 import TextWithFormatting from './TextWithFormattingProps';
+import { useLoading } from '../Context/loadingContext';
 
 const formatDistanceToNow = (date: Date): string => {
 	const now = new Date();

@@ -10,7 +10,6 @@ const ProtectRoute: React.FC<ProtectRouteProps> = ({ children }) => {
 	const { isAuthenticated, isLoading, checkAuthStatus } = useAuth();
 
 	useEffect(() => {
-		// Check authentication status on every page load or navigation
 		checkAuthStatus();
 	}, [checkAuthStatus]);
 

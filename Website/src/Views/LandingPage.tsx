@@ -34,22 +34,20 @@ function LandingPage() {
                         alignItems: "center",
                     }}
                 >
-                    {/* --- Header --- */}
                     <Box
                         component="img"
                         sx={{
-                            width: { xs: 250, sm: 300, md: 400 },  // Largeur responsive
-                            height: { xs: 250, sm: 300, md: 400 }, // Hauteur responsive
+                            width: { xs: 250, sm: 300, md: 400 },
+                            height: { xs: 250, sm: 300, md: 400 }, 
                             borderRadius: '8px',
                         }}
                         alt="Description de l'image"
                         src={monImage}
                     />
 
-                    {/* Texte avec typographie responsive */}
                     <Typography
                         sx={{
-                            fontSize: { xs: "1.5rem", sm: "2rem", md: "3rem" },  // Taille du texte responsive
+                            fontSize: { xs: "1.5rem", sm: "2rem", md: "3rem" }, 
                             width: "100%",
                             color: "#F1BC60",
                             fontWeight: "bold",
@@ -77,7 +75,7 @@ function LandingPage() {
                 </Box>
             </Box>
 
-            {/* --- Main - Section 1 --- */}
+
 
             <Box
                 sx={{
@@ -162,7 +160,7 @@ function LandingPage() {
                 </Box>
             </Box>
 
-            {/* --- Main - Section 2 --- */}
+
             <Box sx={{
                 padding: { xs: "20px", sm: "40px", md: "60px" }, // Padding responsive
                 width: "80%",
@@ -307,7 +305,6 @@ function LandingPage() {
 
             </Box>
 
-            {/* --- Main - Section 3 --- */}
 
             <Box sx={{
                 backgroundColor: "#F1BC61",
@@ -315,7 +312,7 @@ function LandingPage() {
             }} >
                 <Typography
                     sx={{
-                        fontSize: { xs: "1.5rem", sm: "2rem", md: "3rem" }, // Taille du texte responsive
+                        fontSize: { xs: "1.5rem", sm: "2rem", md: "3rem" },
                         width: "100%",
                         fontWeight: "bold",
                         textAlign: "center",
@@ -370,17 +367,16 @@ function LandingPage() {
                 </Typography>
             </Box>
 
-            {/* --- Footer --- */}
             <Box
                 sx={{
-                    backgroundColor: "#202020", // Couleur d'arrière-plan
+                    backgroundColor: "#202020",
                     padding: "2% 0",
-                    color: "#F2BD61", // Couleur du texte
+                    color: "#F2BD61",
                 }}
             >
-                {/* Conteneur principal */}
+
                 <Grid container spacing={2} justifyContent="center" alignItems="center">
-                    {/* Image */}
+
                     <Grid item xs={12} md={3} textAlign="center">
                         <Link href="/" underline="none">
                             <Box
@@ -388,14 +384,13 @@ function LandingPage() {
                                 src={monImage}
                                 alt="Jobless & Found"
                                 sx={{
-                                    width: { xs: "50%", md: "80%" }, // Largeur de l'image pour mobile et desktop
+                                    width: { xs: "50%", md: "80%" },
                                     marginBottom: { xs: "1rem", md: "0" },
                                 }}
                             />
                         </Link>
                     </Grid>
 
-                    {/* Contact */}
                     <Grid item xs={12} md={3} textAlign={{ xs: "center", md: "left" }}>
                         <Typography
                             sx={{
@@ -411,7 +406,6 @@ function LandingPage() {
                         </Typography>
                     </Grid>
 
-                    {/* Service Client */}
                     <Grid item xs={12} md={3} textAlign={{ xs: "center", md: "left" }}>
                         <Typography
                             sx={{
@@ -451,7 +445,6 @@ function LandingPage() {
                         </Link>
                     </Grid>
 
-                    {/* Autre */}
                     <Grid item xs={12} md={3} textAlign={{ xs: "center", md: "left" }}>
                         <Typography
                             sx={{
@@ -492,7 +485,6 @@ function LandingPage() {
                     </Grid>
                 </Grid>
 
-                {/* Copyright */}
                 <Box
                     sx={{
                         width: "100%",

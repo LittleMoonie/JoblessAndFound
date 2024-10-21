@@ -10,6 +10,7 @@ using Core.Entities.User;
 using Core.Exceptions;
 using Core.Repository;
 using Infrastructure.DTO.User;
+using Infrastructure.Repository;
 using Infrastructure.Services.IServices;
 using Infrastructure.Utility;
 using Org.BouncyCastle.Crypto.Generators;
@@ -18,6 +19,42 @@ namespace Infrastructure.Services
 {
     public class UserService(IRepository<User> userRepository, IMapper mapper) : IUserService
     {
+        public async Task<PaginatedResult<UserDTO>> GetAllUsers(
+            string searchTerm = "",
+            int page = 1,
+            int pageSize = 10
+        )
+        {
+            // Fetch all users from the repository
+            var users = await userRepository.GetAllAsync();
+
+            // Apply search filter if searchTerm is provided
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                users = users.Where(u =>
+                    u.FirstName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                    || u.LastName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                    || u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                );
+            }
+
+            // Calculate total user count before pagination
+            int totalCount = users.Count();
+
+            // Apply pagination
+            var paginatedUsers = users.Skip((page - 1) * pageSize).Take(pageSize);
+
+            // Map to UserDTO
+            var paginatedUserDtos = mapper.Map<IEnumerable<UserDTO>>(paginatedUsers);
+
+            // Return the paginated result and total count
+            return new PaginatedResult<UserDTO>
+            {
+                Data = paginatedUserDtos,
+                TotalCount = totalCount,
+            };
+        }
+
         public async Task<UserDTO> GetUserById(int UserId)
         {
             var user = await userRepository.FindByIdAsync(UserId);
@@ -33,7 +70,7 @@ namespace Infrastructure.Services
             string password,
             string phoneNumber,
             string countryCode,
-            int userTypeId // New parameter for UserTypeId
+            int userTypeId
         )
         {
             // Create an instance of the phone number verifier
@@ -85,6 +122,52 @@ namespace Infrastructure.Services
 
             // Add the new user to the repository
             await userRepository.AddAsync(newUser);
+        }
+
+        public async Task UpdateUser(
+            int userId,
+            string firstName,
+            string lastName,
+            string email,
+            string phoneNumber,
+            int userTypeId
+        )
+        {
+            // Retrieve the user by ID
+            var existingUser = await userRepository.FindAsync(u => u.Id == userId);
+            if (existingUser == null)
+            {
+                throw new InvalidOperationException("User not found.");
+            }
+
+            // Check if email is being changed and is already in use by another user
+            if (existingUser.Email != email)
+            {
+                var emailInUse = await userRepository.FindAsync(u => u.Email == email);
+                if (emailInUse != null)
+                {
+                    throw new InvalidOperationException("Email is already in use.");
+                }
+            }
+
+            // Update the user's properties
+            existingUser.FirstName = firstName;
+            existingUser.LastName = lastName;
+            existingUser.Email = email;
+            existingUser.PhoneNumber = phoneNumber;
+            existingUser.UserTypeId = userTypeId;
+
+            // Save the changes in the repository
+            await userRepository.UpdateAsync(existingUser);
+        }
+
+        public async Task DeleteUser(int userId)
+        {
+            var user = await userRepository.FindByIdAsync(userId);
+            if (user == null)
+                throw new NotFoundException($"User with ID {userId} not found.");
+
+            await userRepository.DeleteAsync(userId);
         }
     }
 }

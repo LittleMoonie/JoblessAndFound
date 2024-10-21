@@ -7,9 +7,9 @@ import OffersPage from '../Views/Offers';
 import ProfilePage from '../Views/Profile';
 import ModeratorPage from '../Views/ModeratorPage';
 import AdminPage from '../Views/AdminPage';
-import Business from '../Views/Business';
 import Settings from '../Views/Settings';
-
+import Company from '../Views/Company';
+import MessagesPage from '../Views/MessagesPage';
 
 const ProtectedRoutes: RouteObject[] = [
 	{
@@ -21,13 +21,13 @@ const ProtectedRoutes: RouteObject[] = [
 		element: <OffersPage />,
 	},
 	{
-		path: 'user', 
-		element: <ProfilePage />,
+		path: 'company',
+		element: <Company />,
 	},
 	{
-		path: 'business', 
-		element: <Business />,
-	},
+		path: 'profile', 
+		element: <ProfilePage />,
+	},	
 	{
 		path: 'settings', 
 		element: <Settings />,
@@ -35,6 +35,10 @@ const ProtectedRoutes: RouteObject[] = [
 	{
 		path: 'moderator',
 		element: <ModeratorPage />,
+	},
+	{
+		path: 'messages',
+		element: <MessagesPage />,
 	},
 	{
 		path: 'admin',

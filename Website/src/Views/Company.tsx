@@ -3,7 +3,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 
-function Business() {
+function Company() {
 	const theme = useTheme();
 	return (
 		<Box
@@ -34,7 +34,7 @@ function Business() {
 							marginRight: '2rem',
 						}}
 						image={'https://placehold.co/600x400'}
-						title="Business Logo"
+						title="Company Logo"
 					/>
 
 					<Box
@@ -52,7 +52,7 @@ function Business() {
 								paddingTop: "1%"
 							}}
 						>
-							Business Name
+							Company Name
 						</Typography>
 
 						<Typography
@@ -173,4 +173,4 @@ function Business() {
 	);
 }
 
-export default Business;
+export default Company;
