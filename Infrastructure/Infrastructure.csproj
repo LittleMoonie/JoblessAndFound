@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Services\NewFolder\" />
     <Folder Include="Specifications\" />
   </ItemGroup>
 

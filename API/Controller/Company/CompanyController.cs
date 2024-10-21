@@ -1,54 +1,59 @@
-﻿using AutoMapper;
-using Infrastructure.DTO.Company;
-using Infrastructure.Services;
+﻿using Infrastructure.DTO.Company;
 using Infrastructure.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
-namespace API.Controller.Company
+namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class CompanyController : ControllerBase
     {
-        private readonly ICompanyService _CompanyService;
-        private readonly IMapper _mapper;
+        private readonly ICompanyService _companyService;
 
-        public CompanyController(ICompanyService CompanyService, IMapper mapper)
+        public CompanyController(ICompanyService companyService)
         {
-            _CompanyService = CompanyService;
-            _mapper = mapper;
+            _companyService = companyService;
         }
 
-        #region GET
+        [HttpGet("GetAllCompanies")]
+        public async Task<IActionResult> GetAllCompanies([FromQuery] string searchTerm = "", [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var companies = await _companyService.GetAllCompanies(searchTerm, page, pageSize);
+            return Ok(companies);
+        }
+
         [HttpGet("GetCompanyById")]
-        [ProducesResponseType(typeof(CompanyDTO), StatusCodes.Status200OK)]
-        public async Task<CompanyDTO> GetCompanyById(int companyId)
+        public async Task<IActionResult> GetCompanyById([FromQuery] int companyId)
         {
-            return await _CompanyService.GetCompanyById(companyId);
+            var company = await _companyService.GetCompanyById(companyId);
+            if (company == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(company);
         }
 
-        [ProducesResponseType(typeof(CompanyDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-
-        #endregion
-
-        #region POST
         [HttpPost("AddCompany")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task AddCompany(
-            string CompanyName,
-            string Location,
-            string Domain,
-            int EmployeesId
-        )
+        public async Task<IActionResult> AddCompany(CompanyDTO companyDto)
         {
-            await _CompanyService.AddCompany(
-                CompanyName,
-                Location,
-                Domain,
-                EmployeesId
-            );
+            await _companyService.AddCompany(companyDto.CompanyName, companyDto.Location, companyDto.Domain, companyDto.EmployeesId);
+            return Ok();
         }
-        #endregion
+
+        [HttpPost("UpdateCompany")]
+        public async Task<IActionResult> UpdateCompany(CompanyDTO companyDto)
+        {
+            await _companyService.UpdateCompany(companyDto.CompanyId, companyDto.CompanyName, companyDto.Location, companyDto.Domain, companyDto.EmployeesId);
+            return Ok();
+        }
+
+        [HttpPost("DeleteCompany")]
+        public async Task<IActionResult> DeleteCompany([FromQuery] int companyId)
+        {
+            await _companyService.DeleteCompany(companyId);
+            return Ok();
+        }
     }
 }

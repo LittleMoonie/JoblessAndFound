@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Infrastructure.DTO.Company;
+using Infrastructure.Repository;
 using System.Threading.Tasks;
-//using Core.Entities.Company;
-using Infrastructure.DTO.Company;
 
 namespace Infrastructure.Services.IServices
 {
     public interface ICompanyService
     {
+        Task<PaginatedResult<CompanyDTO>> GetAllCompanies(string searchTerm = "", int page = 1, int pageSize = 10);
         Task<CompanyDTO> GetCompanyById(int companyId);
-        Task AddCompany(
-            string CompanyName,
-            string Location,
-            string Domain,
-            int EmployeesId
-        );
+        Task AddCompany(string companyName, string location, string domain, int employeesId);
+        Task UpdateCompany(int companyId, string companyName, string location, string domain, int employeesId);
+        Task DeleteCompany(int companyId);
     }
 }
