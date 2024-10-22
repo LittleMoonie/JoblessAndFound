@@ -48,6 +48,7 @@ export interface OfferAdvertisementDTO {
   /** @format int32 */
   offerAdvertisementId?: number;
   title?: string | null;
+  location?: string | null;
   description?: string | null;
   longDescription?: string | null;
   /** @format date-time */
@@ -76,6 +77,7 @@ export interface UserDTO {
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
+  phoneNumber?: string | null;
   /** @format int32 */
   userTypeId?: number;
 }
@@ -384,6 +386,39 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags Company
+     * @name CompanyGetAllCompaniesList
+     * @request GET:/api/Company/GetAllCompanies
+     * @secure
+     */
+    companyGetAllCompaniesList: (
+      query?: {
+        /** @default "" */
+        searchTerm?: string;
+        /**
+         * @format int32
+         * @default 1
+         */
+        page?: number;
+        /**
+         * @format int32
+         * @default 10
+         */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/Company/GetAllCompanies`,
+        method: "GET",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Company
      * @name CompanyGetCompanyByIdList
      * @request GET:/api/Company/GetCompanyById
      * @secure
@@ -395,12 +430,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<CompanyDTO, any>({
+      this.request<void, any>({
         path: `/api/Company/GetCompanyById`,
         method: "GET",
         query: query,
         secure: true,
-        format: "json",
         ...params,
       }),
 
@@ -412,19 +446,85 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/api/Company/AddCompany
      * @secure
      */
-    companyAddCompanyCreate: (
+    companyAddCompanyCreate: (data: CompanyDTO, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/Company/AddCompany`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Company
+     * @name CompanyUpdateCompanyCreate
+     * @request POST:/api/Company/UpdateCompany
+     * @secure
+     */
+    companyUpdateCompanyCreate: (data: CompanyDTO, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/Company/UpdateCompany`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Company
+     * @name CompanyDeleteCompanyCreate
+     * @request POST:/api/Company/DeleteCompany
+     * @secure
+     */
+    companyDeleteCompanyCreate: (
       query?: {
-        CompanyName?: string;
-        Location?: string;
-        Domain?: string;
         /** @format int32 */
-        EmployeesId?: number;
+        companyId?: number;
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ProblemDetails>({
-        path: `/api/Company/AddCompany`,
+      this.request<void, any>({
+        path: `/api/Company/DeleteCompany`,
         method: "POST",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Offer
+     * @name OfferGetAllOffersList
+     * @request GET:/api/Offer/GetAllOffers
+     * @secure
+     */
+    offerGetAllOffersList: (
+      query?: {
+        /** @default "" */
+        searchTerm?: string;
+        /**
+         * @format int32
+         * @default 1
+         */
+        page?: number;
+        /**
+         * @format int32
+         * @default 10
+         */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/Offer/GetAllOffers`,
+        method: "GET",
         query: query,
         secure: true,
         ...params,
@@ -461,29 +561,47 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/api/Offer/AddOffer
      * @secure
      */
-    offerAddOfferCreate: (
-      query?: {
-        /** @format int32 */
-        OfferAdvertisementId?: number;
-        Description?: string;
-        LongDescription?: string;
-        Title?: string;
-        /** @format date-time */
-        CreatedAt?: string;
-        /** @format date-time */
-        UpdatedAt?: string;
-        /** @format int32 */
-        CompanyId?: number;
-        /** @format int32 */
-        PostedByUserId?: number;
-      },
-      params: RequestParams = {},
-    ) =>
+    offerAddOfferCreate: (data: OfferAdvertisementDTO, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/api/Offer/AddOffer`,
         method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags User
+     * @name UserGetAllUsersList
+     * @request GET:/api/User/GetAllUsers
+     * @secure
+     */
+    userGetAllUsersList: (
+      query?: {
+        /** @default "" */
+        searchTerm?: string;
+        /**
+         * @format int32
+         * @default 1
+         */
+        page?: number;
+        /**
+         * @format int32
+         * @default 10
+         */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<UserDTO, any>({
+        path: `/api/User/GetAllUsers`,
+        method: "GET",
         query: query,
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -534,6 +652,58 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     ) =>
       this.request<void, any>({
         path: `/api/User/AddUser`,
+        method: "POST",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags User
+     * @name UserUpdateUserCreate
+     * @request POST:/api/User/UpdateUser
+     * @secure
+     */
+    userUpdateUserCreate: (
+      query?: {
+        /** @format int32 */
+        userId?: number;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        phoneNumber?: string;
+        /** @format int32 */
+        userTypeId?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/User/UpdateUser`,
+        method: "POST",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags User
+     * @name UserDeleteUserCreate
+     * @request POST:/api/User/DeleteUser
+     * @secure
+     */
+    userDeleteUserCreate: (
+      query?: {
+        /** @format int32 */
+        userId?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/User/DeleteUser`,
         method: "POST",
         query: query,
         secure: true,

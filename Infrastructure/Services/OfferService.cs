@@ -4,6 +4,7 @@ using Core.Entities.Offer;
 using Core.Exceptions;
 using Core.Repository;
 using Infrastructure.DTO.Offer;
+using Infrastructure.Repository;
 using Infrastructure.Services.IServices;
 
 namespace Infrastructure.Services
@@ -17,6 +18,34 @@ namespace Infrastructure.Services
         {
             this.offerRepository = offerRepository;
             this.mapper = mapper;
+        }
+        
+        public async Task<PaginatedResult<OfferAdvertisementDTO>> GetAllOffers(string searchTerm = "", int page = 1, int pageSize = 10)
+        {
+            // Fetch all offers from the repository
+            var offers = await offerRepository.GetAllAsync();
+
+            // Apply search filter if searchTerm is provided
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                offers = offers.Where(o => o.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Calculate total offer count before pagination
+            int totalCount = offers.Count();
+
+            // Apply pagination
+            var paginatedOffers = offers.Skip((page - 1) * pageSize).Take(pageSize);
+
+            // Map to OfferAdvertisementDTO
+            var paginatedOfferDtos = mapper.Map<IEnumerable<OfferAdvertisementDTO>>(paginatedOffers);
+
+            // Return the paginated result and total count
+            return new PaginatedResult<OfferAdvertisementDTO>
+            {
+                Data = paginatedOfferDtos,
+                TotalCount = totalCount,
+            };
         }
 
         // Fetch offers by CompanyId

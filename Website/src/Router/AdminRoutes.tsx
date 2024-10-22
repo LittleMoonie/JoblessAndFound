@@ -24,7 +24,7 @@ const AdminRoutes = [
       { path: 'users', element: <ManageUsers />, requireduserTypeIds: [4] }, // Only Admin can access
       { path: 'companies', element: <ManageCompanies />, requireduserTypeIds: [4] },
       { path: 'verify-companies', element: <VerifyCompanies />, requireduserTypeIds: [4] },
-      { path: 'offers', element: <ManageOffers />, requireduserTypeIds: [3, 4] }, // Both Admin and Moderator can access
+      { path: 'offers', element: <ManageOffers companyId={1} />, requireduserTypeIds: [3, 4] }, // Both Admin and Moderator can access
       { path: 'flagged-offers', element: <FlaggedOffers />, requireduserTypeIds: [4] },
       { path: 'reported-offers', element: <ReportedOffers />, requireduserTypeIds: [4] },
       { path: 'posts', element: <ManagePosts />, requireduserTypeIds: [3, 4] }, // Both Admin and Moderator

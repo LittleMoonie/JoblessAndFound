@@ -8,6 +8,7 @@ namespace Infrastructure.DTO.Offer
     {
         public int OfferAdvertisementId { get; set; }
         public string? Title { get; set; }
+        public string? Location { get; set; }
         public string? Description { get; set; }
         public string? LongDescription { get; set; }
         public DateTime? CreatedAt { get; set; }
@@ -20,6 +21,7 @@ namespace Infrastructure.DTO.Offer
             profile
                 .CreateMap<Advertisement, OfferAdvertisementDTO>()
                 .ForMember(desc => desc.OfferAdvertisementId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Company.Location)) 
                 .ReverseMap();
         }
     }

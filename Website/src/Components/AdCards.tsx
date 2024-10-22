@@ -1,24 +1,26 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupsIcon from '@mui/icons-material/Groups';
+import {
+	Card,
+	CardActions,
+	CardContent,
+	CardMedia,
+	Button,
+	Typography,
+	Box,
+	Snackbar,
+	Alert,
+	Grid,
+	Pagination,
+} from '@mui/material';
 import PlaceIcon from '@mui/icons-material/Place';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import Link from '@mui/material/Link';
-import { Box, Snackbar, Alert } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { CompanyDTO } from '../API/Api';
 import TextWithFormatting from './TextWithFormattingProps';
-import { useLoading } from '../Context/loadingContext';
+import { OfferAdvertisementDTO } from '../API/Api';
 
-const formatDistanceToNow = (date: Date): string => {
+const formatDistanceToNow = (date: Date) => {
 	const now = new Date();
 	const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
@@ -45,267 +47,302 @@ const formatDistanceToNow = (date: Date): string => {
 	return `${Math.floor(seconds)} seconds ago`;
 };
 
-const fetchCompanyData = async (): Promise<CompanyDTO[]> => {
-	const company1Response = await fetch(
-		'http://localhost:5000/api/Company/GetCompanyById?CompanyId=1'
+const fetchOffers = async (searchTerm: string, page: number, rowsPerPage: number) => {
+	const response = await fetch(
+		`http://localhost:5000/api/Offer/GetAllOffers?searchTerm=${searchTerm}&page=${page}&pageSize=${rowsPerPage}`
 	);
-	const company2Response = await fetch(
-		'http://localhost:5000/api/Company/GetCompanyById?CompanyId=2'
-	);
-
-	if (!company1Response.ok || !company2Response.ok) {
-		throw new Error('Error fetching company data');
+	if (!response.ok) {
+		throw new Error('Error fetching offers');
 	}
-
-	const company1Data = await company1Response.json();
-	const company2Data = await company2Response.json();
-
-	return [company1Data, company2Data];
+	const result = await response.json();
+	return {
+		data: result.data,
+		totalCount: result.totalCount,
+	};
 };
 
 export default function MediaCard() {
 	const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [searchParams] = useSearchParams(); 
+	const [searchParams] = useSearchParams();
 	const location = useLocation();
-	
+	const [page, setPage] = useState(1);
+	const rowsPerPage = 10;
+
 	const {
-		data: companies = [],
-		isLoading: isLoadingCompanies,
-		isError: isErrorCompanies,
+		data: offersData = { data: [], totalCount: 0 },
+		isLoading: isLoadingOffers,
+		isError: isErrorOffers,
 	} = useQuery({
-		queryKey: ['companies'],
-		queryFn: fetchCompanyData,
+		queryKey: ['offers', page],
+		queryFn: () => fetchOffers('', page, rowsPerPage),
 	});
 
 	useEffect(() => {
-		const companyIdFromUrl = searchParams.get('companyId');
+		const offerIdFromUrl = searchParams.get('offerId');
 
-		if (companyIdFromUrl && !isNaN(Number(companyIdFromUrl))) {
-			const companyId = Number(companyIdFromUrl);
-			
-			const companyExists = companies.some((company) => company.companyId === companyId);
-			
-			if (companyExists) {
-				setExpandedCardId(companyId);
+		if (offerIdFromUrl && !isNaN(Number(offerIdFromUrl))) {
+			const offerId = Number(offerIdFromUrl);
+
+			const offerExists = offersData.data.some(
+				(offer: OfferAdvertisementDTO) => offer.offerAdvertisementId === offerId
+			);
+
+			if (offerExists) {
+				setExpandedCardId(offerId);
 			} else {
-
-				setError('This company cannot be found or does not exist.');
+				setError('This offer cannot be found or does not exist.');
 			}
 		}
-	}, [location.search, companies, searchParams]);
+	}, [location.search, offersData, searchParams]);
 
 	const handleLearnMore = (offerId: number) => {
 		setExpandedCardId(expandedCardId === offerId ? null : offerId);
 	};
 
-	const handleCopy = (companyId: number) => {
-		const url = `${window.location.href}?companyId=${companyId}`;
+	const handleCopy = (offerId: number) => {
+		const url = `${window.location.href}?offerId=${offerId}`;
 		navigator.clipboard.writeText(url);
 		alert('URL copied to clipboard!');
 	};
 
-	if (isLoadingCompanies) {
+	const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+		setPage(value);
+	};
+
+	if (isLoadingOffers) {
 		return <div>Loading...</div>;
 	}
 
-	if (isErrorCompanies) {
+	if (isErrorOffers) {
 		return <div>Error loading data.</div>;
 	}
 
 	return (
-		<div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-			{companies.map((company) => {
-				return company.offerAdvertisement?.map((offer) => {
-					const isExpanded = expandedCardId === offer.offerAdvertisementId;
-					const itemDate = offer.createdAt
-						? new Date(offer.createdAt)
-						: new Date();
-					const postedSince = formatDistanceToNow(itemDate); 
+		<Box sx={{ flexGrow: 1, padding: 2 }}>
+			{expandedCardId ? (
+				// Full screen view for expanded card
+				<Box sx={{ padding: 2 }}>
+					{offersData.data.map((offer: OfferAdvertisementDTO) => {
+						if (offer.offerAdvertisementId === expandedCardId) {
+							const itemDate = offer.createdAt
+								? new Date(offer.createdAt)
+								: new Date();
+							const postedSince = formatDistanceToNow(itemDate);
 
-					return (
-						<Card
-							key={offer.offerAdvertisementId}
-							sx={{
-								minWidth: isExpanded ? '100%' : 500,
-								maxWidth: isExpanded ? '100%' : 550,
-								margin: 'auto',
-								padding: '16px',
-								transition: 'all 0.3s ease', 
-								height: 'auto',
-							}}
-						>
-							<CardMedia
-								sx={{ 
-									height: isExpanded ? 300 : 160,
-								}}
-								image={'https://placehold.co/600x400'}
-								title='Company Image'
-							/>
-
-							<Box sx={{ display: 'flex' }}>
-								<CardMedia
+							return (
+								<Card
+									key={offer.offerAdvertisementId}
 									sx={{
-										height: 90,
-										width: '6rem',
-										borderRadius: '10px',
-										border: '1px solid black',
-										position: 'relative',
-										bottom: 40,
-										left: 20,
-										zIndex: 5,
-										marginRight: '2rem',
-									}}
-									image={'https://placehold.co/600x400'}
-									title='Company Logo'
-								/>
-
-								<Box
-									sx={{
+										height: '100vh',
 										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'start',
-										width: '80%',
+										flexDirection: 'column',
+										overflow: 'auto',
 									}}
 								>
-									<Link
-										href='#'
-										variant='h5'
+									<CardMedia
+										sx={{ height: 400 }}
+										image={'https://placehold.co/600x400'}
+										title='Offer Image'
+									/>
+
+									<CardContent sx={{ flexGrow: 1 }}>
+										<Typography gutterBottom variant='h4' component='div'>
+											{offer.title}
+										</Typography>
+
+										<Typography
+											variant='body2'
+											sx={{
+												color: 'text.secondary',
+												display: 'flex',
+												alignItems: 'center',
+											}}
+										>
+											<PlaceIcon sx={{ width: '1rem', marginRight: '5px' }} />
+											{offer.location || 'Location not specified'}
+										</Typography>
+										<Typography
+											variant='body2'
+											sx={{
+												color: 'text.secondary',
+												display: 'flex',
+												alignItems: 'center',
+											}}
+										>
+											<CalendarMonthIcon
+												sx={{ width: '1rem', marginRight: '5px' }}
+											/>
+											Posted {postedSince}
+										</Typography>
+
+										<Typography
+											variant='body2'
+											sx={{ color: 'text.secondary', marginTop: 2 }}
+										>
+											<TextWithFormatting
+												text={offer.longDescription || offer.description || ''}
+											/>
+										</Typography>
+									</CardContent>
+
+									<CardActions sx={{ justifyContent: 'flex-end' }}>
+										<Button
+											size='small'
+											onClick={() =>
+												offer.offerAdvertisementId !== undefined && handleLearnMore(offer.offerAdvertisementId)
+											}
+											sx={{
+												backgroundColor: '#232453',
+												color: 'white',
+												'&:hover': {
+													backgroundColor: '#33348A',
+												},
+											}}
+										>
+											Show Less
+										</Button>
+									</CardActions>
+								</Card>
+							);
+						}
+						return null;
+					})}
+				</Box>
+			) : (
+				// Grid view for cards
+				<>
+					<Grid container spacing={3}>
+						{offersData.data.map((offer: OfferAdvertisementDTO) => {
+							const isExpanded = expandedCardId === offer.offerAdvertisementId;
+							const itemDate = offer.createdAt
+								? new Date(offer.createdAt)
+								: new Date();
+							const postedSince = formatDistanceToNow(itemDate);
+
+							return (
+								<Grid
+									item
+									xs={12}
+									sm={6}
+									md={4}
+									key={offer.offerAdvertisementId}
+								>
+									<Card
 										sx={{
-											marginTop: "2%",
-											color: '#6568FF',
-											'&:hover': {
-												color: '#33348A',
-											},
+											transition: 'all 0.3s ease',
+											height: '100%',
+											display: 'flex',
+											flexDirection: 'column',
 										}}
 									>
-										{company.companyName}
-									</Link>
+										<CardMedia
+											sx={{ height: isExpanded ? 300 : 160 }}
+											image={'https://placehold.co/600x400'}
+											title='Offer Image'
+										/>
 
-									<Typography
-										component='div'
-										sx={{ display: 'flex', alignItems: 'center', backgroundColor: "#232453", color: "#FFFFFF", padding: "3px", marginTop: "2%", borderRadius: "10px", '&:hover': { backgroundColor: '#33348A' }, }}
-									>
-										<PersonIcon sx={{ width: '1.3rem', paddingRight: '2px' }} />
-										{(company?.employeesId ?? 0) > 100
-											? '100+ current applicants'
-											: (company?.employeesId ?? 0) + ' applicants'}
-									</Typography>
-								</Box>
-							</Box>
+										<CardContent sx={{ flexGrow: 1 }}>
+											<Typography gutterBottom variant='h5' component='div'>
+												{offer.title}
+											</Typography>
 
-							<CardContent sx={{ position: 'relative', bottom: 20 }}>
-								<Typography
-									gutterBottom
-									variant='h5'
-									component='div'
-									sx={{ paddingLeft: '15px' }}
-								>
-									{offer.title}
-								</Typography>
+											<Typography
+												variant='body2'
+												sx={{
+													color: 'text.secondary',
+													display: 'flex',
+													alignItems: 'center',
+												}}
+											>
+												<PlaceIcon sx={{ width: '1rem', marginRight: '5px' }} />
+												{offer.location || 'Location not specified'}
+											</Typography>
+											<Typography
+												variant='body2'
+												sx={{
+													color: 'text.secondary',
+													display: 'flex',
+													alignItems: 'center',
+												}}
+											>
+												<CalendarMonthIcon
+													sx={{ width: '1rem', marginRight: '5px' }}
+												/>
+												Posted {postedSince}
+											</Typography>
 
-								<Typography
-									variant='body2'
-									sx={{
-										color: 'text.secondary',
-										paddingLeft: '15px',
-										display: 'flex',
-										alignItems: 'center',
-									}}
-								>
-									<PlaceIcon sx={{ width: '1rem', marginRight: '5px' }} />{' '}
-									{company.location}
-								</Typography>
-								<Typography
-									variant='body2'
-									sx={{
-										color: 'text.secondary',
-										paddingLeft: '15px',
-										display: 'flex',
-										alignItems: 'center',
-									}}
-								>
-									<GroupsIcon sx={{ width: '1rem', marginRight: '5px' }} />
-									{company.employeesId} employees
-								</Typography>
-								<Typography
-									variant='body2'
-									sx={{
-										color: 'text.secondary',
-										paddingLeft: '15px',
-										display: 'flex',
-										alignItems: 'center',
-									}}
-								>
-									<CalendarMonthIcon
-										sx={{ width: '1rem', marginRight: '5px' }}
-									/>
-									Posted {postedSince}
-								</Typography>
+											<Typography
+												variant='body2'
+												sx={{ color: 'text.secondary', marginTop: 1 }}
+											>
+												<TextWithFormatting
+													text={
+														isExpanded
+															? offer.longDescription || ''
+															: offer.description || ''
+													}
+												/>
+											</Typography>
+										</CardContent>
 
-								<Typography
-									variant='body2'
-									sx={{ color: 'text.secondary', padding: '15px' }}
-								>
-									<TextWithFormatting text={isExpanded ? (offer.longDescription || '') : (offer.description || '')} />
-								</Typography>
+										<CardActions sx={{ justifyContent: 'space-between' }}>
+											<Button
+												size='small'
+												onClick={() => offer.offerAdvertisementId !== undefined && handleCopy(offer.offerAdvertisementId)}
+												sx={{
+													backgroundColor: '#232453',
+													color: 'white',
+													'&:hover': {
+														backgroundColor: '#33348A',
+													},
+												}}
+											>
+												Copy URL
+											</Button>
 
-							</CardContent>
+											<Button
+												size='small'
+												onClick={() =>
+													offer.offerAdvertisementId !== undefined && handleLearnMore(offer.offerAdvertisementId)
+												}
+												sx={{
+													backgroundColor: '#232453',
+													color: 'white',
+													'&:hover': {
+														backgroundColor: '#33348A',
+													},
+												}}
+											>
+												{isExpanded ? 'Show Less' : 'Learn More'}
+											</Button>
+										</CardActions>
+									</Card>
+								</Grid>
+							);
+						})}
+					</Grid>
 
-							<CardActions
-								sx={{
-									display: 'flex',
-									justifyContent: 'flex-end',
-									paddingRight: '15px',
-								}}
-							>
-								<Button
-									size='small'
-									onClick={() => company.companyId && handleCopy(company.companyId)}
-									sx={{
-										backgroundColor: '#232453',
-										color: 'white',
-										width: { xs: '40%', sm: '30%', md: '20%' },
-										'&:hover': {
-											backgroundColor: '#33348A',
-										},
-									}}
-								>
-									Copy URL
-								</Button>
-
-								<Button
-									size='small'
-									onClick={() =>
-										company.companyId &&
-										offer.offerAdvertisementId !== undefined && handleLearnMore(offer.offerAdvertisementId)
-									}
-									sx={{
-										backgroundColor: '#232453',
-										color: 'white',
-										width: { xs: '40%', sm: '30%', md: '30%' },
-										'&:hover': {
-											backgroundColor: '#33348A',
-										},
-									}}
-								>
-									{isExpanded ? 'Show Less' : 'Learn More'}
-								</Button>
-							</CardActions>
-						</Card>
-					);
-				});
-			})}
+					<Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
+						<Pagination
+							count={Math.ceil(offersData.totalCount / rowsPerPage)}
+							page={page}
+							onChange={handlePageChange}
+							color='primary'
+						/>
+					</Box>
+				</>
+			)}
 
 			<Snackbar
 				open={!!error}
 				autoHideDuration={6000}
 				onClose={() => setError(null)}
 			>
-				<Alert onClose={() => setError(null)} severity="error">
+				<Alert onClose={() => setError(null)} severity='error'>
 					{error}
 				</Alert>
 			</Snackbar>
-		</div>
+		</Box>
 	);
 }

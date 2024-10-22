@@ -27,6 +27,14 @@ namespace API.Controller.Offers
         }
 
         #region GET
+        [HttpGet("GetAllOffers")]
+        public async Task<IActionResult> GetAllOffers(string searchTerm = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _OfferService.GetAllOffers(searchTerm, page, pageSize);
+            return Ok(result);
+        }
+
+        
         [HttpGet("GetOfferByCompanyId")]
         public async Task<IActionResult> GetOfferByCompanyId(int CompanyId)
         {
