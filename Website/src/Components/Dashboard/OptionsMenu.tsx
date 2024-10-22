@@ -40,16 +40,10 @@ export default function OptionsMenu() {
 				throw new Error('Logout failed');
 			}
 		},
-		onSuccess: async () => {
-			await checkAuthStatus();
-			navigate('/login');
-		},
-		onError: (err: unknown) => {
-			console.error('Logout failed:', err);
-		},
 	});
 
 	const handleLogout = () => {
+		navigate('/login');
 		logoutMutation.mutate();
 	};
 

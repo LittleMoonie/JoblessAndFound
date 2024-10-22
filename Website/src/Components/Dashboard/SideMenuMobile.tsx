@@ -25,7 +25,7 @@ export default function SideMenuMobile({
 	open,
 	toggleDrawer,
 }: SideMenuMobileProps) {
-	const { checkAuthStatus, userFirstName, userLastName } = useAuth();
+	const {userFirstName, userLastName } = useAuth();
 
 	const navigate = useNavigate();
 
@@ -39,17 +39,11 @@ export default function SideMenuMobile({
 			if (!response.ok) {
 				throw new Error('Logout failed');
 			}
-		},
-		onSuccess: async () => {
-			await checkAuthStatus(); 
-			navigate('/login');
-		},
-		onError: (err: unknown) => {
-			console.error('Logout failed:', err);
-		},
+		}
 	});
 
 	const handleLogout = () => {
+		navigate('/login');
 		logoutMutation.mutate();
 	};
 

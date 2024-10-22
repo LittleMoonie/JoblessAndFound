@@ -33,7 +33,35 @@ namespace API.Controller.Offers
             var result = await _OfferService.GetAllOffers(searchTerm, page, pageSize);
             return Ok(result);
         }
+        
+        [HttpGet("HasUserApplied")]
+        public async Task<IActionResult> HasUserApplied(int offerId, int userId)
+        {
+            try
+            {
+                bool hasApplied = await _OfferService.HasUserApplied(offerId, userId);
+                return Ok(new { hasApplied });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
+
+        [HttpPost("ApplyForOffer")]
+        public async Task<IActionResult> ApplyForOffer(int offerId, int userId)
+        {
+            try
+            {
+                await _OfferService.ApplyForOffer(offerId, userId);
+                return Ok(new { message = "Successfully applied for the offer." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
         
         [HttpGet("GetOfferByCompanyId")]
         public async Task<IActionResult> GetOfferByCompanyId(int CompanyId)

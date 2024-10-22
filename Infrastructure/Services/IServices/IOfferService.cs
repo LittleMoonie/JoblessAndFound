@@ -12,5 +12,7 @@ namespace Infrastructure.Services.IServices
         Task AddOffer(OfferAdvertisementDTO offerDto);
         Task UpdateOffer(int offerId, OfferAdvertisementDTO updatedOfferDto);
         Task DeleteOffer(int offerId);
+        Task ApplyForOffer(int offerId, int userId);
+        Task<bool> HasUserApplied(int offerId, int userId);
     }
 }

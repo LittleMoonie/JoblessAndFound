@@ -19,6 +19,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useQuery } from '@tanstack/react-query';
 import TextWithFormatting from './TextWithFormattingProps';
 import { OfferAdvertisementDTO } from '../API/Api';
+import { useAuth } from '../Context/authContext'; // Import useAuth for user ID
 
 const formatDistanceToNow = (date: Date) => {
 	const now = new Date();
@@ -47,7 +48,11 @@ const formatDistanceToNow = (date: Date) => {
 	return `${Math.floor(seconds)} seconds ago`;
 };
 
-const fetchOffers = async (searchTerm: string, page: number, rowsPerPage: number) => {
+const fetchOffers = async (
+	searchTerm: string,
+	page: number,
+	rowsPerPage: number
+) => {
 	const response = await fetch(
 		`http://localhost:5000/api/Offer/GetAllOffers?searchTerm=${searchTerm}&page=${page}&pageSize=${rowsPerPage}`
 	);
@@ -61,13 +66,28 @@ const fetchOffers = async (searchTerm: string, page: number, rowsPerPage: number
 	};
 };
 
+const checkIfUserApplied = async (offerId: number, userId: number) => {
+	const response = await fetch(
+		`http://localhost:5000/api/Apply/HasUserApplied?offerId=${offerId}&userId=${userId}`
+	);
+	if (!response.ok) {
+		throw new Error('Error checking application status');
+	}
+	const result = await response.json();
+	return result.hasApplied;
+};
+
 export default function MediaCard() {
+	const { userId } = useAuth();
 	const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [searchParams] = useSearchParams();
 	const location = useLocation();
 	const [page, setPage] = useState(1);
-	const rowsPerPage = 10;
+	const rowsPerPage = 6;
+	const [appliedOffers, setAppliedOffers] = useState<{
+		[key: number]: boolean;
+	}>({});
 
 	const {
 		data: offersData = { data: [], totalCount: 0 },
@@ -96,6 +116,37 @@ export default function MediaCard() {
 		}
 	}, [location.search, offersData, searchParams]);
 
+	useEffect(() => {
+		const checkApplications = async () => {
+			if (offersData.data.length > 0 && userId) {
+				try {
+					// Create an array of promises that all execute concurrently
+					const appliedStatusPromises = offersData.data.map(
+						(offer: OfferAdvertisementDTO) =>
+							offer.offerAdvertisementId !== undefined &&
+							checkIfUserApplied(offer.offerAdvertisementId, userId)
+								.then((hasApplied) => ({
+									[String(offer.offerAdvertisementId)]: hasApplied,
+								}))
+								.catch(() => ({ [String(offer.offerAdvertisementId)]: false })) // Handle errors at individual level to prevent halting all
+					);
+
+					// Wait for all promises to resolve
+					const appliedStatusArray = await Promise.all(appliedStatusPromises);
+
+					// Convert array to an object
+					const appliedStatus = Object.assign({}, ...appliedStatusArray);
+					setAppliedOffers(appliedStatus);
+				} catch (err) {
+					console.error('Error while checking application statuses:', err);
+					setError('Error while checking application status.');
+				}
+			}
+		};
+
+		checkApplications();
+	}, [offersData, userId]);
+
 	const handleLearnMore = (offerId: number) => {
 		setExpandedCardId(expandedCardId === offerId ? null : offerId);
 	};
@@ -106,7 +157,31 @@ export default function MediaCard() {
 		alert('URL copied to clipboard!');
 	};
 
-	const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+	const handleApply = async (offerId: number) => {
+		try {
+			const response = await fetch(
+				`http://localhost:5000/api/Apply/ApplyForOffer?offerId=${offerId}&userId=${userId}`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+			if (!response.ok) {
+				throw new Error('Error applying for offer');
+			}
+			alert('Successfully applied for the offer.');
+			setAppliedOffers((prev) => ({ ...prev, [offerId]: true }));
+		} catch (err) {
+			setError('Failed to apply for the offer.');
+		}
+	};
+
+	const handlePageChange = (
+		event: React.ChangeEvent<unknown>,
+		value: number
+	) => {
 		setPage(value);
 	};
 
@@ -190,7 +265,8 @@ export default function MediaCard() {
 										<Button
 											size='small'
 											onClick={() =>
-												offer.offerAdvertisementId !== undefined && handleLearnMore(offer.offerAdvertisementId)
+												offer.offerAdvertisementId !== undefined &&
+												handleLearnMore(offer.offerAdvertisementId)
 											}
 											sx={{
 												backgroundColor: '#232453',
@@ -219,6 +295,10 @@ export default function MediaCard() {
 								? new Date(offer.createdAt)
 								: new Date();
 							const postedSince = formatDistanceToNow(itemDate);
+							const hasApplied =
+								offer.offerAdvertisementId !== undefined
+									? appliedOffers[offer.offerAdvertisementId] || false
+									: false;
 
 							return (
 								<Grid
@@ -274,37 +354,18 @@ export default function MediaCard() {
 
 											<Typography
 												variant='body2'
-												sx={{ color: 'text.secondary', marginTop: 1 }}
+												sx={{ color: 'text.secondary', marginTop: 2 }}
 											>
-												<TextWithFormatting
-													text={
-														isExpanded
-															? offer.longDescription || ''
-															: offer.description || ''
-													}
-												/>
+												<TextWithFormatting text={offer.description || ''} />
 											</Typography>
 										</CardContent>
 
 										<CardActions sx={{ justifyContent: 'space-between' }}>
 											<Button
 												size='small'
-												onClick={() => offer.offerAdvertisementId !== undefined && handleCopy(offer.offerAdvertisementId)}
-												sx={{
-													backgroundColor: '#232453',
-													color: 'white',
-													'&:hover': {
-														backgroundColor: '#33348A',
-													},
-												}}
-											>
-												Copy URL
-											</Button>
-
-											<Button
-												size='small'
 												onClick={() =>
-													offer.offerAdvertisementId !== undefined && handleLearnMore(offer.offerAdvertisementId)
+													offer.offerAdvertisementId !== undefined &&
+													handleLearnMore(offer.offerAdvertisementId)
 												}
 												sx={{
 													backgroundColor: '#232453',
@@ -316,32 +377,52 @@ export default function MediaCard() {
 											>
 												{isExpanded ? 'Show Less' : 'Learn More'}
 											</Button>
+											<Button
+												size='small'
+												onClick={() =>
+													offer.offerAdvertisementId !== undefined &&
+													handleCopy(offer.offerAdvertisementId)
+												}
+											>
+												Copy URL
+											</Button>
+											<Button
+												size='small'
+												disabled={hasApplied}
+												onClick={() =>
+													offer.offerAdvertisementId !== undefined &&
+													handleApply(offer.offerAdvertisementId)
+												}
+												sx={{
+													backgroundColor: hasApplied ? '#ccc' : '#232453',
+													color: 'white',
+													'&:hover': {
+														backgroundColor: hasApplied ? '#ccc' : '#33348A',
+													},
+												}}
+											>
+												{hasApplied ? 'Applied' : 'Apply'}
+											</Button>
 										</CardActions>
 									</Card>
 								</Grid>
 							);
 						})}
 					</Grid>
-
-					<Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-						<Pagination
-							count={Math.ceil(offersData.totalCount / rowsPerPage)}
-							page={page}
-							onChange={handlePageChange}
-							color='primary'
-						/>
-					</Box>
+					<Pagination
+						count={Math.ceil(offersData.totalCount / rowsPerPage)}
+						page={page}
+						onChange={handlePageChange}
+						sx={{ marginTop: 2, justifyContent: 'center' }}
+					/>
 				</>
 			)}
-
 			<Snackbar
 				open={!!error}
 				autoHideDuration={6000}
 				onClose={() => setError(null)}
 			>
-				<Alert onClose={() => setError(null)} severity='error'>
-					{error}
-				</Alert>
+				<Alert severity='error'>{error}</Alert>
 			</Snackbar>
 		</Box>
 	);

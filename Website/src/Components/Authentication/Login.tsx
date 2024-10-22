@@ -80,8 +80,8 @@ const Login: React.FC<{ disableCustomTheme?: boolean }> = (props) => {
 			return response.json();
 		},
 		onSuccess: async () => {
-			await checkAuthStatus(); 
 			navigate('/home');
+			await checkAuthStatus(); 
 		},
 		onError: (err: unknown) => {
 			setError('Login failed. Please check your credentials.');

@@ -12,11 +12,13 @@ namespace Infrastructure.Services
     public class OfferService : IOfferService
     {
         private readonly IRepository<Advertisement> offerRepository;
+        private readonly IRepository<JobApplication> jobApplicationRepository;
         private readonly IMapper mapper;
 
-        public OfferService(IRepository<Advertisement> offerRepository, IMapper mapper)
+        public OfferService(IRepository<Advertisement>offerRepository, IRepository<JobApplication> jobApplicationRepository, IMapper mapper)
         {
             this.offerRepository = offerRepository;
+            this.jobApplicationRepository = jobApplicationRepository;
             this.mapper = mapper;
         }
         
@@ -48,6 +50,18 @@ namespace Infrastructure.Services
             };
         }
 
+        public async Task<bool> HasUserApplied(int offerId, int userId)
+        {
+            if (offerId <= 0 || userId <= 0)
+            {
+                throw new ArgumentException("Offer ID and User ID must be greater than zero.");
+            }
+
+            var existingApplication = await jobApplicationRepository.FindAsync(a => a.AdId == offerId && a.ApplicantUserId == userId);
+            return existingApplication != null;
+        }
+
+        
         // Fetch offers by CompanyId
         public async Task<IEnumerable<OfferAdvertisementDTO>> GetOffersByCompanyId(int companyId)
         {
@@ -120,6 +134,31 @@ namespace Infrastructure.Services
             }
 
             await offerRepository.DeleteAsync(offer.Id);
+        }
+        
+        public async Task ApplyForOffer(int offerId, int userId)
+        {
+            if (offerId <= 0 || userId <= 0)
+            {
+                throw new ArgumentException("Offer ID and User ID must be greater than zero.");
+            }
+
+            var offer = await offerRepository.FindByIdAsync(offerId);
+            if (offer == null)
+            {
+                throw new NotFoundException($"Offer with ID {offerId} not found.");
+            }
+
+            var newApplication = new JobApplication()
+            {
+                Message = "I would like to apply!",
+                AdId = offerId,
+                ApplicantUserId = userId,
+                CreatedAt = DateTime.UtcNow,
+                StatusId = 1
+            };
+
+            await jobApplicationRepository.AddAsync(newApplication);
         }
     }
 }
