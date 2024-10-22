@@ -32,13 +32,12 @@ export interface OfferData {
 }
 
 const fetchOffers = async (
-	companyId: number,
 	searchTerm: string,
 	page: number,
 	rowsPerPage: number
 ) => {
 	const response = await fetch(
-		`http://localhost:5000/api/Offer/${companyId}?searchTerm=${searchTerm}&page=${page}&pageSize=${rowsPerPage}`
+		`http://localhost:5000/api/Offer/GetAllOffers?searchTerm=${searchTerm}&page=${page}&pageSize=${rowsPerPage}`
 	);
 	if (!response.ok) {
 		throw new Error('Error fetching offers');
@@ -50,7 +49,7 @@ const fetchOffers = async (
 	};
 };
 
-const ManageOffers = ({ companyId }: { companyId: number }) => {
+const ManageOffers = () => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -62,8 +61,8 @@ const ManageOffers = ({ companyId }: { companyId: number }) => {
 
 	// Fetch offers
 	const { data: offers, refetch } = useQuery({
-		queryKey: ['offers', companyId, page, searchTerm],
-		queryFn: () => fetchOffers(companyId, searchTerm, page, rowsPerPage),
+		queryKey: ['offers', page, searchTerm],
+		queryFn: () => fetchOffers(searchTerm, page, rowsPerPage),
 	});
 
 	const totalPages = offers ? Math.ceil(offers.totalCount / rowsPerPage) : 0;
@@ -151,6 +150,11 @@ const ManageOffers = ({ companyId }: { companyId: number }) => {
 		setPage(newPage);
 	};
 
+	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchTerm(event.target.value);
+		setPage(1); // Reset to first page when search term changes
+	};
+
 	return (
 		<Box sx={{ p: 2 }}>
 			{/* Back Button */}
@@ -175,7 +179,7 @@ const ManageOffers = ({ companyId }: { companyId: number }) => {
 				fullWidth
 				sx={{ mb: 2 }}
 				value={searchTerm}
-				onChange={(e) => setSearchTerm(e.target.value)}
+				onChange={handleSearchChange}
 				placeholder='Search by Title or Description'
 			/>
 
